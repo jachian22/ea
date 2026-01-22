@@ -1,0 +1,29 @@
+name: commitments
+description: Show pending and overdue commitments - what you owe and what others owe you
+prompt: |
+  Use the EA MCP tools to show the current state of all commitments.
+
+  Call these tools:
+  1. ea_get_commitments with overdue=true - Get all overdue items
+  2. ea_get_commitments with direction="user_owes", status=["pending", "in_progress"] - Things you owe
+  3. ea_get_commitments with direction="they_owe", status=["pending", "in_progress"] - Things owed to you
+
+  Present the commitments as:
+
+  **OVERDUE - Immediate Action Required**
+  - Items you owe (most urgent first)
+  - Items others owe you
+
+  **YOU OWE (Pending)**
+  - Sorted by due date, with person and context
+
+  **THEY OWE YOU (Pending)**
+  - Sorted by due date, with person and context
+
+  Include:
+  - Description and due date
+  - Who it's with
+  - Days overdue/until due
+  - Source (email, meeting, manual)
+
+  Highlight any items more than a week overdue.

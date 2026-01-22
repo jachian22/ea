@@ -1,0 +1,86 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Canonical Transaction Schema v1",
+    "type": "object",
+    "required": [
+      "source_id",
+      "account_id",
+      "transaction_id",
+      "posted_at",
+      "amount",
+      "currency",
+      "description",
+      "ingested_at",
+      "raw"
+    ],
+    "properties": {
+      "source_id": {
+        "type": "string",
+        "description": "Originating source identifier (e.g. chase, amex)."
+      },
+  
+      "account_id": {
+        "type": "string",
+        "description": "Stable internal account identifier."
+      },
+  
+      "transaction_id": {
+        "type": "string",
+        "description": "Stable transaction identifier or deterministic hash."
+      },
+  
+      "posted_at": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Posted date/time of the transaction."
+      },
+  
+      "amount": {
+        "type": "number",
+        "description": "Signed transaction amount. Debits are negative, credits positive."
+      },
+  
+      "currency": {
+        "type": "string",
+        "pattern": "^[A-Z]{3}$",
+        "description": "ISO 4217 currency code."
+      },
+  
+      "description": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Merchant or transaction description."
+      },
+  
+      "category": {
+        "type": ["string", "null"],
+        "description": "Optional source-provided category."
+      },
+  
+      "pending": {
+        "type": "boolean",
+        "default": false,
+        "description": "Whether the transaction is pending."
+      },
+  
+      "ingested_at": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Timestamp when this transaction was ingested."
+      },
+  
+      "extraction_run_id": {
+        "type": "string",
+        "description": "Identifier for the extraction run."
+      },
+  
+      "raw": {
+        "type": "object",
+        "description": "Original unmodified payload from the source.",
+        "additionalProperties": true
+      }
+    },
+  
+    "additionalProperties": false
+  }
+  

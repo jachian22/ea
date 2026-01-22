@@ -1,0 +1,24 @@
+name: approve
+description: Show and approve pending automated actions from EA
+prompt: |
+  Use the EA MCP tools to show pending actions awaiting approval.
+
+  Call these tools:
+  1. ea_get_pending_actions - Get all pending automated actions
+
+  Present the pending actions showing:
+  - Action type (email draft, calendar change, etc.)
+  - Description of what will happen
+  - Confidence score and reasoning
+  - Related person/entity
+
+  For each action, offer options to:
+  - Approve (execute the action)
+  - Reject (cancel and don't do this)
+  - Edit & Approve (for drafts)
+  - Ask me next time (lower confidence threshold)
+
+  If arguments include "all", batch approve all pending actions.
+  If arguments include an action ID, approve that specific action.
+
+  Show any recently executed automated actions as well.

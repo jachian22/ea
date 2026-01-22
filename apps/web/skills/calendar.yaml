@@ -1,0 +1,24 @@
+name: calendar
+description: Show today's schedule with meeting context and prep items
+prompt: |
+  Use the EA MCP tools to show today's calendar with full context.
+
+  Call these tools:
+  1. ea_get_calendar for today's date
+  2. For each meeting with attendees, optionally use ea_get_meeting_briefing
+
+  Present the schedule showing:
+  - Time and duration
+  - Meeting title
+  - Location or meeting link
+  - Attendees with their context (role, company, domain)
+  - Any commitments related to attendees
+  - Briefing status (if available)
+
+  For each meeting, highlight:
+  - Things you owe the attendees
+  - Things they owe you
+  - Recent interactions to reference
+  - Suggested prep or talking points
+
+  Flag any meetings that seem to conflict or need preparation.

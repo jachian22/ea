@@ -1,0 +1,45 @@
+{
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": [
+    "node_modules",
+    "**/components/Attachment*.tsx",
+    "**/components/Media*.tsx",
+    "**/components/Module*.tsx",
+    "**/components/PlanBadge.tsx",
+    "**/components/Portfolio*.tsx",
+    "**/components/PostForm.tsx",
+    "**/components/Pricing*.tsx",
+    "**/components/SubscriptionStatus.tsx",
+    "**/data-access/attachments.ts",
+    "**/data-access/comments.ts",
+    "**/data-access/conversations.ts",
+    "**/data-access/events.ts",
+    "**/data-access/hearts.ts",
+    "**/data-access/messages.ts",
+    "**/data-access/modules.ts",
+    "**/data-access/notifications.ts",
+    "**/data-access/portfolio.ts",
+    "**/data-access/posts.ts"
+  ],
+  "compilerOptions": {
+    "strict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "target": "ES2022",
+    "allowJs": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./src/*"]
+    },
+    "noEmit": true
+  }
+}

@@ -1,0 +1,1 @@
+ALTER TABLE "daily_brief" ADD COLUMN "weather" jsonb;

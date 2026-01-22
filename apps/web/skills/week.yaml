@@ -1,0 +1,19 @@
+name: week
+description: Get weekly summary from EA - upcoming meetings, commitments, and people to follow up with
+prompt: |
+  Use the EA MCP tools to provide a comprehensive weekly overview.
+
+  Call these tools:
+  1. ea_get_calendar with the next 7 days
+  2. ea_get_commitments with upcoming=7 - Get commitments due this week
+  3. ea_get_commitments with overdue=true - Get overdue items
+  4. ea_get_vip_contacts - Get high importance contacts to check on
+
+  Present the weekly summary as:
+  - Key meetings this week (with attendee context)
+  - Commitments due this week (prioritized)
+  - Overdue items to resolve
+  - VIP contacts you haven't connected with recently
+  - Any patterns or conflicts to be aware of
+
+  Group by domain (business/job/family/personal) if helpful.

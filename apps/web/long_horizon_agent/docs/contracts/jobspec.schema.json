@@ -1,0 +1,220 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Long Horizon Agent JobSpec",
+    "type": "object",
+    "required": [
+      "job_id",
+      "job_type",
+      "objective",
+      "time_zone",
+      "cadence",
+      "portfolio",
+      "output",
+      "constraints",
+      "review"
+    ],
+    "properties": {
+      "job_id": {
+        "type": "string",
+        "description": "Unique identifier for this JobSpec (UUID recommended)."
+      },
+  
+      "job_type": {
+        "type": "string",
+        "enum": [
+          "intake_research",
+          "bootstrap_source",
+          "bootstrap_portfolio",
+          "generate_and_test",
+          "repair_source"
+        ],
+        "description": "Type of job to execute."
+      },
+  
+      "objective": {
+        "type": "string",
+        "minLength": 10,
+        "description": "Human-readable description of the goal."
+      },
+  
+      "principal_id": {
+        "type": "string",
+        "default": "primary_user",
+        "description": "Single-user principal identifier."
+      },
+  
+      "time_zone": {
+        "type": "string",
+        "description": "IANA timezone name (e.g. America/New_York)."
+      },
+  
+      "cadence": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["none", "cron", "periodic"]
+          },
+          "expr": {
+            "type": "string",
+            "description": "Cron expression if type=cron."
+          },
+          "period_seconds": {
+            "type": "integer",
+            "minimum": 60,
+            "description": "Period in seconds if type=periodic."
+          }
+        },
+        "additionalProperties": false
+      },
+  
+      "portfolio": {
+        "type": "object",
+        "required": ["entities"],
+        "properties": {
+          "entities": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/definitions/sourceEntity"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+  
+      "output": {
+        "type": "object",
+        "required": ["schema_version", "formats", "storage"],
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "enum": ["tx_v1"],
+            "description": "Canonical transaction schema version."
+          },
+          "formats": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["jsonl", "parquet", "duckdb"]
+            },
+            "minItems": 1
+          },
+          "storage": {
+            "type": "object",
+            "required": ["raw_path", "normalized_path"],
+            "properties": {
+              "raw_path": {
+                "type": "string",
+                "description": "Destination for raw extracted artifacts."
+              },
+              "normalized_path": {
+                "type": "string",
+                "description": "Destination for normalized transaction outputs."
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+  
+      "constraints": {
+        "type": "object",
+        "properties": {
+          "max_runtime_seconds": {
+            "type": "integer",
+            "minimum": 60
+          },
+          "prefer_api_over_browser": {
+            "type": "boolean",
+            "default": true
+          },
+          "browser_automation": {
+            "type": "boolean",
+            "default": false
+          },
+          "prod_mode_restrict_bash": {
+            "type": "boolean",
+            "default": true
+          },
+          "no_public_opencode_serve": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "additionalProperties": false
+      },
+  
+      "review": {
+        "type": "object",
+        "required": ["required"],
+        "properties": {
+          "required": {
+            "type": "boolean",
+            "const": true,
+            "description": "All jobs require explicit human review."
+          }
+        },
+        "additionalProperties": false
+      },
+  
+      "metadata": {
+        "type": "object",
+        "description": "Optional metadata (timestamps, versioning, notes).",
+        "additionalProperties": true
+      }
+    },
+  
+    "definitions": {
+      "sourceEntity": {
+        "type": "object",
+        "required": [
+          "source_id",
+          "tier_hint",
+          "preferred_methods",
+          "lookback_days"
+        ],
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "description": "Identifier for the data source (e.g. chase, amex)."
+          },
+          "accounts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Optional list of account identifiers."
+          },
+          "tier_hint": {
+            "type": "integer",
+            "enum": [0, 1, 2, 3],
+            "description": "Expected access tier for this source."
+          },
+          "preferred_methods": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "enum": [
+                "official_api",
+                "oauth",
+                "csv_export",
+                "portal_playwright"
+              ]
+            }
+          },
+          "lookback_days": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+  
+    "additionalProperties": false
+  }
+  

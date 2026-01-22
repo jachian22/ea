@@ -1,0 +1,20 @@
+name: person
+description: Look up a person's full dossier - contact info, interaction history, commitments, and notes
+prompt: |
+  Use the EA MCP tools to look up information about the specified person.
+
+  If a name or search term is provided in the arguments:
+  1. Use ea_search_people to find matching people
+  2. If one clear match is found, use ea_get_person to get their full dossier
+  3. If multiple matches, list them and ask which one to show
+
+  Present the person's dossier including:
+  - Contact information (email, phone, company, role)
+  - Domain (business/job/family/personal)
+  - Relationship summary and importance
+  - Recent interactions (last 5)
+  - Open commitments (what you owe them and what they owe you)
+  - Communication patterns (preferred channel, response time)
+  - Personal notes and context
+
+  If no arguments provided, ask for a name or email to search.

@@ -1,0 +1,18 @@
+name: brief
+description: Get today's daily brief from EA - schedule, priority emails, commitments due, and insights
+prompt: |
+  Use the EA MCP tools to get today's daily brief and present it to me in a clear, actionable format.
+
+  Call these tools in sequence:
+  1. ea_get_daily_brief - Get the generated daily brief
+  2. ea_get_commitments with overdue=true - Get any overdue commitments
+  3. ea_get_commitments with upcoming=1 - Get commitments due today/tomorrow
+
+  Present the information as:
+  - Schedule overview for today
+  - Priority inbox items needing attention
+  - Commitments due today (separated by "you owe" and "they owe")
+  - Overdue items that need immediate action
+  - Any urgent insights or alerts
+
+  Highlight anything that requires immediate action.

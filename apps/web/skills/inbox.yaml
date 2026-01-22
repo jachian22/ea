@@ -1,0 +1,22 @@
+name: inbox
+description: Show priority inbox items - important emails that need attention
+prompt: |
+  Use the EA MCP tools to show the most important emails needing attention.
+
+  Call these tools:
+  1. ea_get_inbox with important=true, limit=20 - Get priority emails
+  2. ea_get_inbox with unread=true, limit=10 - Get recent unread
+
+  Present the inbox showing:
+  - Emails from VIP/high-importance contacts first
+  - Emails requiring action or response
+  - Recent unread emails
+
+  For each email, show:
+  - Sender (with their importance/domain if known)
+  - Subject
+  - Brief summary or preview
+  - When it was received
+  - Suggested priority (respond now / respond today / FYI)
+
+  Group by urgency if helpful. Highlight anything from VIP contacts.
