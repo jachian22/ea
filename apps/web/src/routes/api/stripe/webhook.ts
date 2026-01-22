@@ -22,6 +22,13 @@ export const Route = createFileRoute("/api/stripe/webhook")({
           );
         }
 
+        if (!stripe) {
+          return Response.json(
+            { error: "Stripe is not configured" },
+            { status: 500 }
+          );
+        }
+
         let event: any;
 
         try {
@@ -71,6 +78,10 @@ export const Route = createFileRoute("/api/stripe/webhook")({
 
 async function handleCheckoutCompleted(session: any) {
   console.log("Handling checkout completed:", session.id);
+
+  if (!stripe) {
+    throw new Error("Stripe is not configured");
+  }
 
   const subscription = await stripe.subscriptions.retrieve(
     session.subscription

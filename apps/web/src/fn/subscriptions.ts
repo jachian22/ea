@@ -67,6 +67,10 @@ export const createCheckoutSessionFn = createServerFn({ method: "POST" })
 
       let customerId = subscription.stripeCustomerId;
 
+      if (!stripe) {
+        throw new Error("Stripe is not configured");
+      }
+
       // Create Stripe customer if one doesn't exist
       if (!customerId) {
         const customer = await stripe.customers.create({
@@ -128,6 +132,10 @@ export const createPortalSessionFn = createServerFn({ method: "POST" })
         throw new Error("No subscription found");
       }
 
+      if (!stripe) {
+        throw new Error("Stripe is not configured");
+      }
+
       // Create customer portal session
       const session = await stripe.billingPortal.sessions.create({
         customer: subscription.stripeCustomerId,
@@ -162,6 +170,10 @@ export const cancelSubscriptionFn = createServerFn({ method: "POST" })
 
       if (!subscription || !subscription.subscriptionId) {
         throw new Error("No active subscription found");
+      }
+
+      if (!stripe) {
+        throw new Error("Stripe is not configured");
       }
 
       // Cancel subscription at period end
