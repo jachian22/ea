@@ -137,7 +137,7 @@ export interface FileRoutesByFullPath {
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
   '/api/webhooks/calendar': typeof ApiWebhooksCalendarRoute
   '/api/webhooks/gmail': typeof ApiWebhooksGmailRoute
-  '/profile/$userId': typeof ProfileUserIdIndexRoute
+  '/profile/$userId/': typeof ProfileUserIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -199,7 +199,7 @@ export interface FileRouteTypes {
     | '/api/stripe/webhook'
     | '/api/webhooks/calendar'
     | '/api/webhooks/gmail'
-    | '/profile/$userId'
+    | '/profile/$userId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -338,7 +338,7 @@ declare module '@tanstack/react-router' {
     '/profile/$userId/': {
       id: '/profile/$userId/'
       path: '/profile/$userId'
-      fullPath: '/profile/$userId'
+      fullPath: '/profile/$userId/'
       preLoaderRoute: typeof ProfileUserIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
