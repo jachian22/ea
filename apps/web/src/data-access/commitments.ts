@@ -1,5 +1,5 @@
-import { eq, and, desc, asc, lt, lte, gte, or, sql, count, isNull, ilike } from "drizzle-orm";
-import { database } from "~/db";
+import { eq, and, desc, asc, lt, lte, gte, or, sql, count, isNull, ilike } from 'drizzle-orm';
+import { database } from '~/db';
 import {
   commitment,
   commitmentReminder,
@@ -11,7 +11,7 @@ import {
   type CommitmentReminder,
   type CreateCommitmentReminderData,
   type Person,
-} from "~/db/schema";
+} from '~/db/schema';
 
 // ============================================================================
 // Commitment CRUD
@@ -20,13 +20,8 @@ import {
 /**
  * Create a new commitment
  */
-export async function createCommitment(
-  data: CreateCommitmentData
-): Promise<Commitment> {
-  const [newCommitment] = await database
-    .insert(commitment)
-    .values(data)
-    .returning();
+export async function createCommitment(data: CreateCommitmentData): Promise<Commitment> {
+  const [newCommitment] = await database.insert(commitment).values(data).returning();
 
   return newCommitment;
 }
@@ -34,14 +29,8 @@ export async function createCommitment(
 /**
  * Find commitment by ID
  */
-export async function findCommitmentById(
-  id: string
-): Promise<Commitment | null> {
-  const [result] = await database
-    .select()
-    .from(commitment)
-    .where(eq(commitment.id, id))
-    .limit(1);
+export async function findCommitmentById(id: string): Promise<Commitment | null> {
+  const [result] = await database.select().from(commitment).where(eq(commitment.id, id)).limit(1);
 
   return result || null;
 }
@@ -75,13 +64,12 @@ export async function findOpenCommitments(
   const results = await database
     .select()
     .from(commitment)
-    .where(and(
-      eq(commitment.userId, userId),
-      or(
-        eq(commitment.status, "pending"),
-        eq(commitment.status, "in_progress")
+    .where(
+      and(
+        eq(commitment.userId, userId),
+        or(eq(commitment.status, 'pending'), eq(commitment.status, 'in_progress'))
       )
-    ))
+    )
     .orderBy(asc(commitment.dueDate), desc(commitment.createdAt))
     .limit(limit);
 
@@ -96,17 +84,11 @@ export async function findCommitmentsUserOwes(
   includeCompleted: boolean = false,
   limit: number = 50
 ): Promise<Commitment[]> {
-  const conditions = [
-    eq(commitment.userId, userId),
-    eq(commitment.direction, "user_owes"),
-  ];
+  const conditions = [eq(commitment.userId, userId), eq(commitment.direction, 'user_owes')];
 
   if (!includeCompleted) {
     conditions.push(
-      or(
-        eq(commitment.status, "pending"),
-        eq(commitment.status, "in_progress")
-      ) as any
+      or(eq(commitment.status, 'pending'), eq(commitment.status, 'in_progress')) as any
     );
   }
 
@@ -128,17 +110,11 @@ export async function findCommitmentsOwedToUser(
   includeCompleted: boolean = false,
   limit: number = 50
 ): Promise<Commitment[]> {
-  const conditions = [
-    eq(commitment.userId, userId),
-    eq(commitment.direction, "they_owe"),
-  ];
+  const conditions = [eq(commitment.userId, userId), eq(commitment.direction, 'they_owe')];
 
   if (!includeCompleted) {
     conditions.push(
-      or(
-        eq(commitment.status, "pending"),
-        eq(commitment.status, "in_progress")
-      ) as any
+      or(eq(commitment.status, 'pending'), eq(commitment.status, 'in_progress')) as any
     );
   }
 
@@ -155,9 +131,7 @@ export async function findCommitmentsOwedToUser(
 /**
  * Find commitments due today
  */
-export async function findCommitmentsDueToday(
-  userId: string
-): Promise<Commitment[]> {
+export async function findCommitmentsDueToday(userId: string): Promise<Commitment[]> {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const tomorrow = new Date(today);
@@ -166,15 +140,14 @@ export async function findCommitmentsDueToday(
   const results = await database
     .select()
     .from(commitment)
-    .where(and(
-      eq(commitment.userId, userId),
-      gte(commitment.dueDate, today),
-      lt(commitment.dueDate, tomorrow),
-      or(
-        eq(commitment.status, "pending"),
-        eq(commitment.status, "in_progress")
+    .where(
+      and(
+        eq(commitment.userId, userId),
+        gte(commitment.dueDate, today),
+        lt(commitment.dueDate, tomorrow),
+        or(eq(commitment.status, 'pending'), eq(commitment.status, 'in_progress'))
       )
-    ))
+    )
     .orderBy(asc(commitment.dueDate));
 
   return results;
@@ -183,22 +156,19 @@ export async function findCommitmentsDueToday(
 /**
  * Find overdue commitments
  */
-export async function findOverdueCommitments(
-  userId: string
-): Promise<Commitment[]> {
+export async function findOverdueCommitments(userId: string): Promise<Commitment[]> {
   const now = new Date();
 
   const results = await database
     .select()
     .from(commitment)
-    .where(and(
-      eq(commitment.userId, userId),
-      lt(commitment.dueDate, now),
-      or(
-        eq(commitment.status, "pending"),
-        eq(commitment.status, "in_progress")
+    .where(
+      and(
+        eq(commitment.userId, userId),
+        lt(commitment.dueDate, now),
+        or(eq(commitment.status, 'pending'), eq(commitment.status, 'in_progress'))
       )
-    ))
+    )
     .orderBy(asc(commitment.dueDate));
 
   return results;
@@ -218,15 +188,14 @@ export async function findUpcomingCommitments(
   const results = await database
     .select()
     .from(commitment)
-    .where(and(
-      eq(commitment.userId, userId),
-      gte(commitment.dueDate, now),
-      lte(commitment.dueDate, future),
-      or(
-        eq(commitment.status, "pending"),
-        eq(commitment.status, "in_progress")
+    .where(
+      and(
+        eq(commitment.userId, userId),
+        gte(commitment.dueDate, now),
+        lte(commitment.dueDate, future),
+        or(eq(commitment.status, 'pending'), eq(commitment.status, 'in_progress'))
       )
-    ))
+    )
     .orderBy(asc(commitment.dueDate));
 
   return results;
@@ -243,10 +212,7 @@ export async function findCommitmentsByPersonId(
 
   if (!includeCompleted) {
     conditions.push(
-      or(
-        eq(commitment.status, "pending"),
-        eq(commitment.status, "in_progress")
-      ) as any
+      or(eq(commitment.status, 'pending'), eq(commitment.status, 'in_progress')) as any
     );
   }
 
@@ -288,7 +254,7 @@ export async function updateCommitmentStatus(
 ): Promise<Commitment | null> {
   const updateData: UpdateCommitmentData = { status };
 
-  if (status === "completed") {
+  if (status === 'completed') {
     updateData.completedAt = new Date();
     if (completionEvidence) {
       updateData.completionEvidence = completionEvidence;
@@ -302,10 +268,7 @@ export async function updateCommitmentStatus(
  * Delete a commitment
  */
 export async function deleteCommitment(id: string): Promise<boolean> {
-  const [deleted] = await database
-    .delete(commitment)
-    .where(eq(commitment.id, id))
-    .returning();
+  const [deleted] = await database.delete(commitment).where(eq(commitment.id, id)).returning();
 
   return deleted !== undefined;
 }
@@ -344,7 +307,7 @@ export async function getCommitmentCountsByStatus(
 // ============================================================================
 
 export type CommitmentWithPerson = Commitment & {
-  person: Pick<Person, "id" | "name" | "email" | "company" | "domain"> | null;
+  person: Pick<Person, 'id' | 'name' | 'email' | 'company' | 'domain'> | null;
 };
 
 /**
@@ -353,7 +316,7 @@ export type CommitmentWithPerson = Commitment & {
 export async function findCommitmentsWithPerson(
   userId: string,
   options: {
-    direction?: "user_owes" | "they_owe";
+    direction?: 'user_owes' | 'they_owe';
     status?: CommitmentStatus[];
     limit?: number;
     searchQuery?: string;
@@ -369,9 +332,7 @@ export async function findCommitmentsWithPerson(
   }
 
   if (status && status.length > 0) {
-    conditions.push(
-      or(...status.map((s) => eq(commitment.status, s))) as any
-    );
+    conditions.push(or(...status.map((s) => eq(commitment.status, s))) as any);
   }
 
   if (searchQuery) {
@@ -427,10 +388,7 @@ export async function findCommitmentsWithPerson(
 export async function createCommitmentReminder(
   data: CreateCommitmentReminderData
 ): Promise<CommitmentReminder> {
-  const [newReminder] = await database
-    .insert(commitmentReminder)
-    .values(data)
-    .returning();
+  const [newReminder] = await database.insert(commitmentReminder).values(data).returning();
 
   return newReminder;
 }
@@ -452,7 +410,7 @@ export async function createDefaultReminders(
       id: crypto.randomUUID(),
       commitmentId,
       remindAt: threeDaysBefore,
-      reminderType: "before_due",
+      reminderType: 'before_due',
       daysOffset: 3,
     });
   }
@@ -465,7 +423,7 @@ export async function createDefaultReminders(
       id: crypto.randomUUID(),
       commitmentId,
       remindAt: oneDayBefore,
-      reminderType: "before_due",
+      reminderType: 'before_due',
       daysOffset: 1,
     });
   }
@@ -476,7 +434,7 @@ export async function createDefaultReminders(
       id: crypto.randomUUID(),
       commitmentId,
       remindAt: dueDate,
-      reminderType: "before_due",
+      reminderType: 'before_due',
       daysOffset: 0,
     });
   }
@@ -485,10 +443,7 @@ export async function createDefaultReminders(
     return [];
   }
 
-  const created = await database
-    .insert(commitmentReminder)
-    .values(reminders)
-    .returning();
+  const created = await database.insert(commitmentReminder).values(reminders).returning();
 
   return created;
 }
@@ -502,10 +457,7 @@ export async function findPendingReminders(
   const results = await database
     .select()
     .from(commitmentReminder)
-    .where(and(
-      eq(commitmentReminder.isSent, false),
-      lte(commitmentReminder.remindAt, before)
-    ))
+    .where(and(eq(commitmentReminder.isSent, false), lte(commitmentReminder.remindAt, before)))
     .orderBy(asc(commitmentReminder.remindAt));
 
   return results;
@@ -514,9 +466,7 @@ export async function findPendingReminders(
 /**
  * Mark reminder as sent
  */
-export async function markReminderAsSent(
-  id: string
-): Promise<CommitmentReminder | null> {
+export async function markReminderAsSent(id: string): Promise<CommitmentReminder | null> {
   const [updated] = await database
     .update(commitmentReminder)
     .set({
@@ -532,9 +482,7 @@ export async function markReminderAsSent(
 /**
  * Delete reminders for a commitment
  */
-export async function deleteCommitmentReminders(
-  commitmentId: string
-): Promise<number> {
+export async function deleteCommitmentReminders(commitmentId: string): Promise<number> {
   const deleted = await database
     .delete(commitmentReminder)
     .where(eq(commitmentReminder.commitmentId, commitmentId))
@@ -552,7 +500,7 @@ export async function deleteCommitmentReminders(
  */
 export function isCommitmentOverdue(commitment: Commitment): boolean {
   if (!commitment.dueDate) return false;
-  if (commitment.status === "completed" || commitment.status === "cancelled") {
+  if (commitment.status === 'completed' || commitment.status === 'cancelled') {
     return false;
   }
   return commitment.dueDate < new Date();
@@ -575,26 +523,23 @@ export function getDaysFromDueDate(commitment: Commitment): number | null {
 /**
  * Format commitment for daily digest
  */
-export function formatCommitmentForDigest(
-  commitment: Commitment,
-  personName?: string
-): string {
+export function formatCommitmentForDigest(commitment: Commitment, personName?: string): string {
   const daysFromDue = getDaysFromDueDate(commitment);
-  let duePart = "";
+  let duePart = '';
 
   if (daysFromDue !== null) {
     if (daysFromDue < 0) {
       duePart = ` (${Math.abs(daysFromDue)} days overdue)`;
     } else if (daysFromDue === 0) {
-      duePart = " (due today)";
+      duePart = ' (due today)';
     } else if (daysFromDue === 1) {
-      duePart = " (due tomorrow)";
+      duePart = ' (due tomorrow)';
     } else {
       duePart = ` (due in ${daysFromDue} days)`;
     }
   }
 
-  const personPart = personName ? ` → ${personName}` : "";
+  const personPart = personName ? ` → ${personName}` : '';
 
   return `${commitment.description}${personPart}${duePart}`;
 }

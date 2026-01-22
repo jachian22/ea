@@ -1,20 +1,20 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { signInWithGoogle } from "~/lib/auth-client";
-import { Button } from "~/components/ui/button";
-import { LogIn, Shield, Calendar, Mail } from "lucide-react";
+import { createFileRoute } from '@tanstack/react-router';
+import { useState } from 'react';
+import { signInWithGoogle } from '~/lib/auth-client';
+import { Button } from '~/components/ui/button';
+import { LogIn, Shield, Calendar, Mail } from 'lucide-react';
 
 type SignInSearchParams = {
   redirect?: string;
   error?: string;
 };
 
-export const Route = createFileRoute("/sign-in")({
+export const Route = createFileRoute('/sign-in')({
   component: RouteComponent,
   validateSearch: (search: Record<string, unknown>): SignInSearchParams => {
     return {
-      redirect: typeof search.redirect === "string" ? search.redirect : undefined,
-      error: typeof search.error === "string" ? search.error : undefined,
+      redirect: typeof search.redirect === 'string' ? search.redirect : undefined,
+      error: typeof search.error === 'string' ? search.error : undefined,
     };
   },
 });
@@ -25,7 +25,7 @@ function RouteComponent() {
 
   const handleGoogleSignIn = () => {
     setIsLoading(true);
-    signInWithGoogle(redirect || "/dashboard");
+    signInWithGoogle(redirect || '/dashboard');
   };
 
   return (
@@ -58,15 +58,10 @@ function RouteComponent() {
               Your AI-Powered Daily Brief
             </h2>
             <p className="text-slate-600 dark:text-slate-300 text-lg opacity-75 max-w-md mx-auto">
-              Get intelligent summaries of your emails and calendar, delivered
-              fresh every morning.
+              Get intelligent summaries of your emails and calendar, delivered fresh every morning.
             </p>
 
-            <div
-              className="flex justify-center space-x-8 pt-8"
-              role="region"
-              aria-label="Features"
-            >
+            <div className="flex justify-center space-x-8 pt-8" role="region" aria-label="Features">
               <div className="text-center">
                 <div className="mx-auto mb-2 rounded-lg bg-blue-500/10 p-3 w-fit">
                   <Mail className="h-6 w-6 text-blue-600 dark:text-blue-400" />
@@ -108,9 +103,7 @@ function RouteComponent() {
       <div className="lg:p-8">
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[380px]">
           <div className="flex flex-col space-y-2 text-center">
-            <h1 className="text-2xl font-semibold tracking-tight animate-fadeInUp">
-              Welcome
-            </h1>
+            <h1 className="text-2xl font-semibold tracking-tight animate-fadeInUp">Welcome</h1>
             <p className="text-sm text-muted-foreground animate-fadeInUp animation-delay-100">
               Sign in with your Google account to continue
             </p>
@@ -152,12 +145,12 @@ function RouteComponent() {
                   />
                 </svg>
               )}
-              {isLoading ? "Signing in..." : "Continue with Google"}
+              {isLoading ? 'Signing in...' : 'Continue with Google'}
             </Button>
 
             <p className="text-xs text-center text-muted-foreground px-4">
-              By signing in, you agree to grant read-only access to your Gmail
-              and Calendar for generating your daily briefs.
+              By signing in, you agree to grant read-only access to your Gmail and Calendar for
+              generating your daily briefs.
             </p>
           </div>
         </div>

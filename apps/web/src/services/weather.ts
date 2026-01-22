@@ -69,34 +69,34 @@ interface OpenMeteoResponse {
  * https://open-meteo.com/en/docs
  */
 const WEATHER_CONDITIONS: Record<number, string> = {
-  0: "Clear sky",
-  1: "Mainly clear",
-  2: "Partly cloudy",
-  3: "Overcast",
-  45: "Foggy",
-  48: "Depositing rime fog",
-  51: "Light drizzle",
-  53: "Moderate drizzle",
-  55: "Dense drizzle",
-  56: "Light freezing drizzle",
-  57: "Dense freezing drizzle",
-  61: "Slight rain",
-  63: "Moderate rain",
-  65: "Heavy rain",
-  66: "Light freezing rain",
-  67: "Heavy freezing rain",
-  71: "Slight snow",
-  73: "Moderate snow",
-  75: "Heavy snow",
-  77: "Snow grains",
-  80: "Slight rain showers",
-  81: "Moderate rain showers",
-  82: "Violent rain showers",
-  85: "Slight snow showers",
-  86: "Heavy snow showers",
-  95: "Thunderstorm",
-  96: "Thunderstorm with slight hail",
-  99: "Thunderstorm with heavy hail",
+  0: 'Clear sky',
+  1: 'Mainly clear',
+  2: 'Partly cloudy',
+  3: 'Overcast',
+  45: 'Foggy',
+  48: 'Depositing rime fog',
+  51: 'Light drizzle',
+  53: 'Moderate drizzle',
+  55: 'Dense drizzle',
+  56: 'Light freezing drizzle',
+  57: 'Dense freezing drizzle',
+  61: 'Slight rain',
+  63: 'Moderate rain',
+  65: 'Heavy rain',
+  66: 'Light freezing rain',
+  67: 'Heavy freezing rain',
+  71: 'Slight snow',
+  73: 'Moderate snow',
+  75: 'Heavy snow',
+  77: 'Snow grains',
+  80: 'Slight rain showers',
+  81: 'Moderate rain showers',
+  82: 'Violent rain showers',
+  85: 'Slight snow showers',
+  86: 'Heavy snow showers',
+  95: 'Thunderstorm',
+  96: 'Thunderstorm with slight hail',
+  99: 'Thunderstorm with heavy hail',
 };
 
 /**
@@ -163,19 +163,19 @@ function generateDressRecommendation(
 
   // Temperature-based clothing
   if (temp < 32) {
-    recommendations.push("Heavy winter coat, layers, gloves, and hat");
+    recommendations.push('Heavy winter coat, layers, gloves, and hat');
   } else if (temp < 45) {
-    recommendations.push("Warm jacket and layers");
+    recommendations.push('Warm jacket and layers');
   } else if (temp < 55) {
-    recommendations.push("Light jacket or sweater");
+    recommendations.push('Light jacket or sweater');
   } else if (temp < 65) {
-    recommendations.push("Light layers, maybe a cardigan");
+    recommendations.push('Light layers, maybe a cardigan');
   } else if (temp < 75) {
-    recommendations.push("Comfortable casual wear");
+    recommendations.push('Comfortable casual wear');
   } else if (temp < 85) {
-    recommendations.push("Light, breathable clothing");
+    recommendations.push('Light, breathable clothing');
   } else {
-    recommendations.push("Light, loose clothing - stay cool");
+    recommendations.push('Light, loose clothing - stay cool');
   }
 
   // Rain/precipitation
@@ -184,18 +184,18 @@ function generateDressRecommendation(
   const isStormy = [95, 96, 99].includes(conditionCode);
 
   if (isRainy || isStormy || (precipProb && precipProb > 50)) {
-    recommendations.push("bring an umbrella");
+    recommendations.push('bring an umbrella');
   }
 
   if (isSnowy) {
-    recommendations.push("waterproof boots recommended");
+    recommendations.push('waterproof boots recommended');
   }
 
   // UV protection
   if (uvIndex && uvIndex >= 6) {
-    recommendations.push("sunscreen and sunglasses advised");
+    recommendations.push('sunscreen and sunglasses advised');
   } else if (uvIndex && uvIndex >= 3 && conditionCode <= 2) {
-    recommendations.push("consider sunglasses");
+    recommendations.push('consider sunglasses');
   }
 
   // Join recommendations
@@ -205,7 +205,7 @@ function generateDressRecommendation(
 
   // Capitalize first letter and join with proper punctuation
   const main = recommendations[0];
-  const extras = recommendations.slice(1).join(", ");
+  const extras = recommendations.slice(1).join(', ');
   return `${main} - ${extras}`;
 }
 
@@ -220,21 +220,18 @@ export async function fetchWeather(location: string): Promise<WeatherData> {
   const { latitude, longitude, name } = await geocodeLocation(location);
 
   // Fetch weather data
-  const weatherUrl = new URL("https://api.open-meteo.com/v1/forecast");
-  weatherUrl.searchParams.set("latitude", latitude.toString());
-  weatherUrl.searchParams.set("longitude", longitude.toString());
+  const weatherUrl = new URL('https://api.open-meteo.com/v1/forecast');
+  weatherUrl.searchParams.set('latitude', latitude.toString());
+  weatherUrl.searchParams.set('longitude', longitude.toString());
   weatherUrl.searchParams.set(
-    "current",
-    "temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m"
+    'current',
+    'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m'
   );
-  weatherUrl.searchParams.set(
-    "daily",
-    "uv_index_max,precipitation_probability_max"
-  );
-  weatherUrl.searchParams.set("temperature_unit", "fahrenheit");
-  weatherUrl.searchParams.set("wind_speed_unit", "mph");
-  weatherUrl.searchParams.set("timezone", "auto");
-  weatherUrl.searchParams.set("forecast_days", "1");
+  weatherUrl.searchParams.set('daily', 'uv_index_max,precipitation_probability_max');
+  weatherUrl.searchParams.set('temperature_unit', 'fahrenheit');
+  weatherUrl.searchParams.set('wind_speed_unit', 'mph');
+  weatherUrl.searchParams.set('timezone', 'auto');
+  weatherUrl.searchParams.set('forecast_days', '1');
 
   const response = await fetch(weatherUrl.toString());
   if (!response.ok) {
@@ -245,7 +242,7 @@ export async function fetchWeather(location: string): Promise<WeatherData> {
   const current = data.current;
 
   const conditionCode = current.weather_code;
-  const condition = WEATHER_CONDITIONS[conditionCode] || "Unknown";
+  const condition = WEATHER_CONDITIONS[conditionCode] || 'Unknown';
   const tempF = Math.round(current.temperature_2m);
   const tempC = Math.round(((current.temperature_2m - 32) * 5) / 9);
   const feelsLikeF = Math.round(current.apparent_temperature);
@@ -254,12 +251,7 @@ export async function fetchWeather(location: string): Promise<WeatherData> {
   const uvIndex = data.daily?.uv_index_max?.[0];
   const precipProb = data.daily?.precipitation_probability_max?.[0];
 
-  const recommendation = generateDressRecommendation(
-    tempF,
-    conditionCode,
-    precipProb,
-    uvIndex
-  );
+  const recommendation = generateDressRecommendation(tempF, conditionCode, precipProb, uvIndex);
 
   return {
     temperature: tempF,
@@ -286,7 +278,7 @@ export async function fetchWeather(location: string): Promise<WeatherData> {
  */
 export async function fetchWeatherForUser(
   userLocation: string | null | undefined,
-  defaultLocation = "New York"
+  defaultLocation = 'New York'
 ): Promise<WeatherData | null> {
   const location = userLocation || defaultLocation;
 
@@ -311,7 +303,7 @@ export function formatWeatherForBrief(weather: WeatherData): string {
   const feelsLike =
     weather.feelsLike && Math.abs(weather.feelsLike - weather.temperature) >= 3
       ? ` (feels like ${weather.feelsLike}°F)`
-      : "";
+      : '';
 
   return `${weather.temperature}°F${feelsLike}, ${weather.condition.toLowerCase()}`;
 }

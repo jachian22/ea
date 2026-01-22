@@ -1,11 +1,11 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Loader2, BookOpen } from "lucide-react";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import { Textarea } from "~/components/ui/textarea";
-import { Switch } from "~/components/ui/switch";
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Loader2, BookOpen } from 'lucide-react';
+import { Button } from '~/components/ui/button';
+import { Input } from '~/components/ui/input';
+import { Textarea } from '~/components/ui/textarea';
+import { Switch } from '~/components/ui/switch';
 import {
   Form,
   FormControl,
@@ -14,18 +14,15 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "~/components/ui/form";
+} from '~/components/ui/form';
 
 export const moduleFormSchema = z.object({
-  title: z
-    .string()
-    .min(1, "Title is required")
-    .max(200, "Title must be less than 200 characters"),
+  title: z.string().min(1, 'Title is required').max(200, 'Title must be less than 200 characters'),
   description: z
     .string()
-    .max(5000, "Description must be less than 5000 characters")
+    .max(5000, 'Description must be less than 5000 characters')
     .optional()
-    .or(z.literal("")),
+    .or(z.literal('')),
   isPublished: z.boolean(),
 });
 
@@ -51,16 +48,16 @@ export function ModuleForm({
   defaultValues,
   onSubmit,
   isPending = false,
-  submitLabel = "Create Module",
+  submitLabel = 'Create Module',
   submitIcon = <BookOpen className="h-4 w-4 mr-2" />,
   onCancel,
-  cancelLabel = "Cancel",
+  cancelLabel = 'Cancel',
 }: ModuleFormProps) {
   const form = useForm<ModuleFormData>({
     resolver: zodResolver(moduleFormSchema),
     defaultValues: {
-      title: "",
-      description: "",
+      title: '',
+      description: '',
       isPublished: false,
       ...defaultValues,
     },
@@ -76,10 +73,7 @@ export function ModuleForm({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(handleSubmit)}
-        className="space-y-6"
-      >
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="title"
@@ -94,9 +88,7 @@ export function ModuleForm({
                   {...field}
                 />
               </FormControl>
-              <FormDescription>
-                {field.value?.length || 0}/200 characters
-              </FormDescription>
+              <FormDescription>{field.value?.length || 0}/200 characters</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -107,9 +99,7 @@ export function ModuleForm({
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-base font-medium">
-                Description
-              </FormLabel>
+              <FormLabel className="text-base font-medium">Description</FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="Module description (optional)"
@@ -118,9 +108,7 @@ export function ModuleForm({
                   {...field}
                 />
               </FormControl>
-              <FormDescription>
-                {field.value?.length || 0}/5000 characters
-              </FormDescription>
+              <FormDescription>{field.value?.length || 0}/5000 characters</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -132,11 +120,10 @@ export function ModuleForm({
           render={({ field }) => (
             <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
               <div className="space-y-0.5">
-                <FormLabel className="text-base font-medium">
-                  Publish Module
-                </FormLabel>
+                <FormLabel className="text-base font-medium">Publish Module</FormLabel>
                 <FormDescription>
-                  Published modules are visible to all users. Draft modules are only visible to admins.
+                  Published modules are visible to all users. Draft modules are only visible to
+                  admins.
                 </FormDescription>
               </div>
               <FormControl>

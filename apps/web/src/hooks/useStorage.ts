@@ -1,14 +1,14 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import {
   getPresignedUploadUrlFn,
   getPresignedImageUploadUrlFn,
   updateUserProfileFn,
   getProfileImageUploadUrlFn,
-  getModuleContentUploadUrlFn
-} from "~/fn/storage";
-import { getImageUrlQuery } from "~/queries/storage";
-import { getErrorMessage } from "~/utils/error";
+  getModuleContentUploadUrlFn,
+} from '~/fn/storage';
+import { getImageUrlQuery } from '~/queries/storage';
+import { getErrorMessage } from '~/utils/error';
 
 // Query hooks
 export function useImageUrl(imageKey: string, enabled = true) {
@@ -21,10 +21,9 @@ export function useImageUrl(imageKey: string, enabled = true) {
 // Mutation hooks
 export function useGetPresignedUploadUrl() {
   return useMutation({
-    mutationFn: (videoKey: string) => 
-      getPresignedUploadUrlFn({ data: { videoKey } }),
+    mutationFn: (videoKey: string) => getPresignedUploadUrlFn({ data: { videoKey } }),
     onError: (error) => {
-      toast.error("Failed to get upload URL", {
+      toast.error('Failed to get upload URL', {
         description: getErrorMessage(error),
       });
     },
@@ -33,10 +32,9 @@ export function useGetPresignedUploadUrl() {
 
 export function useGetPresignedImageUploadUrl() {
   return useMutation({
-    mutationFn: (imageKey: string) => 
-      getPresignedImageUploadUrlFn({ data: { imageKey } }),
+    mutationFn: (imageKey: string) => getPresignedImageUploadUrlFn({ data: { imageKey } }),
     onError: (error) => {
-      toast.error("Failed to get image upload URL", {
+      toast.error('Failed to get image upload URL', {
         description: getErrorMessage(error),
       });
     },
@@ -45,21 +43,20 @@ export function useGetPresignedImageUploadUrl() {
 
 export function useUpdateUserProfile() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (data: { name?: string; image?: string }) =>
-      updateUserProfileFn({ data }),
+    mutationFn: (data: { name?: string; image?: string }) => updateUserProfileFn({ data }),
     onSuccess: () => {
-      toast.success("Profile updated successfully!", {
-        description: "Your profile changes have been saved.",
+      toast.success('Profile updated successfully!', {
+        description: 'Your profile changes have been saved.',
       });
-      
+
       // Invalidate user-related queries
-      queryClient.invalidateQueries({ queryKey: ["user"] });
-      queryClient.invalidateQueries({ queryKey: ["profile"] });
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
     },
     onError: (error) => {
-      toast.error("Failed to update profile", {
+      toast.error('Failed to update profile', {
         description: getErrorMessage(error),
       });
     },
@@ -71,7 +68,7 @@ export function useGetProfileImageUploadUrl() {
     mutationFn: (data: { fileName: string; contentType: string }) =>
       getProfileImageUploadUrlFn({ data }),
     onError: (error) => {
-      toast.error("Failed to get profile image upload URL", {
+      toast.error('Failed to get profile image upload URL', {
         description: getErrorMessage(error),
       });
     },
@@ -84,7 +81,7 @@ export function useGetUploadUrl() {
     mutationFn: (data: { fileName: string; fileType: string; folder?: string }) =>
       getModuleContentUploadUrlFn({ data }),
     onError: (error) => {
-      toast.error("Failed to get upload URL", {
+      toast.error('Failed to get upload URL', {
         description: getErrorMessage(error),
       });
     },
@@ -107,7 +104,7 @@ export function useFileUpload() {
   const getImageUploadUrl = useGetPresignedImageUploadUrl();
   const getProfileImageUploadUrl = useGetProfileImageUploadUrl();
   const updateProfile = useUpdateUserProfile();
-  
+
   const uploadFile = async (file: File, uploadUrl: string) => {
     const response = await fetch(uploadUrl, {
       method: 'PUT',
@@ -116,19 +113,19 @@ export function useFileUpload() {
         'Content-Type': file.type,
       },
     });
-    
+
     if (!response.ok) {
       throw new Error(`Upload failed: ${response.statusText}`);
     }
-    
+
     return response;
   };
-  
+
   const invalidateImageData = (imageKey: string) => {
     const queryClient = useQueryClient();
-    queryClient.invalidateQueries({ queryKey: ["image-url", imageKey] });
+    queryClient.invalidateQueries({ queryKey: ['image-url', imageKey] });
   };
-  
+
   return {
     getVideoUploadUrl,
     getImageUploadUrl,
@@ -136,9 +133,10 @@ export function useFileUpload() {
     updateProfile,
     uploadFile,
     invalidateImageData,
-    isLoading: getVideoUploadUrl.isPending || 
-               getImageUploadUrl.isPending || 
-               getProfileImageUploadUrl.isPending || 
-               updateProfile.isPending,
+    isLoading:
+      getVideoUploadUrl.isPending ||
+      getImageUploadUrl.isPending ||
+      getProfileImageUploadUrl.isPending ||
+      updateProfile.isPending,
   };
 }

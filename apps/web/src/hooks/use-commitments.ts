@@ -1,24 +1,20 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import {
   commitmentsQueryOptions,
   commitmentByIdQueryOptions,
   commitmentStatsQueryOptions,
-} from "~/queries/commitments";
-import {
-  createCommitmentFn,
-  updateCommitmentFn,
-  deleteCommitmentFn,
-} from "~/fn/commitments";
-import { authClient } from "~/lib/auth-client";
-import { getErrorMessage } from "~/utils/error";
-import type { CommitmentStatus } from "~/db/schema";
+} from '~/queries/commitments';
+import { createCommitmentFn, updateCommitmentFn, deleteCommitmentFn } from '~/fn/commitments';
+import { authClient } from '~/lib/auth-client';
+import { getErrorMessage } from '~/utils/error';
+import type { CommitmentStatus } from '~/db/schema';
 
 /**
  * Hook to get commitments with a specific filter
  */
 export function useCommitments(
-  filter: "all" | "open" | "user_owes" | "they_owe" | "due_today" | "overdue" | "upcoming" = "open"
+  filter: 'all' | 'open' | 'user_owes' | 'they_owe' | 'due_today' | 'overdue' | 'upcoming' = 'open'
 ) {
   const { data: session } = authClient.useSession();
   const isAuthenticated = !!session?.user;
@@ -64,25 +60,25 @@ export function useCreateCommitment() {
   return useMutation({
     mutationFn: (data: {
       description: string;
-      direction: "user_owes" | "they_owe";
+      direction: 'user_owes' | 'they_owe';
       personEmail?: string;
       personName?: string;
       dueDate?: string;
-      priority?: "high" | "medium" | "low";
+      priority?: 'high' | 'medium' | 'low';
       createReminders?: boolean;
     }) => createCommitmentFn({ data }),
     onSuccess: (result) => {
       if (result.success) {
-        toast.success("Commitment created", {
-          description: "Your commitment has been added.",
+        toast.success('Commitment created', {
+          description: 'Your commitment has been added.',
         });
-        queryClient.invalidateQueries({ queryKey: ["commitments"] });
+        queryClient.invalidateQueries({ queryKey: ['commitments'] });
       } else {
-        toast.error(result.error || "Failed to create commitment");
+        toast.error(result.error || 'Failed to create commitment');
       }
     },
     onError: (error) => {
-      toast.error("Failed to create commitment", {
+      toast.error('Failed to create commitment', {
         description: getErrorMessage(error),
       });
     },
@@ -100,26 +96,26 @@ export function useUpdateCommitment() {
       id: string;
       description?: string;
       dueDate?: string | null;
-      priority?: "high" | "medium" | "low";
+      priority?: 'high' | 'medium' | 'low';
       status?: CommitmentStatus;
       completionEvidence?: string;
     }) => updateCommitmentFn({ data }),
     onSuccess: (result, variables) => {
       if (result.success) {
-        if (variables.status === "completed") {
-          toast.success("Commitment completed!", {
-            description: "Great job following through.",
+        if (variables.status === 'completed') {
+          toast.success('Commitment completed!', {
+            description: 'Great job following through.',
           });
         } else {
-          toast.success("Commitment updated");
+          toast.success('Commitment updated');
         }
-        queryClient.invalidateQueries({ queryKey: ["commitments"] });
+        queryClient.invalidateQueries({ queryKey: ['commitments'] });
       } else {
-        toast.error(result.error || "Failed to update commitment");
+        toast.error(result.error || 'Failed to update commitment');
       }
     },
     onError: (error) => {
-      toast.error("Failed to update commitment", {
+      toast.error('Failed to update commitment', {
         description: getErrorMessage(error),
       });
     },
@@ -136,14 +132,14 @@ export function useDeleteCommitment() {
     mutationFn: (id: string) => deleteCommitmentFn({ data: { id } }),
     onSuccess: (result) => {
       if (result.success) {
-        toast.success("Commitment deleted");
-        queryClient.invalidateQueries({ queryKey: ["commitments"] });
+        toast.success('Commitment deleted');
+        queryClient.invalidateQueries({ queryKey: ['commitments'] });
       } else {
-        toast.error(result.error || "Failed to delete commitment");
+        toast.error(result.error || 'Failed to delete commitment');
       }
     },
     onError: (error) => {
-      toast.error("Failed to delete commitment", {
+      toast.error('Failed to delete commitment', {
         description: getErrorMessage(error),
       });
     },
@@ -156,9 +152,9 @@ export function useDeleteCommitment() {
 export function useCommitmentManagement() {
   const queryClient = useQueryClient();
   const statsQuery = useCommitmentStats();
-  const openCommitmentsQuery = useCommitments("open");
-  const dueTodayQuery = useCommitments("due_today");
-  const overdueQuery = useCommitments("overdue");
+  const openCommitmentsQuery = useCommitments('open');
+  const dueTodayQuery = useCommitments('due_today');
+  const overdueQuery = useCommitments('overdue');
 
   const createMutation = useCreateCommitment();
   const updateMutation = useUpdateCommitment();
@@ -167,9 +163,7 @@ export function useCommitmentManagement() {
   return {
     // Data
     stats: statsQuery.data?.success ? statsQuery.data.data : null,
-    openCommitments: openCommitmentsQuery.data?.success
-      ? openCommitmentsQuery.data.data
-      : [],
+    openCommitments: openCommitmentsQuery.data?.success ? openCommitmentsQuery.data.data : [],
     dueToday: dueTodayQuery.data?.success ? dueTodayQuery.data.data : [],
     overdue: overdueQuery.data?.success ? overdueQuery.data.data : [],
 
@@ -181,10 +175,7 @@ export function useCommitmentManagement() {
 
     // Error states
     error:
-      statsQuery.error ||
-      openCommitmentsQuery.error ||
-      dueTodayQuery.error ||
-      overdueQuery.error,
+      statsQuery.error || openCommitmentsQuery.error || dueTodayQuery.error || overdueQuery.error,
 
     // Actions
     createCommitment: createMutation.mutate,
@@ -201,7 +192,7 @@ export function useCommitmentManagement() {
 
     // Refresh
     refresh: () => {
-      queryClient.invalidateQueries({ queryKey: ["commitments"] });
+      queryClient.invalidateQueries({ queryKey: ['commitments'] });
     },
   };
 }

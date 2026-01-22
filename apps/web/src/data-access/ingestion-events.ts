@@ -1,11 +1,11 @@
-import { database } from "~/db";
-import { ingestionEvent } from "~/db/schema";
+import { database } from '~/db';
+import { ingestionEvent } from '~/db/schema';
 import type {
   IngestionEvent,
   CreateIngestionEventData,
   UpdateIngestionEventData,
-} from "~/db/schema";
-import { eq, and, desc, gte, sql } from "drizzle-orm";
+} from '~/db/schema';
+import { eq, and, desc, gte, sql } from 'drizzle-orm';
 
 // ============================================================================
 // Ingestion Event Data Access Layer
@@ -17,23 +17,15 @@ import { eq, and, desc, gte, sql } from "drizzle-orm";
 export async function createIngestionEvent(
   data: CreateIngestionEventData
 ): Promise<IngestionEvent> {
-  const [result] = await database
-    .insert(ingestionEvent)
-    .values(data)
-    .returning();
+  const [result] = await database.insert(ingestionEvent).values(data).returning();
   return result;
 }
 
 /**
  * Find an ingestion event by ID
  */
-export async function findIngestionEventById(
-  id: string
-): Promise<IngestionEvent | null> {
-  const [result] = await database
-    .select()
-    .from(ingestionEvent)
-    .where(eq(ingestionEvent.id, id));
+export async function findIngestionEventById(id: string): Promise<IngestionEvent | null> {
+  const [result] = await database.select().from(ingestionEvent).where(eq(ingestionEvent.id, id));
   return result || null;
 }
 
@@ -55,18 +47,11 @@ export async function findIngestionEventsByUserId(
 /**
  * Find pending ingestion events for a user
  */
-export async function findPendingIngestionEvents(
-  userId: string
-): Promise<IngestionEvent[]> {
+export async function findPendingIngestionEvents(userId: string): Promise<IngestionEvent[]> {
   return database
     .select()
     .from(ingestionEvent)
-    .where(
-      and(
-        eq(ingestionEvent.userId, userId),
-        eq(ingestionEvent.status, "pending")
-      )
-    )
+    .where(and(eq(ingestionEvent.userId, userId), eq(ingestionEvent.status, 'pending')))
     .orderBy(ingestionEvent.createdAt);
 }
 
@@ -75,7 +60,7 @@ export async function findPendingIngestionEvents(
  */
 export async function findDuplicateIngestionEvent(
   userId: string,
-  source: IngestionEvent["source"],
+  source: IngestionEvent['source'],
   externalId: string
 ): Promise<IngestionEvent | null> {
   const [result] = await database
@@ -111,10 +96,8 @@ export async function updateIngestionEvent(
 /**
  * Mark ingestion event as processing
  */
-export async function markIngestionEventProcessing(
-  id: string
-): Promise<IngestionEvent | null> {
-  return updateIngestionEvent(id, { status: "processing" });
+export async function markIngestionEventProcessing(id: string): Promise<IngestionEvent | null> {
+  return updateIngestionEvent(id, { status: 'processing' });
 }
 
 /**
@@ -129,7 +112,7 @@ export async function markIngestionEventCompleted(
   }
 ): Promise<IngestionEvent | null> {
   return updateIngestionEvent(id, {
-    status: "completed",
+    status: 'completed',
     processedAt: new Date(),
     personsCreated: results.personsCreated,
     interactionsCreated: results.interactionsCreated,
@@ -145,7 +128,7 @@ export async function markIngestionEventFailed(
   errorMessage: string
 ): Promise<IngestionEvent | null> {
   return updateIngestionEvent(id, {
-    status: "failed",
+    status: 'failed',
     errorMessage,
     processedAt: new Date(),
   });
@@ -154,11 +137,9 @@ export async function markIngestionEventFailed(
 /**
  * Mark ingestion event as duplicate
  */
-export async function markIngestionEventDuplicate(
-  id: string
-): Promise<IngestionEvent | null> {
+export async function markIngestionEventDuplicate(id: string): Promise<IngestionEvent | null> {
   return updateIngestionEvent(id, {
-    status: "duplicate",
+    status: 'duplicate',
     processedAt: new Date(),
   });
 }
@@ -184,12 +165,7 @@ export async function getIngestionStatistics(
   const events = await database
     .select()
     .from(ingestionEvent)
-    .where(
-      and(
-        eq(ingestionEvent.userId, userId),
-        gte(ingestionEvent.createdAt, since)
-      )
-    );
+    .where(and(eq(ingestionEvent.userId, userId), gte(ingestionEvent.createdAt, since)));
 
   const stats = {
     totalEvents: events.length,
@@ -202,11 +178,11 @@ export async function getIngestionStatistics(
   };
 
   for (const event of events) {
-    if (event.status === "pending" || event.status === "processing") {
+    if (event.status === 'pending' || event.status === 'processing') {
       stats.pendingEvents++;
-    } else if (event.status === "completed") {
+    } else if (event.status === 'completed') {
       stats.completedEvents++;
-    } else if (event.status === "failed") {
+    } else if (event.status === 'failed') {
       stats.failedEvents++;
     }
 
@@ -230,12 +206,7 @@ export async function cleanupOldIngestionEvents(
 
   const result = await database
     .delete(ingestionEvent)
-    .where(
-      and(
-        eq(ingestionEvent.userId, userId),
-        sql`${ingestionEvent.createdAt} < ${cutoff}`
-      )
-    );
+    .where(and(eq(ingestionEvent.userId, userId), sql`${ingestionEvent.createdAt} < ${cutoff}`));
 
   return result.rowCount || 0;
 }

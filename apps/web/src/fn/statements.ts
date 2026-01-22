@@ -1,6 +1,6 @@
-import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
-import { authenticatedMiddleware } from "./middleware";
+import { createServerFn } from '@tanstack/react-start';
+import { z } from 'zod';
+import { authenticatedMiddleware } from './middleware';
 import {
   findStatementRunsByUserId,
   findLatestStatementRun,
@@ -8,7 +8,7 @@ import {
   findBankAccountsByUserId,
   getStatementRunStats,
   getStatementCountsByBank,
-} from "~/data-access/statements";
+} from '~/data-access/statements';
 
 /**
  * Gets the statement runs history for the authenticated user.
@@ -19,7 +19,7 @@ import {
  * @param limit Maximum number of runs to return (default: 20)
  * @returns Array of past runs (most recent first)
  */
-export const getStatementRunsFn = createServerFn({ method: "GET" })
+export const getStatementRunsFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z
       .object({
@@ -49,14 +49,11 @@ export const getStatementRunsFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get statement runs:", error);
+      console.error('Failed to get statement runs:', error);
       return {
         success: false,
         data: null,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to get statement runs",
+        error: error instanceof Error ? error.message : 'Failed to get statement runs',
       };
     }
   });
@@ -69,7 +66,7 @@ export const getStatementRunsFn = createServerFn({ method: "GET" })
  *
  * @returns The latest run or null if none exists
  */
-export const getLatestStatementRunFn = createServerFn({ method: "GET" })
+export const getLatestStatementRunFn = createServerFn({ method: 'GET' })
   .middleware([authenticatedMiddleware])
   .handler(async ({ context }) => {
     const { userId } = context;
@@ -99,14 +96,11 @@ export const getLatestStatementRunFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get latest statement run:", error);
+      console.error('Failed to get latest statement run:', error);
       return {
         success: false,
         data: null,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to get latest statement run",
+        error: error instanceof Error ? error.message : 'Failed to get latest statement run',
       };
     }
   });
@@ -120,7 +114,7 @@ export const getLatestStatementRunFn = createServerFn({ method: "GET" })
  * @param limit Maximum number of statements to return (default: 100)
  * @returns Array of statements with account info
  */
-export const getStatementsFn = createServerFn({ method: "GET" })
+export const getStatementsFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z
       .object({
@@ -155,12 +149,11 @@ export const getStatementsFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get statements:", error);
+      console.error('Failed to get statements:', error);
       return {
         success: false,
         data: null,
-        error:
-          error instanceof Error ? error.message : "Failed to get statements",
+        error: error instanceof Error ? error.message : 'Failed to get statements',
       };
     }
   });
@@ -173,7 +166,7 @@ export const getStatementsFn = createServerFn({ method: "GET" })
  *
  * @returns Array of bank accounts
  */
-export const getBankAccountsFn = createServerFn({ method: "GET" })
+export const getBankAccountsFn = createServerFn({ method: 'GET' })
   .middleware([authenticatedMiddleware])
   .handler(async ({ context }) => {
     const { userId } = context;
@@ -195,14 +188,11 @@ export const getBankAccountsFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get bank accounts:", error);
+      console.error('Failed to get bank accounts:', error);
       return {
         success: false,
         data: null,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to get bank accounts",
+        error: error instanceof Error ? error.message : 'Failed to get bank accounts',
       };
     }
   });
@@ -215,7 +205,7 @@ export const getBankAccountsFn = createServerFn({ method: "GET" })
  *
  * @returns Statistics object
  */
-export const getStatementStatsFn = createServerFn({ method: "GET" })
+export const getStatementStatsFn = createServerFn({ method: 'GET' })
   .middleware([authenticatedMiddleware])
   .handler(async ({ context }) => {
     const { userId } = context;
@@ -238,14 +228,11 @@ export const getStatementStatsFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get statement stats:", error);
+      console.error('Failed to get statement stats:', error);
       return {
         success: false,
         data: null,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to get statement stats",
+        error: error instanceof Error ? error.message : 'Failed to get statement stats',
       };
     }
   });

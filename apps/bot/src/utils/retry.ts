@@ -117,7 +117,11 @@ export const GoogleAPIErrorCheckers = {
     const apiError = error as { code?: number; message?: string };
     if (apiError.code === 403) {
       const message = apiError.message?.toLowerCase() ?? '';
-      return message.includes('quota') || message.includes('rate limit') || message.includes('user rate limit');
+      return (
+        message.includes('quota') ||
+        message.includes('rate limit') ||
+        message.includes('user rate limit')
+      );
     }
     return false;
   },
@@ -168,9 +172,13 @@ export function createGoogleAPIRetryChecker(): (error: unknown) => boolean {
 /**
  * Creates an onRetry callback that logs retry attempts
  */
-export function createRetryLogger(serviceName: string): (error: unknown, attempt: number, delayMs: number) => void {
+export function createRetryLogger(
+  serviceName: string
+): (error: unknown, attempt: number, delayMs: number) => void {
   return (error: unknown, attempt: number, delayMs: number) => {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    console.warn(`[${serviceName}] Retry attempt ${attempt} after ${Math.round(delayMs)}ms due to: ${errorMessage}`);
+    console.warn(
+      `[${serviceName}] Retry attempt ${attempt} after ${Math.round(delayMs)}ms due to: ${errorMessage}`
+    );
   };
 }

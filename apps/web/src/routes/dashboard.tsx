@@ -1,24 +1,19 @@
-import {
-  createFileRoute,
-  Link,
-  Outlet,
-  useRouterState,
-} from "@tanstack/react-router";
-import { cn } from "~/lib/utils";
-import { LayoutDashboard, ChevronLeft, ChevronRight, Sun, FileText } from "lucide-react";
-import { getSession } from "~/lib/auth-client";
-import { redirect } from "@tanstack/react-router";
-import { DashboardBackground } from "~/components/DashboardBackground";
-import { useState } from "react";
-import { Button } from "~/components/ui/button";
+import { createFileRoute, Link, Outlet, useRouterState } from '@tanstack/react-router';
+import { cn } from '~/lib/utils';
+import { LayoutDashboard, ChevronLeft, ChevronRight, Sun, FileText } from 'lucide-react';
+import { getSession } from '~/lib/auth-client';
+import { redirect } from '@tanstack/react-router';
+import { DashboardBackground } from '~/components/DashboardBackground';
+import { useState } from 'react';
+import { Button } from '~/components/ui/button';
 
-export const Route = createFileRoute("/dashboard")({
+export const Route = createFileRoute('/dashboard')({
   beforeLoad: async () => {
     const session = await getSession();
     if (!session?.user) {
       throw redirect({
-        to: "/sign-in",
-        search: { redirect: "/dashboard" },
+        to: '/sign-in',
+        search: { redirect: '/dashboard' },
       });
     }
   },
@@ -33,18 +28,18 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   {
-    title: "Overview",
-    href: "/dashboard",
+    title: 'Overview',
+    href: '/dashboard',
     icon: LayoutDashboard,
   },
   {
-    title: "Daily Brief",
-    href: "/dashboard/brief",
+    title: 'Daily Brief',
+    href: '/dashboard/brief',
     icon: Sun,
   },
   {
-    title: "Statements",
-    href: "/dashboard/statements",
+    title: 'Statements',
+    href: '/dashboard/statements',
     icon: FileText,
   },
 ];
@@ -61,14 +56,14 @@ function DashboardLayout() {
       {/* Sidebar */}
       <aside
         className={cn(
-          "hidden md:flex flex-col border-r border-white/5 bg-background/30 backdrop-blur-md supports-backdrop-filter:bg-background/20 z-20 transition-all duration-300 ease-in-out",
-          isCollapsed ? "w-20" : "w-64"
+          'hidden md:flex flex-col border-r border-white/5 bg-background/30 backdrop-blur-md supports-backdrop-filter:bg-background/20 z-20 transition-all duration-300 ease-in-out',
+          isCollapsed ? 'w-20' : 'w-64'
         )}
       >
         <div
           className={cn(
-            "flex items-center p-4 pb-2",
-            isCollapsed ? "justify-center" : "justify-end"
+            'flex items-center p-4 pb-2',
+            isCollapsed ? 'justify-center' : 'justify-end'
           )}
         >
           <Button
@@ -88,8 +83,8 @@ function DashboardLayout() {
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive =
-              item.href === "/dashboard"
-                ? currentPath === "/dashboard"
+              item.href === '/dashboard'
+                ? currentPath === '/dashboard'
                 : currentPath.startsWith(item.href);
 
             return (
@@ -97,20 +92,15 @@ function DashboardLayout() {
                 key={item.href}
                 to={item.href}
                 className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
+                  'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200',
                   isActive
-                    ? "bg-primary/20 text-primary border border-primary/20 shadow-[0_0_20px_rgba(var(--primary),0.1)]"
-                    : "text-muted-foreground hover:text-foreground hover:bg-white/5",
-                  isCollapsed && "justify-center px-2"
+                    ? 'bg-primary/20 text-primary border border-primary/20 shadow-[0_0_20px_rgba(var(--primary),0.1)]'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-white/5',
+                  isCollapsed && 'justify-center px-2'
                 )}
                 title={isCollapsed ? item.title : undefined}
               >
-                <Icon
-                  className={cn(
-                    "h-5 w-5 transition-transform",
-                    isActive && "scale-110"
-                  )}
-                />
+                <Icon className={cn('h-5 w-5 transition-transform', isActive && 'scale-110')} />
                 {!isCollapsed && (
                   <span className="animate-in fade-in duration-200 whitespace-nowrap overflow-hidden">
                     {item.title}

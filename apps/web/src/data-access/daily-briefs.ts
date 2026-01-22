@@ -1,5 +1,5 @@
-import { eq, and, desc } from "drizzle-orm";
-import { database } from "~/db";
+import { eq, and, desc } from 'drizzle-orm';
+import { database } from '~/db';
 import {
   dailyBrief,
   type DailyBrief,
@@ -9,18 +9,13 @@ import {
   type CalendarEventData,
   type EmailData,
   type WeatherBriefData,
-} from "~/db/schema";
+} from '~/db/schema';
 
 /**
  * Create a new daily brief for a user
  */
-export async function createDailyBrief(
-  data: CreateDailyBriefData
-): Promise<DailyBrief> {
-  const [newBrief] = await database
-    .insert(dailyBrief)
-    .values(data)
-    .returning();
+export async function createDailyBrief(data: CreateDailyBriefData): Promise<DailyBrief> {
+  const [newBrief] = await database.insert(dailyBrief).values(data).returning();
 
   return newBrief;
 }
@@ -28,14 +23,8 @@ export async function createDailyBrief(
 /**
  * Find a daily brief by its ID
  */
-export async function findDailyBriefById(
-  id: string
-): Promise<DailyBrief | null> {
-  const [result] = await database
-    .select()
-    .from(dailyBrief)
-    .where(eq(dailyBrief.id, id))
-    .limit(1);
+export async function findDailyBriefById(id: string): Promise<DailyBrief | null> {
+  const [result] = await database.select().from(dailyBrief).where(eq(dailyBrief.id, id)).limit(1);
 
   return result || null;
 }
@@ -50,9 +39,7 @@ export async function findDailyBriefByUserAndDate(
   const [result] = await database
     .select()
     .from(dailyBrief)
-    .where(
-      and(eq(dailyBrief.userId, userId), eq(dailyBrief.briefDate, briefDate))
-    )
+    .where(and(eq(dailyBrief.userId, userId), eq(dailyBrief.briefDate, briefDate)))
     .limit(1);
 
   return result || null;
@@ -61,9 +48,7 @@ export async function findDailyBriefByUserAndDate(
 /**
  * Find the latest daily brief for a user
  */
-export async function findLatestDailyBrief(
-  userId: string
-): Promise<DailyBrief | null> {
+export async function findLatestDailyBrief(userId: string): Promise<DailyBrief | null> {
   const [result] = await database
     .select()
     .from(dailyBrief)
@@ -120,8 +105,8 @@ export async function updateDailyBriefStatus(
 ): Promise<DailyBrief | null> {
   const updateData: UpdateDailyBriefData = {
     status,
-    errorMessage: status === "failed" ? errorMessage : null,
-    generatedAt: status === "completed" ? new Date() : undefined,
+    errorMessage: status === 'failed' ? errorMessage : null,
+    generatedAt: status === 'completed' ? new Date() : undefined,
   };
 
   return updateDailyBrief(id, updateData);
@@ -166,7 +151,7 @@ export async function updateDailyBriefContent(
 ): Promise<DailyBrief | null> {
   return updateDailyBrief(id, {
     briefContent,
-    status: "completed",
+    status: 'completed',
     generatedAt: new Date(),
   });
 }
@@ -175,10 +160,7 @@ export async function updateDailyBriefContent(
  * Delete a daily brief by ID
  */
 export async function deleteDailyBrief(id: string): Promise<boolean> {
-  const [deleted] = await database
-    .delete(dailyBrief)
-    .where(eq(dailyBrief.id, id))
-    .returning();
+  const [deleted] = await database.delete(dailyBrief).where(eq(dailyBrief.id, id)).returning();
 
   return deleted !== undefined;
 }
@@ -186,9 +168,7 @@ export async function deleteDailyBrief(id: string): Promise<boolean> {
 /**
  * Delete all daily briefs for a user
  */
-export async function deleteDailyBriefsByUserId(
-  userId: string
-): Promise<number> {
+export async function deleteDailyBriefsByUserId(userId: string): Promise<number> {
   const deleted = await database
     .delete(dailyBrief)
     .where(eq(dailyBrief.userId, userId))
@@ -203,7 +183,7 @@ export async function deleteDailyBriefsByUserId(
 export async function upsertDailyBrief(
   userId: string,
   briefDate: string,
-  data: Omit<CreateDailyBriefData, "userId" | "briefDate">
+  data: Omit<CreateDailyBriefData, 'userId' | 'briefDate'>
 ): Promise<DailyBrief> {
   const existing = await findDailyBriefByUserAndDate(userId, briefDate);
 
@@ -234,10 +214,7 @@ export async function upsertDailyBrief(
  * Find all pending daily briefs that need to be generated
  */
 export async function findPendingDailyBriefs(): Promise<DailyBrief[]> {
-  const results = await database
-    .select()
-    .from(dailyBrief)
-    .where(eq(dailyBrief.status, "pending"));
+  const results = await database.select().from(dailyBrief).where(eq(dailyBrief.status, 'pending'));
 
   return results;
 }
@@ -246,10 +223,7 @@ export async function findPendingDailyBriefs(): Promise<DailyBrief[]> {
  * Find all failed daily briefs (for retry logic)
  */
 export async function findFailedDailyBriefs(): Promise<DailyBrief[]> {
-  const results = await database
-    .select()
-    .from(dailyBrief)
-    .where(eq(dailyBrief.status, "failed"));
+  const results = await database.select().from(dailyBrief).where(eq(dailyBrief.status, 'failed'));
 
   return results;
 }
@@ -257,10 +231,7 @@ export async function findFailedDailyBriefs(): Promise<DailyBrief[]> {
 /**
  * Check if a daily brief exists for a user and date
  */
-export async function hasDailyBriefForDate(
-  userId: string,
-  briefDate: string
-): Promise<boolean> {
+export async function hasDailyBriefForDate(userId: string, briefDate: string): Promise<boolean> {
   const brief = await findDailyBriefByUserAndDate(userId, briefDate);
   return brief !== null;
 }
@@ -268,9 +239,7 @@ export async function hasDailyBriefForDate(
 /**
  * Get the count of emails needing response from the latest brief
  */
-export async function getEmailsNeedingResponseCount(
-  userId: string
-): Promise<number> {
+export async function getEmailsNeedingResponseCount(userId: string): Promise<number> {
   const latestBrief = await findLatestDailyBrief(userId);
   if (!latestBrief || !latestBrief.emailsNeedingResponse) {
     return 0;
@@ -282,15 +251,13 @@ export async function getEmailsNeedingResponseCount(
  * Get today's date string in YYYY-MM-DD format
  */
 export function getTodayDateString(): string {
-  return new Date().toISOString().split("T")[0];
+  return new Date().toISOString().split('T')[0];
 }
 
 /**
  * Find or create today's brief for a user
  */
-export async function findOrCreateTodaysBrief(
-  userId: string
-): Promise<DailyBrief> {
+export async function findOrCreateTodaysBrief(userId: string): Promise<DailyBrief> {
   const today = getTodayDateString();
   const existing = await findDailyBriefByUserAndDate(userId, today);
 
@@ -302,6 +269,6 @@ export async function findOrCreateTodaysBrief(
     id: crypto.randomUUID(),
     userId,
     briefDate: today,
-    status: "pending",
+    status: 'pending',
   });
 }

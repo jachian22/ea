@@ -1,14 +1,8 @@
-import { useState } from "react";
-import { Loader2, Mail, Calendar, AlertTriangle, Check, Link2Off, RefreshCw } from "lucide-react";
-import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
+import { useState } from 'react';
+import { Loader2, Mail, Calendar, AlertTriangle, Check, Link2Off, RefreshCw } from 'lucide-react';
+import { Badge } from '~/components/ui/badge';
+import { Button } from '~/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,8 +12,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "~/components/ui/alert-dialog";
-import { useGoogleIntegration } from "~/hooks/use-google-integration";
+} from '~/components/ui/alert-dialog';
+import { useGoogleIntegration } from '~/hooks/use-google-integration';
 
 /**
  * Google Integration Card Component
@@ -54,12 +48,12 @@ export function GoogleIntegrationCard() {
 
   const formatDate = (date: Date | null) => {
     if (!date) return null;
-    return new Intl.DateTimeFormat("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
     }).format(new Date(date));
   };
 
@@ -121,17 +115,11 @@ export function GoogleIntegrationCard() {
                 <p className="text-sm font-medium text-destructive">
                   Failed to load integration status
                 </p>
-                <p className="text-sm text-destructive/80">
-                  {error || "Please try again later."}
-                </p>
+                <p className="text-sm text-destructive/80">{error || 'Please try again later.'}</p>
               </div>
             </div>
           </div>
-          <Button
-            variant="outline"
-            onClick={() => refetch()}
-            className="w-full"
-          >
+          <Button variant="outline" onClick={() => refetch()} className="w-full">
             <RefreshCw className="h-4 w-4 mr-2" />
             Try Again
           </Button>
@@ -154,8 +142,8 @@ export function GoogleIntegrationCard() {
                 Google Integration
               </CardTitle>
               <CardDescription>
-                Connect your Google account to enable Gmail and Calendar features
-                for your daily brief
+                Connect your Google account to enable Gmail and Calendar features for your daily
+                brief
               </CardDescription>
             </div>
             {isConnected && !needsReauthorization && (
@@ -170,9 +158,7 @@ export function GoogleIntegrationCard() {
                 Needs Reauthorization
               </Badge>
             )}
-            {!isConnected && (
-              <Badge variant="secondary">Disconnected</Badge>
-            )}
+            {!isConnected && <Badge variant="secondary">Disconnected</Badge>}
           </div>
         </CardHeader>
 
@@ -194,9 +180,7 @@ export function GoogleIntegrationCard() {
                     <Check className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <p className="text-sm font-medium">Connected Since</p>
-                      <p className="text-sm text-muted-foreground">
-                        {formatDate(connectedAt)}
-                      </p>
+                      <p className="text-sm text-muted-foreground">{formatDate(connectedAt)}</p>
                     </div>
                   </div>
                 )}
@@ -206,9 +190,7 @@ export function GoogleIntegrationCard() {
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <p className="text-sm font-medium">Last Synced</p>
-                      <p className="text-sm text-muted-foreground">
-                        {formatDate(lastSyncedAt)}
-                      </p>
+                      <p className="text-sm text-muted-foreground">{formatDate(lastSyncedAt)}</p>
                     </div>
                   </div>
                 )}
@@ -216,8 +198,8 @@ export function GoogleIntegrationCard() {
 
               <div className="bg-muted/50 rounded-lg p-3">
                 <p className="text-sm text-muted-foreground">
-                  Your Google account is connected. The daily brief will include
-                  your calendar events and important emails.
+                  Your Google account is connected. The daily brief will include your calendar
+                  events and important emails.
                 </p>
               </div>
 
@@ -250,13 +232,10 @@ export function GoogleIntegrationCard() {
                 <div className="flex items-start gap-2">
                   <AlertTriangle className="h-4 w-4 text-destructive mt-0.5" />
                   <div>
-                    <p className="text-sm font-medium text-destructive">
-                      Reauthorization Required
-                    </p>
+                    <p className="text-sm font-medium text-destructive">Reauthorization Required</p>
                     <p className="text-sm text-destructive/80">
-                      Your Google authorization has expired or was revoked.
-                      Please reconnect your account to continue using Gmail and
-                      Calendar features.
+                      Your Google authorization has expired or was revoked. Please reconnect your
+                      account to continue using Gmail and Calendar features.
                     </p>
                   </div>
                 </div>
@@ -288,7 +267,7 @@ export function GoogleIntegrationCard() {
                       Connecting...
                     </>
                   ) : (
-                    "Reconnect Google"
+                    'Reconnect Google'
                   )}
                 </Button>
               </div>
@@ -300,9 +279,8 @@ export function GoogleIntegrationCard() {
             <>
               <div className="bg-muted/50 rounded-lg p-3">
                 <p className="text-sm text-muted-foreground">
-                  Connect your Google account to unlock your personalized daily
-                  brief. We'll securely access your Gmail and Calendar to
-                  summarize your day's priorities.
+                  Connect your Google account to unlock your personalized daily brief. We'll
+                  securely access your Gmail and Calendar to summarize your day's priorities.
                 </p>
               </div>
 
@@ -345,17 +323,13 @@ export function GoogleIntegrationCard() {
       </Card>
 
       {/* Disconnect confirmation dialog */}
-      <AlertDialog
-        open={showDisconnectDialog}
-        onOpenChange={setShowDisconnectDialog}
-      >
+      <AlertDialog open={showDisconnectDialog} onOpenChange={setShowDisconnectDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Disconnect Google Account?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will remove your Google integration and stop your daily brief
-              from including Gmail and Calendar data. You can reconnect at any
-              time.
+              This will remove your Google integration and stop your daily brief from including
+              Gmail and Calendar data. You can reconnect at any time.
               {googleEmail && (
                 <span className="block mt-2 font-medium text-foreground">
                   Connected account: {googleEmail}
@@ -364,9 +338,7 @@ export function GoogleIntegrationCard() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDisconnecting}>
-              Cancel
-            </AlertDialogCancel>
+            <AlertDialogCancel disabled={isDisconnecting}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDisconnect}
               disabled={isDisconnecting}
@@ -378,7 +350,7 @@ export function GoogleIntegrationCard() {
                   Disconnecting...
                 </>
               ) : (
-                "Disconnect"
+                'Disconnect'
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

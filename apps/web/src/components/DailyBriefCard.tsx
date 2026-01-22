@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import {
   Loader2,
   Mail,
@@ -24,26 +24,20 @@ import {
   Lightbulb,
   MessagesSquare,
   Tag,
-} from "lucide-react";
-import { CalendarTimeline } from "~/components/CalendarTimeline";
-import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
+} from 'lucide-react';
+import { CalendarTimeline } from '~/components/CalendarTimeline';
+import { Badge } from '~/components/ui/badge';
+import { Button } from '~/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "~/components/ui/accordion";
-import { useDailyBrief } from "~/hooks/use-daily-brief";
-import { useGoogleIntegration } from "~/hooks/use-google-integration";
-import type { CalendarEventData, EmailData, EnrichedBriefData } from "~/db/schema";
+} from '~/components/ui/accordion';
+import { useDailyBrief } from '~/hooks/use-daily-brief';
+import { useGoogleIntegration } from '~/hooks/use-google-integration';
+import type { CalendarEventData, EmailData, EnrichedBriefData } from '~/db/schema';
 
 /**
  * Daily Brief Card Component
@@ -88,49 +82,52 @@ export function DailyBriefCard() {
   const { isConnected, isLoading: isIntegrationLoading } = useGoogleIntegration();
 
   const formatTime = (isoString: string) => {
-    return new Date(isoString).toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
+    return new Date(isoString).toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
       hour12: true,
     });
   };
 
   const formatDate = (date: Date | null) => {
     if (!date) return null;
-    return new Intl.DateTimeFormat("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
+    return new Intl.DateTimeFormat('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
     }).format(new Date(date));
   };
 
   const formatBriefDate = (dateString: string) => {
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat("en-US", {
-      weekday: "long",
-      month: "long",
-      day: "numeric",
+    return new Intl.DateTimeFormat('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
     }).format(date);
   };
 
-  const getActionStatusBadge = (status: EmailData["actionStatus"]) => {
+  const getActionStatusBadge = (status: EmailData['actionStatus']) => {
     switch (status) {
-      case "needs_response":
+      case 'needs_response':
         return (
           <Badge variant="destructive" className="text-xs">
             Needs Response
           </Badge>
         );
-      case "awaiting_reply":
+      case 'awaiting_reply':
         return (
-          <Badge variant="secondary" className="text-xs bg-amber-100 text-amber-800 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-400">
+          <Badge
+            variant="secondary"
+            className="text-xs bg-amber-100 text-amber-800 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-400"
+          >
             Awaiting Reply
           </Badge>
         );
-      case "fyi":
+      case 'fyi':
         return (
           <Badge variant="secondary" className="text-xs">
             FYI
@@ -141,15 +138,15 @@ export function DailyBriefCard() {
     }
   };
 
-  const getImportanceBadge = (importance: EmailData["importance"]) => {
+  const getImportanceBadge = (importance: EmailData['importance']) => {
     switch (importance) {
-      case "high":
+      case 'high':
         return (
           <Badge variant="destructive" className="text-xs">
             High Priority
           </Badge>
         );
-      case "medium":
+      case 'medium':
         return (
           <Badge variant="outline" className="text-xs">
             Medium
@@ -174,10 +171,10 @@ export function DailyBriefCard() {
 
   // Group emails by action status
   const emailsByStatus = {
-    needs_response: emails.filter((e) => e.actionStatus === "needs_response"),
-    awaiting_reply: emails.filter((e) => e.actionStatus === "awaiting_reply"),
-    fyi: emails.filter((e) => e.actionStatus === "fyi"),
-    none: emails.filter((e) => e.actionStatus === "none"),
+    needs_response: emails.filter((e) => e.actionStatus === 'needs_response'),
+    awaiting_reply: emails.filter((e) => e.actionStatus === 'awaiting_reply'),
+    fyi: emails.filter((e) => e.actionStatus === 'fyi'),
+    none: emails.filter((e) => e.actionStatus === 'none'),
   };
 
   // Loading state skeleton - also show while mounting to avoid hydration mismatch
@@ -247,9 +244,7 @@ export function DailyBriefCard() {
                 <AlertTriangle className="h-5 w-5 text-destructive" />
                 Daily Brief
               </CardTitle>
-              <CardDescription>
-                Your personalized morning summary
-              </CardDescription>
+              <CardDescription>Your personalized morning summary</CardDescription>
             </div>
             <Badge variant="destructive">Error</Badge>
           </div>
@@ -259,29 +254,19 @@ export function DailyBriefCard() {
             <div className="flex items-start gap-2">
               <AlertTriangle className="h-4 w-4 text-destructive mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-destructive">
-                  Failed to load your brief
-                </p>
+                <p className="text-sm font-medium text-destructive">Failed to load your brief</p>
                 <p className="text-sm text-destructive/80">
-                  {error || "Please try generating a new brief."}
+                  {error || 'Please try generating a new brief.'}
                 </p>
               </div>
             </div>
           </div>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={() => refetchLatest()}
-              className="flex-1"
-            >
+            <Button variant="outline" onClick={() => refetchLatest()} className="flex-1">
               <RefreshCw className="h-4 w-4 mr-2" />
               Try Again
             </Button>
-            <Button
-              onClick={handleGenerateBrief}
-              disabled={isGenerating}
-              className="flex-1"
-            >
+            <Button onClick={handleGenerateBrief} disabled={isGenerating} className="flex-1">
               {isGenerating ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -324,8 +309,7 @@ export function DailyBriefCard() {
             </div>
             <p className="text-sm font-medium mb-1">No brief generated yet</p>
             <p className="text-xs text-muted-foreground">
-              Generate your first daily brief to see your calendar and important
-              emails
+              Generate your first daily brief to see your calendar and important emails
             </p>
           </div>
           <div className="flex justify-center">
@@ -349,7 +333,7 @@ export function DailyBriefCard() {
   }
 
   // Brief failed to generate
-  if (briefStatus === "failed") {
+  if (briefStatus === 'failed') {
     return (
       <Card>
         <CardHeader>
@@ -362,7 +346,7 @@ export function DailyBriefCard() {
               <CardDescription>
                 {latestBrief?.briefDate
                   ? formatBriefDate(latestBrief.briefDate)
-                  : "Your personalized morning summary"}
+                  : 'Your personalized morning summary'}
               </CardDescription>
             </div>
             <Badge variant="destructive">Generation Failed</Badge>
@@ -373,12 +357,9 @@ export function DailyBriefCard() {
             <div className="flex items-start gap-2">
               <AlertTriangle className="h-4 w-4 text-destructive mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-destructive">
-                  Brief generation failed
-                </p>
+                <p className="text-sm font-medium text-destructive">Brief generation failed</p>
                 <p className="text-sm text-destructive/80">
-                  {errorMessage ||
-                    "There was an error generating your brief. Please try again."}
+                  {errorMessage || 'There was an error generating your brief. Please try again.'}
                 </p>
               </div>
             </div>
@@ -402,7 +383,7 @@ export function DailyBriefCard() {
   }
 
   // Brief is generating
-  if (briefStatus === "generating" || briefStatus === "pending") {
+  if (briefStatus === 'generating' || briefStatus === 'pending') {
     return (
       <Card>
         <CardHeader>
@@ -415,7 +396,7 @@ export function DailyBriefCard() {
               <CardDescription>
                 {latestBrief?.briefDate
                   ? formatBriefDate(latestBrief.briefDate)
-                  : "Your personalized morning summary"}
+                  : 'Your personalized morning summary'}
               </CardDescription>
             </div>
             <Badge variant="secondary" className="animate-pulse">
@@ -450,26 +431,24 @@ export function DailyBriefCard() {
             <CardDescription>
               {latestBrief?.briefDate
                 ? formatBriefDate(latestBrief.briefDate)
-                : "Your personalized morning summary"}
+                : 'Your personalized morning summary'}
               {!isLatestBriefFromToday && latestBrief?.briefDate && (
-                <span className="text-amber-600 dark:text-amber-400 ml-2">
-                  (Not today's brief)
-                </span>
+                <span className="text-amber-600 dark:text-amber-400 ml-2">(Not today's brief)</span>
               )}
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
             {isEnriched && (
-              <Badge variant="secondary" className="bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+              <Badge
+                variant="secondary"
+                className="bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
+              >
                 <Sparkles className="h-3 w-3 mr-1" />
                 AI Enriched
               </Badge>
             )}
             {isLatestBriefFromToday ? (
-              <Badge
-                variant="default"
-                className="bg-green-600 hover:bg-green-600/80"
-              >
+              <Badge variant="default" className="bg-green-600 hover:bg-green-600/80">
                 <CheckCircle2 className="h-3 w-3 mr-1" />
                 Up to Date
               </Badge>
@@ -516,12 +495,13 @@ export function DailyBriefCard() {
                     <span>{weather.windSpeed} mph</span>
                   </div>
                 )}
-                {weather.precipitationProbability !== undefined && weather.precipitationProbability > 0 && (
-                  <div className="flex items-center justify-end gap-1">
-                    <CloudRain className="h-3 w-3" />
-                    <span>{weather.precipitationProbability}%</span>
-                  </div>
-                )}
+                {weather.precipitationProbability !== undefined &&
+                  weather.precipitationProbability > 0 && (
+                    <div className="flex items-center justify-end gap-1">
+                      <CloudRain className="h-3 w-3" />
+                      <span>{weather.precipitationProbability}%</span>
+                    </div>
+                  )}
               </div>
             </div>
             <div className="mt-3 pt-3 border-t border-sky-200 dark:border-sky-700">
@@ -538,14 +518,14 @@ export function DailyBriefCard() {
             <Calendar className="h-5 w-5 mx-auto mb-1 text-blue-500" />
             <p className="text-2xl font-bold">{stats.totalEvents}</p>
             <p className="text-xs text-muted-foreground">
-              {stats.totalEvents === 1 ? "Event" : "Events"} Today
+              {stats.totalEvents === 1 ? 'Event' : 'Events'} Today
             </p>
           </div>
           <div className="bg-muted/50 rounded-lg p-3 text-center">
             <Mail className="h-5 w-5 mx-auto mb-1 text-indigo-500" />
             <p className="text-2xl font-bold">{stats.totalEmails}</p>
             <p className="text-xs text-muted-foreground">
-              {stats.totalEmails === 1 ? "Email" : "Emails"}
+              {stats.totalEmails === 1 ? 'Email' : 'Emails'}
             </p>
           </div>
           <div className="bg-muted/50 rounded-lg p-3 text-center">
@@ -562,7 +542,9 @@ export function DailyBriefCard() {
             <div className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-lg p-4 border border-purple-200 dark:border-purple-800">
               <div className="flex items-center gap-2 mb-2">
                 <Sparkles className="h-4 w-4 text-purple-500" />
-                <span className="font-semibold text-sm text-purple-700 dark:text-purple-300">AI Summary</span>
+                <span className="font-semibold text-sm text-purple-700 dark:text-purple-300">
+                  AI Summary
+                </span>
               </div>
               <p className="text-sm text-foreground">{enrichedContent.daySummary}</p>
             </div>
@@ -584,7 +566,8 @@ export function DailyBriefCard() {
                       <p className="text-xs text-muted-foreground mt-1">{highlight.whyImportant}</p>
                       {highlight.suggestedResponse && (
                         <p className="text-xs text-amber-700 dark:text-amber-300 mt-2">
-                          <span className="font-medium">Suggested:</span> {highlight.suggestedResponse}
+                          <span className="font-medium">Suggested:</span>{' '}
+                          {highlight.suggestedResponse}
                         </p>
                       )}
                     </div>
@@ -619,10 +602,13 @@ export function DailyBriefCard() {
                               className="bg-muted/30 rounded-lg p-3 border border-border/50"
                             >
                               <p className="font-medium text-sm">{thread.subject}</p>
-                              <p className="text-xs text-muted-foreground mt-1">{thread.narrative}</p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {thread.narrative}
+                              </p>
                               {thread.suggestedAction && (
                                 <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-2">
-                                  <span className="font-medium">Action:</span> {thread.suggestedAction}
+                                  <span className="font-medium">Action:</span>{' '}
+                                  {thread.suggestedAction}
                                 </p>
                               )}
                             </div>
@@ -640,14 +626,22 @@ export function DailyBriefCard() {
               <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
                 <div className="flex items-center gap-2 mb-2">
                   <Calendar className="h-4 w-4 text-blue-500" />
-                  <span className="font-semibold text-sm text-blue-700 dark:text-blue-300">Calendar Insights</span>
+                  <span className="font-semibold text-sm text-blue-700 dark:text-blue-300">
+                    Calendar Insights
+                  </span>
                 </div>
                 <div className="space-y-1 text-xs">
                   {enrichedContent.calendarInsights.busyPeriods.length > 0 && (
-                    <p><span className="font-medium">Busy:</span> {enrichedContent.calendarInsights.busyPeriods.join(", ")}</p>
+                    <p>
+                      <span className="font-medium">Busy:</span>{' '}
+                      {enrichedContent.calendarInsights.busyPeriods.join(', ')}
+                    </p>
                   )}
                   {enrichedContent.calendarInsights.focusTimeAvailable.length > 0 && (
-                    <p><span className="font-medium">Focus time:</span> {enrichedContent.calendarInsights.focusTimeAvailable.join(", ")}</p>
+                    <p>
+                      <span className="font-medium">Focus time:</span>{' '}
+                      {enrichedContent.calendarInsights.focusTimeAvailable.join(', ')}
+                    </p>
                   )}
                   {enrichedContent.calendarInsights.keyMeetings.length > 0 && (
                     <div className="mt-2">
@@ -719,14 +713,16 @@ export function DailyBriefCard() {
                       <p className="text-xs font-semibold text-destructive uppercase tracking-wide">
                         Needs Your Response ({emailsByStatus.needs_response.length})
                       </p>
-                      {emailsByStatus.needs_response.slice(0, showAllEmails ? undefined : 3).map((email) => (
-                        <EmailItem
-                          key={email.id}
-                          email={email}
-                          getActionStatusBadge={getActionStatusBadge}
-                          getImportanceBadge={getImportanceBadge}
-                        />
-                      ))}
+                      {emailsByStatus.needs_response
+                        .slice(0, showAllEmails ? undefined : 3)
+                        .map((email) => (
+                          <EmailItem
+                            key={email.id}
+                            email={email}
+                            getActionStatusBadge={getActionStatusBadge}
+                            getImportanceBadge={getImportanceBadge}
+                          />
+                        ))}
                     </div>
                   )}
 
@@ -736,14 +732,16 @@ export function DailyBriefCard() {
                       <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wide">
                         Awaiting Reply ({emailsByStatus.awaiting_reply.length})
                       </p>
-                      {emailsByStatus.awaiting_reply.slice(0, showAllEmails ? undefined : 2).map((email) => (
-                        <EmailItem
-                          key={email.id}
-                          email={email}
-                          getActionStatusBadge={getActionStatusBadge}
-                          getImportanceBadge={getImportanceBadge}
-                        />
-                      ))}
+                      {emailsByStatus.awaiting_reply
+                        .slice(0, showAllEmails ? undefined : 2)
+                        .map((email) => (
+                          <EmailItem
+                            key={email.id}
+                            email={email}
+                            getActionStatusBadge={getActionStatusBadge}
+                            getImportanceBadge={getImportanceBadge}
+                          />
+                        ))}
                     </div>
                   )}
 
@@ -793,16 +791,9 @@ export function DailyBriefCard() {
         {/* Generation Info & Actions */}
         <div className="flex items-center justify-between pt-2 border-t">
           <p className="text-xs text-muted-foreground">
-            {latestBrief?.generatedAt
-              ? `Generated ${formatDate(latestBrief.generatedAt)}`
-              : ""}
+            {latestBrief?.generatedAt ? `Generated ${formatDate(latestBrief.generatedAt)}` : ''}
           </p>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleGenerateBrief}
-            disabled={isGenerating}
-          >
+          <Button variant="outline" size="sm" onClick={handleGenerateBrief} disabled={isGenerating}>
             {isGenerating ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -856,8 +847,7 @@ function CalendarEventItem({
             <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
               <Users className="h-3 w-3" />
               <span className="truncate">
-                {event.attendees.length}{" "}
-                {event.attendees.length === 1 ? "attendee" : "attendees"}
+                {event.attendees.length} {event.attendees.length === 1 ? 'attendee' : 'attendees'}
               </span>
             </div>
           )}
@@ -877,9 +867,7 @@ function CalendarEventItem({
         )}
       </div>
       {event.description && (
-        <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
-          {event.description}
-        </p>
+        <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{event.description}</p>
       )}
     </div>
   );
@@ -894,8 +882,8 @@ function EmailItem({
   getImportanceBadge,
 }: {
   email: EmailData;
-  getActionStatusBadge: (status: EmailData["actionStatus"]) => React.ReactNode;
-  getImportanceBadge: (importance: EmailData["importance"]) => React.ReactNode;
+  getActionStatusBadge: (status: EmailData['actionStatus']) => React.ReactNode;
+  getImportanceBadge: (importance: EmailData['importance']) => React.ReactNode;
 }) {
   const formatRelativeTime = (isoString: string) => {
     const date = new Date(isoString);
@@ -906,7 +894,7 @@ function EmailItem({
 
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffHours < 24) return `${diffHours}h ago`;
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
   return (
@@ -923,13 +911,9 @@ function EmailItem({
             <span>•</span>
             <span>{formatRelativeTime(email.receivedAt)}</span>
           </div>
-          <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
-            {email.snippet}
-          </p>
+          <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{email.snippet}</p>
         </div>
-        {!email.isRead && (
-          <div className="w-2 h-2 rounded-full bg-blue-500 shrink-0 mt-2" />
-        )}
+        {!email.isRead && <div className="w-2 h-2 rounded-full bg-blue-500 shrink-0 mt-2" />}
       </div>
     </div>
   );

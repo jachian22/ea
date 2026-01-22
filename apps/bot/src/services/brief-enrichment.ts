@@ -46,7 +46,9 @@ function createEnrichmentPrompt(input: EnrichmentInput): string {
       const participants = [
         ...new Set(threadEmails.flatMap((e) => [e.from.email, ...e.to.map((t) => t.email)])),
       ].join(', ');
-      const snippets = threadEmails.map((e) => `- ${e.from.name || e.from.email}: "${e.snippet}"`).join('\n');
+      const snippets = threadEmails
+        .map((e) => `- ${e.from.name || e.from.email}: "${e.snippet}"`)
+        .join('\n');
       return `**Thread: ${latest.subject}** (${threadEmails.length} messages, threadId: ${threadId})
 Participants: ${participants}
 Importance: ${latest.importance}
@@ -160,7 +162,9 @@ function parseEnrichmentResponse(response: string): EnrichedBriefData | null {
  * Executes the Claude Code CLI with a prompt
  * Security: Uses spawn with arguments array (no shell) to prevent command injection
  */
-async function executeClaudeCLI(prompt: string): Promise<{ success: boolean; content: string; error?: string }> {
+async function executeClaudeCLI(
+  prompt: string
+): Promise<{ success: boolean; content: string; error?: string }> {
   return new Promise((resolve) => {
     let resolved = false;
     const safeResolve = (response: { success: boolean; content: string; error?: string }) => {
@@ -246,7 +250,9 @@ export async function enrichBriefData(input: EnrichmentInput): Promise<EnrichedB
     return null;
   }
 
-  console.log(`[BriefEnrichment] Enriching brief with ${emails.length} emails and ${calendarEvents.length} events`);
+  console.log(
+    `[BriefEnrichment] Enriching brief with ${emails.length} emails and ${calendarEvents.length} events`
+  );
 
   try {
     const prompt = createEnrichmentPrompt(input);

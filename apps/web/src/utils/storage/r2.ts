@@ -1,15 +1,15 @@
-import type { IStorage, StreamFileResponse } from "./storage.interface";
+import type { IStorage, StreamFileResponse } from './storage.interface';
 
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import {
   DeleteObjectCommand,
   GetObjectCommand,
   HeadObjectCommand,
   PutObjectCommand,
   S3Client,
-} from "@aws-sdk/client-s3";
-import { privateEnv } from "~/config/privateEnv";
-import { publicEnv } from "~/config/publicEnv";
+} from '@aws-sdk/client-s3';
+import { privateEnv } from '~/config/privateEnv';
+import { publicEnv } from '~/config/publicEnv';
 
 export class R2Storage implements IStorage {
   private readonly client: S3Client;
@@ -23,13 +23,13 @@ export class R2Storage implements IStorage {
 
     if (!endpoint || !accessKeyId || !secretAccessKey || !bucket) {
       throw new Error(
-        "R2_ENDPOINT, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, and R2_BUCKET must be set"
+        'R2_ENDPOINT, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, and R2_BUCKET must be set'
       );
     }
 
     this.bucket = bucket;
     this.client = new S3Client({
-      region: "auto",
+      region: 'auto',
       endpoint,
       credentials: {
         accessKeyId,
@@ -38,11 +38,7 @@ export class R2Storage implements IStorage {
     });
   }
 
-  async upload(
-    key: string,
-    data: Buffer,
-    contentType: string = "application/octet-stream"
-  ) {
+  async upload(key: string, data: Buffer, contentType: string = 'application/octet-stream') {
     const command = new PutObjectCommand({
       Bucket: this.bucket,
       Key: key,
@@ -72,23 +68,15 @@ export class R2Storage implements IStorage {
       );
       return true;
     } catch (error: any) {
-      if (
-        error.name === "NotFound" ||
-        error.$metadata?.httpStatusCode === 404
-      ) {
+      if (error.name === 'NotFound' || error.$metadata?.httpStatusCode === 404) {
         return false;
       }
       throw error;
     }
   }
 
-  async getStream(
-    _key: string,
-    _rangeHeader: string | null
-  ): Promise<StreamFileResponse> {
-    throw new Error(
-      "getStream is not supported for R2. Use getPresignedUrl instead."
-    );
+  async getStream(_key: string, _rangeHeader: string | null): Promise<StreamFileResponse> {
+    throw new Error('getStream is not supported for R2. Use getPresignedUrl instead.');
   }
 
   async getPresignedUrl(key: string) {
@@ -102,8 +90,8 @@ export class R2Storage implements IStorage {
     );
   }
 
-  async getPresignedUploadUrl(key: string, contentType: string = "application/octet-stream") {
-    console.log("Generating presigned URL for:", {
+  async getPresignedUploadUrl(key: string, contentType: string = 'application/octet-stream') {
+    console.log('Generating presigned URL for:', {
       key,
       contentType,
       bucket: this.bucket,
@@ -121,7 +109,7 @@ export class R2Storage implements IStorage {
       { expiresIn: 60 * 60 } // 1 hour
     );
 
-    console.log("Generated presigned URL:", presignedUrl);
+    console.log('Generated presigned URL:', presignedUrl);
     return presignedUrl;
   }
 }

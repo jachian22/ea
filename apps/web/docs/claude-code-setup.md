@@ -60,18 +60,19 @@ Add to `~/.claude/settings.json`:
 
 ## Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `DATABASE_URL` | PostgreSQL connection string | Yes |
-| `EA_USER_ID` | Your user ID from the EA database | Yes |
-| `GOOGLE_CLIENT_ID` | Google OAuth client ID (for calendar/email) | For Google integration |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret | For Google integration |
+| Variable               | Description                                 | Required               |
+| ---------------------- | ------------------------------------------- | ---------------------- |
+| `DATABASE_URL`         | PostgreSQL connection string                | Yes                    |
+| `EA_USER_ID`           | Your user ID from the EA database           | Yes                    |
+| `GOOGLE_CLIENT_ID`     | Google OAuth client ID (for calendar/email) | For Google integration |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret                  | For Google integration |
 
 ## Available Tools
 
 Once configured, you'll have access to the following tool categories:
 
 ### Knowledge Graph Tools
+
 - `ea_search_people` - Search contacts
 - `ea_get_person` - Get full person dossier
 - `ea_search_knowledge` - Search across all data
@@ -81,6 +82,7 @@ Once configured, you'll have access to the following tool categories:
 - `ea_get_vip_contacts` - Get high-importance contacts
 
 ### Calendar Tools
+
 - `ea_get_calendar` - Get calendar events
 - `ea_get_today_schedule` - Get today's schedule
 - `ea_get_meeting_briefing` - Get meeting briefing
@@ -88,6 +90,7 @@ Once configured, you'll have access to the following tool categories:
 - `ea_find_free_time` - Find available time slots
 
 ### Email Tools
+
 - `ea_get_inbox` - Get filtered inbox
 - `ea_get_email` - Get specific email details
 - `ea_get_priority_emails` - Get high-priority emails
@@ -95,6 +98,7 @@ Once configured, you'll have access to the following tool categories:
 - `ea_draft_reply` - Draft a reply
 
 ### Commitment Tools
+
 - `ea_create_commitment` - Create new commitment
 - `ea_update_commitment` - Update commitment
 - `ea_complete_commitment` - Mark complete
@@ -103,12 +107,14 @@ Once configured, you'll have access to the following tool categories:
 - `ea_get_commitment_stats` - Get statistics
 
 ### Briefing Tools
+
 - `ea_get_daily_brief` - Get daily brief
 - `ea_get_weekly_summary` - Get weekly overview
 - `ea_get_domain_status` - Get domain-specific summary
 - `ea_get_brief_history` - Get historical briefs
 
 ### Action Tools
+
 - `ea_get_pending_actions` - Get actions awaiting approval
 - `ea_approve_action` - Approve an action
 - `ea_reject_action` - Reject an action
@@ -117,6 +123,7 @@ Once configured, you'll have access to the following tool categories:
 - `ea_provide_action_feedback` - Provide feedback
 
 ### Delegation Tools
+
 - `ea_get_delegates` - Get potential delegates
 - `ea_create_delegation` - Create a delegation
 - `ea_get_delegations` - Get delegated tasks
@@ -140,14 +147,17 @@ Show me my overdue commitments
 ## Troubleshooting
 
 ### Server not starting
+
 - Check that the path to `server.ts` is correct
 - Verify DATABASE_URL is accessible
 - Check that EA_USER_ID is set
 
 ### Tools not appearing
+
 - Restart Claude Code after configuration changes
 - Check the MCP server logs in Claude Code developer tools
 
 ### Google integration errors
+
 - Ensure Google OAuth is configured in the EA app
 - Connect your Google account through the EA web interface first

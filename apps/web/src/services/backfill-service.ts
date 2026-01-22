@@ -5,8 +5,8 @@
  * the knowledge graph with People, Interactions, and Commitments.
  */
 
-import { google, type gmail_v1, type calendar_v3 } from "googleapis";
-import type { Auth } from "googleapis";
+import { google, type gmail_v1, type calendar_v3 } from 'googleapis';
+import type { Auth } from 'googleapis';
 import {
   findBackfillJobById,
   startBackfillJob,
@@ -16,17 +16,17 @@ import {
   incrementBackfillStats,
   setBackfillJobTotal,
   createBackfillJobForUser,
-} from "~/data-access/backfill-jobs";
-import { findGoogleIntegrationByUserId } from "~/data-access/google-integration";
-import { createAuthenticatedClient, isIntegrationValid } from "~/lib/google-client";
-import { extractFromAll } from "./entity-extractor";
+} from '~/data-access/backfill-jobs';
+import { findGoogleIntegrationByUserId } from '~/data-access/google-integration';
+import { createAuthenticatedClient, isIntegrationValid } from '~/lib/google-client';
+import { extractFromAll } from './entity-extractor';
 import type {
   BackfillJob,
   BackfillSourceType,
   EmailData,
   CalendarEventData,
   GoogleIntegration,
-} from "~/db/schema";
+} from '~/db/schema';
 
 // ============================================================================
 // Types
@@ -67,14 +67,9 @@ export async function startBackfill(
   options?: BackfillOptions
 ): Promise<BackfillResult> {
   // Create the job
-  const jobResult = await createBackfillJobForUser(
-    userId,
-    sourceType,
-    startDate,
-    endDate
-  );
+  const jobResult = await createBackfillJobForUser(userId, sourceType, startDate, endDate);
 
-  if (!("id" in jobResult)) {
+  if (!('id' in jobResult)) {
     return {
       success: false,
       job: null as any,
@@ -107,7 +102,7 @@ export async function runBackfillJob(
     return {
       success: false,
       job: null as any,
-      error: "Job not found",
+      error: 'Job not found',
       stats: {
         personsCreated: 0,
         interactionsCreated: 0,
@@ -121,12 +116,12 @@ export async function runBackfillJob(
   // Get Google integration
   const integration = await findGoogleIntegrationByUserId(job.userId);
   if (!integration || !isIntegrationValid(integration)) {
-    await failBackfillJob(jobId, "Google integration not connected or invalid");
+    await failBackfillJob(jobId, 'Google integration not connected or invalid');
     job = (await findBackfillJobById(jobId))!;
     return {
       success: false,
       job,
-      error: "Google integration not connected",
+      error: 'Google integration not connected',
       stats: {
         personsCreated: job.personsCreated || 0,
         interactionsCreated: job.interactionsCreated || 0,
@@ -148,34 +143,24 @@ export async function runBackfillJob(
     let eventsProcessed = 0;
 
     // Process based on source type
-    if (job.sourceType === "gmail" || job.sourceType === "all") {
-      const emailResult = await processGmailBackfill(
-        job,
-        integration,
-        authClient,
-        {
-          batchSize,
-          startDate: job.startDate,
-          endDate: job.endDate,
-          ...options,
-        }
-      );
+    if (job.sourceType === 'gmail' || job.sourceType === 'all') {
+      const emailResult = await processGmailBackfill(job, integration, authClient, {
+        batchSize,
+        startDate: job.startDate,
+        endDate: job.endDate,
+        ...options,
+      });
       emailsProcessed = emailResult.processed;
       totalProcessed += emailsProcessed;
     }
 
-    if (job.sourceType === "calendar" || job.sourceType === "all") {
-      const calendarResult = await processCalendarBackfill(
-        job,
-        integration,
-        authClient,
-        {
-          batchSize,
-          startDate: job.startDate,
-          endDate: job.endDate,
-          ...options,
-        }
-      );
+    if (job.sourceType === 'calendar' || job.sourceType === 'all') {
+      const calendarResult = await processCalendarBackfill(job, integration, authClient, {
+        batchSize,
+        startDate: job.startDate,
+        endDate: job.endDate,
+        ...options,
+      });
       eventsProcessed = calendarResult.processed;
       totalProcessed += eventsProcessed;
     }
@@ -201,8 +186,7 @@ export async function runBackfillJob(
       },
     };
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     job = (await failBackfillJob(jobId, errorMessage))!;
     options?.onProgress?.(job);
 
@@ -236,7 +220,7 @@ async function processGmailBackfill(
   authClient: Auth.OAuth2Client,
   options: GmailBackfillOptions
 ): Promise<{ processed: number }> {
-  const gmail = google.gmail({ version: "v1", auth: authClient });
+  const gmail = google.gmail({ version: 'v1', auth: authClient });
   const batchSize = options.batchSize ?? 100;
 
   // Build date query
@@ -251,7 +235,7 @@ async function processGmailBackfill(
   // First, get estimated total
   try {
     const countResponse = await gmail.users.messages.list({
-      userId: "me",
+      userId: 'me',
       q: query,
       maxResults: 1,
     });
@@ -260,17 +244,17 @@ async function processGmailBackfill(
     await updateBackfillJobProgress(job.id, {
       processed: 0,
       total: estimatedTotal,
-      currentPhase: "gmail",
+      currentPhase: 'gmail',
     });
   } catch (error) {
-    console.error("Failed to get email count estimate:", error);
+    console.error('Failed to get email count estimate:', error);
   }
 
   // Process in batches
   do {
     // List messages
     const listResponse = await gmail.users.messages.list({
-      userId: "me",
+      userId: 'me',
       q: query,
       maxResults: batchSize,
       pageToken,
@@ -286,10 +270,10 @@ async function processGmailBackfill(
     for (const msg of messages) {
       try {
         const msgResponse = await gmail.users.messages.get({
-          userId: "me",
+          userId: 'me',
           id: msg.id!,
-          format: "metadata",
-          metadataHeaders: ["From", "To", "Subject", "Date"],
+          format: 'metadata',
+          metadataHeaders: ['From', 'To', 'Subject', 'Date'],
         });
 
         const email = transformGmailMessage(msgResponse.data);
@@ -327,7 +311,7 @@ async function processGmailBackfill(
         processed: totalProcessed,
         total: estimatedTotal,
         lastProcessedId: messages[messages.length - 1]?.id ?? undefined,
-        currentPhase: "gmail",
+        currentPhase: 'gmail',
       });
 
       // Notify progress
@@ -359,7 +343,7 @@ async function processCalendarBackfill(
   authClient: Auth.OAuth2Client,
   options: CalendarBackfillOptions
 ): Promise<{ processed: number }> {
-  const calendar = google.calendar({ version: "v3", auth: authClient });
+  const calendar = google.calendar({ version: 'v3', auth: authClient });
   const batchSize = options.batchSize ?? 100;
 
   let pageToken: string | undefined;
@@ -368,12 +352,12 @@ async function processCalendarBackfill(
   // Process in batches
   do {
     const eventsResponse = await calendar.events.list({
-      calendarId: "primary",
+      calendarId: 'primary',
       timeMin: options.startDate.toISOString(),
       timeMax: options.endDate.toISOString(),
       maxResults: batchSize,
       singleEvents: true,
-      orderBy: "startTime",
+      orderBy: 'startTime',
       pageToken,
     });
 
@@ -413,7 +397,7 @@ async function processCalendarBackfill(
         processed: totalProcessed,
         total: 0, // Calendar doesn't give us a total estimate
         lastProcessedId: items[items.length - 1]?.id ?? undefined,
-        currentPhase: "calendar",
+        currentPhase: 'calendar',
       });
 
       // Notify progress
@@ -441,10 +425,10 @@ function transformGmailMessage(message: gmail_v1.Schema$Message): EmailData | nu
   const getHeader = (name: string) =>
     headers.find((h) => h.name?.toLowerCase() === name.toLowerCase())?.value;
 
-  const from = parseEmailAddress(getHeader("From") || "");
-  const to = parseEmailAddresses(getHeader("To") || "");
-  const subject = getHeader("Subject") || "(no subject)";
-  const date = getHeader("Date");
+  const from = parseEmailAddress(getHeader('From') || '');
+  const to = parseEmailAddresses(getHeader('To') || '');
+  const subject = getHeader('Subject') || '(no subject)';
+  const date = getHeader('Date');
 
   return {
     id: message.id,
@@ -452,18 +436,16 @@ function transformGmailMessage(message: gmail_v1.Schema$Message): EmailData | nu
     subject,
     from,
     to,
-    snippet: message.snippet || "",
+    snippet: message.snippet || '',
     receivedAt: date || new Date().toISOString(),
-    isRead: !message.labelIds?.includes("UNREAD"),
+    isRead: !message.labelIds?.includes('UNREAD'),
     labels: message.labelIds || [],
-    importance: "medium",
-    actionStatus: "none",
+    importance: 'medium',
+    actionStatus: 'none',
   };
 }
 
-function transformCalendarEvent(
-  event: calendar_v3.Schema$Event
-): CalendarEventData | null {
+function transformCalendarEvent(event: calendar_v3.Schema$Event): CalendarEventData | null {
   if (!event.id) return null;
 
   const start = event.start?.dateTime || event.start?.date;
@@ -473,14 +455,14 @@ function transformCalendarEvent(
 
   return {
     id: event.id,
-    title: event.summary || "(no title)",
+    title: event.summary || '(no title)',
     description: event.description ?? undefined,
     startTime: start,
     endTime: end,
     location: event.location ?? undefined,
     meetingLink: event.hangoutLink || extractMeetingLink(event.description),
     attendees: event.attendees?.map((a) => ({
-      email: a.email || "",
+      email: a.email || '',
       name: a.displayName ?? undefined,
       responseStatus: a.responseStatus ?? undefined,
     })),
@@ -505,9 +487,7 @@ function parseEmailAddress(raw: string): { email: string; name?: string } {
   };
 }
 
-function parseEmailAddresses(
-  raw: string
-): Array<{ email: string; name?: string }> {
+function parseEmailAddresses(raw: string): Array<{ email: string; name?: string }> {
   if (!raw) return [];
 
   // Split by comma, but not commas inside quotes

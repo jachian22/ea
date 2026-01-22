@@ -1,5 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { authClient } from "~/lib/auth-client";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { authClient } from '~/lib/auth-client';
 import {
   getPersonContextFn,
   searchKnowledgeFn,
@@ -8,27 +8,25 @@ import {
   getFollowUpRadarFn,
   getRelationshipsFn,
   getKnowledgeSummaryFn,
-} from "~/fn/knowledge";
-import type { PersonDomain, RelationType } from "~/db/schema";
+} from '~/fn/knowledge';
+import type { PersonDomain, RelationType } from '~/db/schema';
 
 // ============================================================================
 // Query Keys
 // ============================================================================
 
 export const knowledgeKeys = {
-  all: ["knowledge"] as const,
-  personContext: (personId: string) =>
-    [...knowledgeKeys.all, "person", personId] as const,
-  search: (query: string) => [...knowledgeKeys.all, "search", query] as const,
-  commitmentsDashboard: () =>
-    [...knowledgeKeys.all, "commitments-dashboard"] as const,
+  all: ['knowledge'] as const,
+  personContext: (personId: string) => [...knowledgeKeys.all, 'person', personId] as const,
+  search: (query: string) => [...knowledgeKeys.all, 'search', query] as const,
+  commitmentsDashboard: () => [...knowledgeKeys.all, 'commitments-dashboard'] as const,
   peopleByDomain: (domain: PersonDomain) =>
-    [...knowledgeKeys.all, "people-by-domain", domain] as const,
+    [...knowledgeKeys.all, 'people-by-domain', domain] as const,
   followUpRadar: (daysThreshold?: number) =>
-    [...knowledgeKeys.all, "follow-up-radar", daysThreshold ?? 30] as const,
+    [...knowledgeKeys.all, 'follow-up-radar', daysThreshold ?? 30] as const,
   relationships: (relationType?: RelationType) =>
-    [...knowledgeKeys.all, "relationships", relationType ?? "all"] as const,
-  summary: () => [...knowledgeKeys.all, "summary"] as const,
+    [...knowledgeKeys.all, 'relationships', relationType ?? 'all'] as const,
+  summary: () => [...knowledgeKeys.all, 'summary'] as const,
 };
 
 // ============================================================================
@@ -154,21 +152,19 @@ export function useInvalidateKnowledge() {
   const queryClient = useQueryClient();
 
   return {
-    invalidateAll: () =>
-      queryClient.invalidateQueries({ queryKey: knowledgeKeys.all }),
+    invalidateAll: () => queryClient.invalidateQueries({ queryKey: knowledgeKeys.all }),
     invalidatePersonContext: (personId: string) =>
       queryClient.invalidateQueries({
         queryKey: knowledgeKeys.personContext(personId),
       }),
     invalidateSearch: () =>
       queryClient.invalidateQueries({
-        queryKey: [...knowledgeKeys.all, "search"],
+        queryKey: [...knowledgeKeys.all, 'search'],
       }),
     invalidateCommitmentsDashboard: () =>
       queryClient.invalidateQueries({
         queryKey: knowledgeKeys.commitmentsDashboard(),
       }),
-    invalidateSummary: () =>
-      queryClient.invalidateQueries({ queryKey: knowledgeKeys.summary() }),
+    invalidateSummary: () => queryClient.invalidateQueries({ queryKey: knowledgeKeys.summary() }),
   };
 }

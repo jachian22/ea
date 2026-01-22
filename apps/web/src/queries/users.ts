@@ -1,8 +1,8 @@
-import { queryOptions } from "@tanstack/react-query";
-import { getUserByIdFn } from "~/fn/users";
+import { queryOptions } from '@tanstack/react-query';
+import { getUserByIdFn } from '~/fn/users';
 
 export const userQueryOptions = (userId: string) =>
   queryOptions({
-    queryKey: ["user", userId],
+    queryKey: ['user', userId],
     queryFn: () => getUserByIdFn({ data: { userId } }),
   });

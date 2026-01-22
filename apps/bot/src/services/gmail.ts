@@ -94,7 +94,10 @@ export class GmailService {
   /**
    * Creates a GmailService instance from a user's Google integration.
    */
-  static async fromIntegration(integration: GoogleIntegration, retryOptions?: RetryOptions): Promise<GmailService> {
+  static async fromIntegration(
+    integration: GoogleIntegration,
+    retryOptions?: RetryOptions
+  ): Promise<GmailService> {
     if (!isIntegrationValid(integration)) {
       throw new GoogleAuthError(
         'Google integration is not valid or connected',
@@ -150,7 +153,10 @@ export class GmailService {
     }
   }
 
-  private async fetchMessageDetailsWithRetry(messageId: string, retryOptions: RetryOptions): Promise<EmailData | null> {
+  private async fetchMessageDetailsWithRetry(
+    messageId: string,
+    retryOptions: RetryOptions
+  ): Promise<EmailData | null> {
     try {
       const response = await withRetry(async () => {
         return this.gmail.users.messages.get({
@@ -372,7 +378,11 @@ export class GmailService {
 
     if (apiError.code === 403) {
       if (GoogleAPIErrorCheckers.isQuotaExceededError(error)) {
-        return new GoogleAuthError('Gmail API quota exceeded. Please try again later.', GoogleAuthErrorCodes.API_ERROR, error);
+        return new GoogleAuthError(
+          'Gmail API quota exceeded. Please try again later.',
+          GoogleAuthErrorCodes.API_ERROR,
+          error
+        );
       }
       return new GoogleAuthError(
         'Access to Gmail was denied. Please check your permissions.',

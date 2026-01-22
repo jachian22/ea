@@ -1,22 +1,18 @@
-import { createFileRoute } from "@tanstack/react-router";
-import {
-  deleteSession,
-  getSessionTokenFromCookie,
-  createClearSessionCookie,
-} from "~/lib/session";
+import { createFileRoute } from '@tanstack/react-router';
+import { deleteSession, getSessionTokenFromCookie, createClearSessionCookie } from '~/lib/session';
 
 /**
  * Validates that the request origin matches the expected host.
  * This provides CSRF protection for state-changing requests.
  */
 function validateOrigin(request: Request): boolean {
-  const origin = request.headers.get("origin");
-  const host = request.headers.get("host");
+  const origin = request.headers.get('origin');
+  const host = request.headers.get('host');
 
   // If there's no origin header (e.g., same-origin requests from some browsers),
   // check the referer header instead
   if (!origin) {
-    const referer = request.headers.get("referer");
+    const referer = request.headers.get('referer');
     if (referer) {
       try {
         const refererUrl = new URL(referer);
@@ -42,19 +38,16 @@ function validateOrigin(request: Request): boolean {
  * Sign out - clears the session cookie and deletes the session from the database.
  * Includes CSRF protection via Origin header validation.
  */
-export const Route = createFileRoute("/api/auth/sign-out")({
+export const Route = createFileRoute('/api/auth/sign-out')({
   server: {
     handlers: {
       POST: async ({ request }) => {
         // CSRF protection: validate origin matches host
         if (!validateOrigin(request)) {
-          return Response.json(
-            { error: "Invalid request origin" },
-            { status: 403 }
-          );
+          return Response.json({ error: 'Invalid request origin' }, { status: 403 });
         }
 
-        const cookieHeader = request.headers.get("cookie");
+        const cookieHeader = request.headers.get('cookie');
         const token = getSessionTokenFromCookie(cookieHeader);
 
         if (token) {
@@ -66,7 +59,7 @@ export const Route = createFileRoute("/api/auth/sign-out")({
           {
             status: 200,
             headers: {
-              "Set-Cookie": createClearSessionCookie(),
+              'Set-Cookie': createClearSessionCookie(),
             },
           }
         );

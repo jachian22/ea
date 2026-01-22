@@ -41,7 +41,9 @@ export class Scheduler {
     );
 
     console.log('[Scheduler] Scheduler started (reminder checks only)');
-    console.log('[Scheduler] Note: Daily briefs are now handled by system cron (scripts/refresh-brief.ts)');
+    console.log(
+      '[Scheduler] Note: Daily briefs are now handled by system cron (scripts/refresh-brief.ts)'
+    );
   }
 
   stop(): void {

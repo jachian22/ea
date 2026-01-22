@@ -38,9 +38,11 @@ The system is explicitly **not** intended to:
 Transform a natural-language request into a fully specified, approved JobSpec.
 
 **Inputs:**
+
 - Natural-language intent (e.g. “Extract my bank and credit card transactions weekly”)
 
 **Core activities:**
+
 - Deep research (hybrid: external research tools + internal web search)
 - Source discovery and classification
 - Authentication tier assessment
@@ -48,6 +50,7 @@ Transform a natural-language request into a fully specified, approved JobSpec.
 - Decision checklist completion
 
 **Outputs:**
+
 - Decision Brief
 - Source Plan
 - Risk Assessment
@@ -64,6 +67,7 @@ Explicit human approval of the JobSpec.
 Implement the approved JobSpec safely and durably.
 
 **Core activities:**
+
 - Run OpenCode inside a Modal sandbox
 - Generate extractors, tests, validators, and runbooks
 - Execute validation and smoke tests
@@ -72,6 +76,7 @@ Implement the approved JobSpec safely and durably.
 - Schedule recurring execution
 
 **Outputs (per source):**
+
 - Extraction code
 - Test suite and validation reports
 - Runbook and failure-mode documentation
@@ -122,6 +127,7 @@ Each source is classified into one of four tiers:
   - Frequent CAPTCHA or blocking; fallback required
 
 Tier classification determines:
+
 - Whether headless cron execution is allowed
 - Whether re-auth workflows must exist
 - Failure and alerting behavior
@@ -131,7 +137,9 @@ Tier classification determines:
 ## 7. Execution Substrate
 
 ### Modal
+
 Used for:
+
 - Isolated sandbox execution
 - Image-based dependency control
 - Scheduling (cron)
@@ -141,7 +149,9 @@ Used for:
 All production execution occurs on Modal.
 
 ### OpenCode
+
 Used as:
+
 - The coding agent harness
 - Responsible for iterative code generation, editing, and testing
 - Executed headlessly inside sandboxes
@@ -192,6 +202,7 @@ The system must detect and respond to:
 - Runtime or dependency failures
 
 Default behavior on failure:
+
 - Pause recurring execution
 - Emit a `needs_reauth` or `run_failed` signal
 - Require explicit repair or re-auth workflow
@@ -214,6 +225,7 @@ The assistant acts as a control plane; this repo acts as an execution engine.
 ## 12. Long-Term Operability
 
 Every extractor must ship with:
+
 - Tests
 - Validation logic
 - Runbook

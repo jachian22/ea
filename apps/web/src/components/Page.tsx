@@ -1,11 +1,11 @@
-import { ReactNode } from "react";
+import { ReactNode } from 'react';
 
 interface PageProps {
   children: ReactNode;
   className?: string;
 }
 
-export function Page({ children, className = "" }: PageProps) {
+export function Page({ children, className = '' }: PageProps) {
   return (
     <>
       <a

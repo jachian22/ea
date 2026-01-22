@@ -39,7 +39,9 @@ async function main() {
   console.log(`   - Status: ${latest.status}`);
   console.log(`   - Emails: ${latest.emails?.length || 0}`);
   console.log(`   - Calendar events: ${latest.calendarEvents?.length || 0}`);
-  console.log(`   - Weather: ${latest.weather ? `${latest.weather.temperature}°F in ${latest.weather.locationName}` : 'No weather data'}`);
+  console.log(
+    `   - Weather: ${latest.weather ? `${latest.weather.temperature}°F in ${latest.weather.locationName}` : 'No weather data'}`
+  );
   console.log(`   - Enriched: ${latest.enrichedAt ? `Yes (${latest.enrichedAt})` : 'No'}`);
 
   if (latest.enrichedAt) {
@@ -50,7 +52,7 @@ async function main() {
   }
 
   // Get today's brief
-  console.log('\n📋 Fetching today\'s brief...');
+  console.log("\n📋 Fetching today's brief...");
   const today = await getTodaysBrief();
 
   if (today) {

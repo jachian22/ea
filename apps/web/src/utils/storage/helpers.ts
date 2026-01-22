@@ -1,8 +1,5 @@
-import {
-  getPresignedImageUploadUrlFn,
-  getPresignedUploadUrlFn,
-} from "~/fn/storage";
-import { getVideoDuration, formatDuration } from "../video-duration";
+import { getPresignedImageUploadUrlFn, getPresignedUploadUrlFn } from '~/fn/storage';
+import { getVideoDuration, formatDuration } from '../video-duration';
 
 export interface UploadProgress {
   loaded: number;
@@ -62,11 +59,11 @@ export async function uploadVideoWithPresignedUrl(
     };
 
     xhr.onerror = () => {
-      reject(new Error("Upload failed: Network error"));
+      reject(new Error('Upload failed: Network error'));
     };
 
-    xhr.open("PUT", presignedUrl);
-    xhr.setRequestHeader("Content-Type", "video/mp4");
+    xhr.open('PUT', presignedUrl);
+    xhr.setRequestHeader('Content-Type', 'video/mp4');
     xhr.send(file);
   });
 }
@@ -107,11 +104,11 @@ export async function uploadImageWithPresignedUrl(
     };
 
     xhr.onerror = () => {
-      reject(new Error("Image upload failed: Network error"));
+      reject(new Error('Image upload failed: Network error'));
     };
 
-    xhr.open("PUT", presignedUrl);
-    xhr.setRequestHeader("Content-Type", file.type);
+    xhr.open('PUT', presignedUrl);
+    xhr.setRequestHeader('Content-Type', file.type);
     xhr.send(file);
   });
 }

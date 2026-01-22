@@ -1,22 +1,22 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { authClient } from "~/lib/auth-client";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { authClient } from '~/lib/auth-client';
 import {
   createDomainRuleFn,
   getDomainRulesFn,
   updateDomainRuleFn,
   deleteDomainRuleFn,
   bulkCreateDomainRulesFn,
-} from "~/fn/domain-rules";
-import type { DomainRuleType, PersonDomain } from "~/db/schema";
+} from '~/fn/domain-rules';
+import type { DomainRuleType, PersonDomain } from '~/db/schema';
 
 // ============================================================================
 // Query Keys
 // ============================================================================
 
 export const domainRulesKeys = {
-  all: ["domain-rules"] as const,
-  list: () => [...domainRulesKeys.all, "list"] as const,
+  all: ['domain-rules'] as const,
+  list: () => [...domainRulesKeys.all, 'list'] as const,
 };
 
 // ============================================================================
@@ -51,17 +51,17 @@ export function useCreateDomainRule() {
     }) => createDomainRuleFn({ data }),
     onSuccess: (result) => {
       if (result.success) {
-        toast.success("Domain rule created");
+        toast.success('Domain rule created');
         queryClient.invalidateQueries({ queryKey: domainRulesKeys.all });
       } else {
-        toast.error("Failed to create domain rule", {
+        toast.error('Failed to create domain rule', {
           description: result.error,
         });
       }
     },
     onError: (error) => {
-      toast.error("Failed to create domain rule", {
-        description: error instanceof Error ? error.message : "Unknown error",
+      toast.error('Failed to create domain rule', {
+        description: error instanceof Error ? error.message : 'Unknown error',
       });
     },
   });
@@ -83,17 +83,17 @@ export function useUpdateDomainRule() {
     }) => updateDomainRuleFn({ data }),
     onSuccess: (result) => {
       if (result.success) {
-        toast.success("Domain rule updated");
+        toast.success('Domain rule updated');
         queryClient.invalidateQueries({ queryKey: domainRulesKeys.all });
       } else {
-        toast.error("Failed to update domain rule", {
+        toast.error('Failed to update domain rule', {
           description: result.error,
         });
       }
     },
     onError: (error) => {
-      toast.error("Failed to update domain rule", {
-        description: error instanceof Error ? error.message : "Unknown error",
+      toast.error('Failed to update domain rule', {
+        description: error instanceof Error ? error.message : 'Unknown error',
       });
     },
   });
@@ -110,17 +110,17 @@ export function useDeleteDomainRule() {
     mutationFn: (id: string) => deleteDomainRuleFn({ data: { id } }),
     onSuccess: (result) => {
       if (result.success) {
-        toast.success("Domain rule deleted");
+        toast.success('Domain rule deleted');
         queryClient.invalidateQueries({ queryKey: domainRulesKeys.all });
       } else {
-        toast.error("Failed to delete domain rule", {
+        toast.error('Failed to delete domain rule', {
           description: result.error,
         });
       }
     },
     onError: (error) => {
-      toast.error("Failed to delete domain rule", {
-        description: error instanceof Error ? error.message : "Unknown error",
+      toast.error('Failed to delete domain rule', {
+        description: error instanceof Error ? error.message : 'Unknown error',
       });
     },
   });
@@ -147,14 +147,14 @@ export function useBulkCreateDomainRules() {
         toast.success(`${result.data?.length || 0} domain rules created`);
         queryClient.invalidateQueries({ queryKey: domainRulesKeys.all });
       } else {
-        toast.error("Failed to create domain rules", {
+        toast.error('Failed to create domain rules', {
           description: result.error,
         });
       }
     },
     onError: (error) => {
-      toast.error("Failed to create domain rules", {
-        description: error instanceof Error ? error.message : "Unknown error",
+      toast.error('Failed to create domain rules', {
+        description: error instanceof Error ? error.message : 'Unknown error',
       });
     },
   });

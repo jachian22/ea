@@ -1,23 +1,18 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Page } from "~/components/Page";
-import { AppBreadcrumb } from "~/components/AppBreadcrumb";
-import { useUpdateUserProfile, useUpdateMyProfile, useMyProfile } from "~/hooks/useProfile";
-import { uploadImageWithPresignedUrl } from "~/utils/storage/helpers";
-import { toast } from "sonner";
-import { useState, useCallback, useEffect } from "react";
-import { useDropzone } from "react-dropzone";
-import { authClient } from "~/lib/auth-client";
-import { useUserAvatar } from "~/hooks/useUserAvatar";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
-import {
-  Panel,
-  PanelContent,
-  PanelHeader,
-  PanelTitle,
-} from "~/components/ui/panel";
-import { UserAvatar } from "~/components/UserAvatar";
+import { createFileRoute } from '@tanstack/react-router';
+import { Page } from '~/components/Page';
+import { AppBreadcrumb } from '~/components/AppBreadcrumb';
+import { useUpdateUserProfile, useUpdateMyProfile, useMyProfile } from '~/hooks/useProfile';
+import { uploadImageWithPresignedUrl } from '~/utils/storage/helpers';
+import { toast } from 'sonner';
+import { useState, useCallback, useEffect } from 'react';
+import { useDropzone } from 'react-dropzone';
+import { authClient } from '~/lib/auth-client';
+import { useUserAvatar } from '~/hooks/useUserAvatar';
+import { Button } from '~/components/ui/button';
+import { Input } from '~/components/ui/input';
+import { Label } from '~/components/ui/label';
+import { Panel, PanelContent, PanelHeader, PanelTitle } from '~/components/ui/panel';
+import { UserAvatar } from '~/components/UserAvatar';
 import {
   Form,
   FormControl,
@@ -25,15 +20,27 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "~/components/ui/form";
-import { Upload, User, Home, Link, Bell, FileText, ExternalLink, Copy, Check, MapPin, Sun } from "lucide-react";
-import { GoogleIntegrationCard } from "~/components/GoogleIntegrationCard";
-import { assertAuthenticatedFn } from "~/fn/guards";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+} from '~/components/ui/form';
+import {
+  Upload,
+  User,
+  Home,
+  Link,
+  Bell,
+  FileText,
+  ExternalLink,
+  Copy,
+  Check,
+  MapPin,
+  Sun,
+} from 'lucide-react';
+import { GoogleIntegrationCard } from '~/components/GoogleIntegrationCard';
+import { assertAuthenticatedFn } from '~/fn/guards';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 
-export const Route = createFileRoute("/dashboard/settings")({
+export const Route = createFileRoute('/dashboard/settings')({
   component: SettingsPage,
   beforeLoad: async () => {
     await assertAuthenticatedFn();
@@ -43,9 +50,9 @@ export const Route = createFileRoute("/dashboard/settings")({
 const profileSettingsSchema = z.object({
   name: z
     .string()
-    .min(1, "Display name is required")
-    .min(2, "Display name must be at least 2 characters")
-    .max(50, "Display name must be 50 characters or less")
+    .min(1, 'Display name is required')
+    .min(2, 'Display name must be at least 2 characters')
+    .max(50, 'Display name must be 50 characters or less')
     .trim(),
 });
 
@@ -61,7 +68,7 @@ function ProfileSettings() {
   const form = useForm<ProfileSettingsFormData>({
     resolver: zodResolver(profileSettingsSchema),
     defaultValues: {
-      name: session?.user?.name || "",
+      name: session?.user?.name || '',
     },
   });
 
@@ -77,13 +84,13 @@ function ProfileSettings() {
       const file = acceptedFiles[0];
       if (!file) return;
 
-      if (!file.type.startsWith("image/")) {
-        toast.error("Please upload an image file");
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please upload an image file');
         return;
       }
 
       if (file.size > 5 * 1024 * 1024) {
-        toast.error("File size must be less than 5MB");
+        toast.error('File size must be less than 5MB');
         return;
       }
 
@@ -93,10 +100,10 @@ function ProfileSettings() {
         // Generate image key
         const userId = session?.user?.id;
         if (!userId) {
-          throw new Error("User not authenticated");
+          throw new Error('User not authenticated');
         }
 
-        const fileExtension = file.name.split(".").pop() || "";
+        const fileExtension = file.name.split('.').pop() || '';
         const imageKey = `profile-images/${userId}/${Date.now()}.${fileExtension}`;
 
         // Upload using helper function
@@ -107,10 +114,10 @@ function ProfileSettings() {
           data: { image: imageKey },
         });
 
-        toast.success("Avatar uploaded successfully");
+        toast.success('Avatar uploaded successfully');
       } catch (error) {
-        console.error("Avatar upload error:", error);
-        toast.error("Failed to upload avatar");
+        console.error('Avatar upload error:', error);
+        toast.error('Failed to upload avatar');
       } finally {
         setIsUploading(false);
       }
@@ -121,7 +128,7 @@ function ProfileSettings() {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      "image/*": [".jpeg", ".jpg", ".png", ".gif", ".webp"],
+      'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp'],
     },
     maxFiles: 1,
   });
@@ -149,7 +156,7 @@ function ProfileSettings() {
             <div
               {...getRootProps()}
               className={`relative cursor-pointer group w-20 h-20 ${
-                isUploading ? "cursor-not-allowed" : ""
+                isUploading ? 'cursor-not-allowed' : ''
               }`}
             >
               <input {...getInputProps()} disabled={isUploading} />
@@ -161,7 +168,7 @@ function ProfileSettings() {
               />
               <div
                 className={`absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 ${
-                  isUploading ? "opacity-100" : ""
+                  isUploading ? 'opacity-100' : ''
                 }`}
               >
                 {isUploading ? (
@@ -186,10 +193,7 @@ function ProfileSettings() {
           {/* Display Name */}
           <div className="flex-1">
             <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-2"
-              >
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
                 <FormField
                   control={form.control}
                   name="name"
@@ -212,9 +216,7 @@ function ProfileSettings() {
                             !form.formState.isValid
                           }
                         >
-                          {updateProfileMutation.isPending
-                            ? "Saving..."
-                            : "Save"}
+                          {updateProfileMutation.isPending ? 'Saving...' : 'Save'}
                         </Button>
                       </div>
                       <FormMessage />
@@ -231,11 +233,7 @@ function ProfileSettings() {
 }
 
 const locationSettingsSchema = z.object({
-  location: z
-    .string()
-    .max(200, "Location must be 200 characters or less")
-    .optional()
-    .nullable(),
+  location: z.string().max(200, 'Location must be 200 characters or less').optional().nullable(),
 });
 
 type LocationSettingsFormData = z.infer<typeof locationSettingsSchema>;
@@ -247,7 +245,7 @@ function LocationSettings() {
   const form = useForm<LocationSettingsFormData>({
     resolver: zodResolver(locationSettingsSchema),
     defaultValues: {
-      location: profile?.location || "",
+      location: profile?.location || '',
     },
   });
 
@@ -307,19 +305,16 @@ function LocationSettings() {
                     <FormControl>
                       <Input
                         {...field}
-                        value={field.value || ""}
+                        value={field.value || ''}
                         placeholder="e.g., New York, NY or 40.7128,-74.0060"
                         disabled={updateProfileMutation.isPending}
                       />
                     </FormControl>
                     <Button
                       type="submit"
-                      disabled={
-                        updateProfileMutation.isPending ||
-                        !form.formState.isDirty
-                      }
+                      disabled={updateProfileMutation.isPending || !form.formState.isDirty}
                     >
-                      {updateProfileMutation.isPending ? "Saving..." : "Save"}
+                      {updateProfileMutation.isPending ? 'Saving...' : 'Save'}
                     </Button>
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -367,7 +362,7 @@ reporting:
   const handleCopy = async () => {
     await navigator.clipboard.writeText(configExample);
     setCopied(true);
-    toast.success("Configuration copied to clipboard");
+    toast.success('Configuration copied to clipboard');
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -392,7 +387,8 @@ reporting:
 
           <div className="bg-muted/30 rounded-lg p-4 space-y-3">
             <p className="text-sm text-muted-foreground">
-              To receive Discord notifications for MFA alerts and run summaries, add the following to your configuration file:
+              To receive Discord notifications for MFA alerts and run summaries, add the following
+              to your configuration file:
             </p>
 
             <div className="relative">
@@ -414,7 +410,8 @@ reporting:
             </div>
 
             <p className="text-xs text-muted-foreground">
-              Config location: <code className="bg-muted px-1 rounded">~/.bank-automation/accounts.yaml</code>
+              Config location:{' '}
+              <code className="bg-muted px-1 rounded">~/.bank-automation/accounts.yaml</code>
             </p>
           </div>
 
@@ -448,10 +445,7 @@ function SettingsPage() {
   return (
     <Page>
       <AppBreadcrumb
-        items={[
-          { label: "Dashboard", href: "/dashboard", icon: Home },
-          { label: "Settings" },
-        ]}
+        items={[{ label: 'Dashboard', href: '/dashboard', icon: Home }, { label: 'Settings' }]}
       />
 
       <div className="mt-8 max-w-4xl">

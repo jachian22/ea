@@ -1,5 +1,5 @@
-import { eq, and, desc, asc, lt, sql, count } from "drizzle-orm";
-import { database } from "~/db";
+import { eq, and, desc, asc, lt, sql, count } from 'drizzle-orm';
+import { database } from '~/db';
 import {
   notification,
   notificationPreferences,
@@ -14,14 +14,14 @@ import {
   type NotificationChannel,
   type NotificationDeliveryStatus,
   type User,
-} from "~/db/schema";
+} from '~/db/schema';
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export type NotificationWithUser = Notification & {
-  user: Pick<User, "id" | "name" | "image">;
+  user: Pick<User, 'id' | 'name' | 'image'>;
 };
 
 // ============================================================================
@@ -31,13 +31,8 @@ export type NotificationWithUser = Notification & {
 /**
  * Create a new notification
  */
-export async function createNotification(
-  data: CreateNotificationData
-): Promise<Notification> {
-  const [newNotification] = await database
-    .insert(notification)
-    .values(data)
-    .returning();
+export async function createNotification(data: CreateNotificationData): Promise<Notification> {
+  const [newNotification] = await database.insert(notification).values(data).returning();
 
   return newNotification;
 }
@@ -45,15 +40,10 @@ export async function createNotification(
 /**
  * Create multiple notifications at once
  */
-export async function createNotifications(
-  data: CreateNotificationData[]
-): Promise<Notification[]> {
+export async function createNotifications(data: CreateNotificationData[]): Promise<Notification[]> {
   if (data.length === 0) return [];
 
-  const notifications = await database
-    .insert(notification)
-    .values(data)
-    .returning();
+  const notifications = await database.insert(notification).values(data).returning();
 
   return notifications;
 }
@@ -61,9 +51,7 @@ export async function createNotifications(
 /**
  * Find notification by ID
  */
-export async function findNotificationById(
-  id: string
-): Promise<Notification | null> {
+export async function findNotificationById(id: string): Promise<Notification | null> {
   const [result] = await database
     .select()
     .from(notification)
@@ -143,10 +131,7 @@ export async function findUnreadNotificationsByUserId(
   const results = await database
     .select()
     .from(notification)
-    .where(and(
-      eq(notification.userId, userId),
-      eq(notification.isRead, false)
-    ))
+    .where(and(eq(notification.userId, userId), eq(notification.isRead, false)))
     .orderBy(desc(notification.createdAt))
     .limit(limit);
 
@@ -185,12 +170,7 @@ export async function findUnreadNotifications(
     })
     .from(notification)
     .innerJoin(user, eq(notification.userId, user.id))
-    .where(
-      and(
-        eq(notification.userId, userId),
-        eq(notification.isRead, false)
-      )
-    )
+    .where(and(eq(notification.userId, userId), eq(notification.isRead, false)))
     .orderBy(desc(notification.createdAt))
     .limit(limit);
 
@@ -200,16 +180,11 @@ export async function findUnreadNotifications(
 /**
  * Get unread notification count for a user
  */
-export async function getUnreadNotificationCount(
-  userId: string
-): Promise<number> {
+export async function getUnreadNotificationCount(userId: string): Promise<number> {
   const [result] = await database
     .select({ count: count() })
     .from(notification)
-    .where(and(
-      eq(notification.userId, userId),
-      eq(notification.isRead, false)
-    ));
+    .where(and(eq(notification.userId, userId), eq(notification.isRead, false)));
 
   return result?.count || 0;
 }
@@ -232,10 +207,7 @@ export async function findNotificationsByType(
   const results = await database
     .select()
     .from(notification)
-    .where(and(
-      eq(notification.userId, userId),
-      eq(notification.type, type)
-    ))
+    .where(and(eq(notification.userId, userId), eq(notification.type, type)))
     .orderBy(desc(notification.createdAt))
     .limit(limit);
 
@@ -251,10 +223,7 @@ export async function findPendingScheduledNotifications(
   const results = await database
     .select()
     .from(notification)
-    .where(and(
-      lt(notification.scheduledFor, before),
-      eq(notification.isRead, false)
-    ))
+    .where(and(lt(notification.scheduledFor, before), eq(notification.isRead, false)))
     .orderBy(asc(notification.scheduledFor));
 
   return results;
@@ -303,19 +272,14 @@ export async function markNotificationAsRead(
 /**
  * Mark all notifications as read for a user
  */
-export async function markAllNotificationsAsRead(
-  userId: string
-): Promise<number> {
+export async function markAllNotificationsAsRead(userId: string): Promise<number> {
   const result = await database
     .update(notification)
     .set({
       isRead: true,
       readAt: new Date(),
     })
-    .where(and(
-      eq(notification.userId, userId),
-      eq(notification.isRead, false)
-    ))
+    .where(and(eq(notification.userId, userId), eq(notification.isRead, false)))
     .returning();
 
   return result.length;
@@ -366,16 +330,10 @@ export async function deleteNotification(
 /**
  * Delete old notifications (for cleanup)
  */
-export async function deleteOldNotifications(
-  userId: string,
-  olderThan: Date
-): Promise<number> {
+export async function deleteOldNotifications(userId: string, olderThan: Date): Promise<number> {
   const deleted = await database
     .delete(notification)
-    .where(and(
-      eq(notification.userId, userId),
-      lt(notification.createdAt, olderThan)
-    ))
+    .where(and(eq(notification.userId, userId), lt(notification.createdAt, olderThan)))
     .returning();
 
   return deleted.length;
@@ -391,10 +349,7 @@ export async function deleteOldNotifications(
 export async function createNotificationPreferences(
   data: CreateNotificationPreferencesData
 ): Promise<NotificationPreferences> {
-  const [newPreferences] = await database
-    .insert(notificationPreferences)
-    .values(data)
-    .returning();
+  const [newPreferences] = await database.insert(notificationPreferences).values(data).returning();
 
   return newPreferences;
 }
@@ -454,9 +409,7 @@ export async function getOrCreateNotificationPreferences(
 /**
  * Delete notification preferences
  */
-export async function deleteNotificationPreferences(
-  userId: string
-): Promise<boolean> {
+export async function deleteNotificationPreferences(userId: string): Promise<boolean> {
   const [deleted] = await database
     .delete(notificationPreferences)
     .where(eq(notificationPreferences.userId, userId))
@@ -472,39 +425,35 @@ export async function deleteNotificationPreferences(
 /**
  * Get default channels for a notification type
  */
-export function getDefaultChannelsForType(
-  type: NotificationType
-): NotificationChannel[] {
+export function getDefaultChannelsForType(type: NotificationType): NotificationChannel[] {
   const channelMap: Record<NotificationType, NotificationChannel[]> = {
-    meeting_briefing_ready: ["push", "in_app"],
-    commitment_due_today: ["email"],
-    commitment_overdue: ["push", "email"],
-    high_importance_email: ["push"],
-    follow_up_reminder: ["in_app"],
-    weekly_relationship_review: ["email"],
-    daily_digest: ["email"],
+    meeting_briefing_ready: ['push', 'in_app'],
+    commitment_due_today: ['email'],
+    commitment_overdue: ['push', 'email'],
+    high_importance_email: ['push'],
+    follow_up_reminder: ['in_app'],
+    weekly_relationship_review: ['email'],
+    daily_digest: ['email'],
   };
 
-  return channelMap[type] || ["in_app"];
+  return channelMap[type] || ['in_app'];
 }
 
 /**
  * Get default urgency for a notification type
  */
-export function getDefaultUrgencyForType(
-  type: NotificationType
-): "high" | "medium" | "low" {
-  const urgencyMap: Record<NotificationType, "high" | "medium" | "low"> = {
-    meeting_briefing_ready: "medium",
-    commitment_due_today: "medium",
-    commitment_overdue: "high",
-    high_importance_email: "high",
-    follow_up_reminder: "low",
-    weekly_relationship_review: "low",
-    daily_digest: "medium",
+export function getDefaultUrgencyForType(type: NotificationType): 'high' | 'medium' | 'low' {
+  const urgencyMap: Record<NotificationType, 'high' | 'medium' | 'low'> = {
+    meeting_briefing_ready: 'medium',
+    commitment_due_today: 'medium',
+    commitment_overdue: 'high',
+    high_importance_email: 'high',
+    follow_up_reminder: 'low',
+    weekly_relationship_review: 'low',
+    daily_digest: 'medium',
   };
 
-  return urgencyMap[type] || "medium";
+  return urgencyMap[type] || 'medium';
 }
 
 /**
@@ -556,20 +505,20 @@ export function isWithinQuietHours(
     return false;
   }
 
-  const timezone = prefs.timezone || "America/Los_Angeles";
-  const formatter = new Intl.DateTimeFormat("en-US", {
+  const timezone = prefs.timezone || 'America/Los_Angeles';
+  const formatter = new Intl.DateTimeFormat('en-US', {
     timeZone: timezone,
-    hour: "2-digit",
-    minute: "2-digit",
+    hour: '2-digit',
+    minute: '2-digit',
     hour12: false,
   });
 
   const currentTimeStr = formatter.format(currentTime);
-  const [currentHour, currentMinute] = currentTimeStr.split(":").map(Number);
+  const [currentHour, currentMinute] = currentTimeStr.split(':').map(Number);
   const currentMinutes = currentHour * 60 + currentMinute;
 
-  const [startHour, startMinute] = prefs.quietHoursStart.split(":").map(Number);
-  const [endHour, endMinute] = prefs.quietHoursEnd.split(":").map(Number);
+  const [startHour, startMinute] = prefs.quietHoursStart.split(':').map(Number);
+  const [endHour, endMinute] = prefs.quietHoursEnd.split(':').map(Number);
   const startMinutes = startHour * 60 + startMinute;
   const endMinutes = endHour * 60 + endMinute;
 

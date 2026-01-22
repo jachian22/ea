@@ -1,12 +1,12 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import {
   notificationsQueryOptions,
   recentNotificationsQueryOptions,
   unreadCountQueryOptions,
-} from "~/queries/notifications";
-import { markAsReadFn, markAllAsReadFn } from "~/fn/notifications";
-import { getErrorMessage } from "~/utils/error";
+} from '~/queries/notifications';
+import { markAsReadFn, markAllAsReadFn } from '~/fn/notifications';
+import { getErrorMessage } from '~/utils/error';
 
 // Query hooks
 export function useNotifications(limit: number = 20, offset: number = 0, enabled = true) {
@@ -35,14 +35,13 @@ export function useMarkAsRead() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (notificationId: string) =>
-      markAsReadFn({ data: { notificationId } }),
+    mutationFn: (notificationId: string) => markAsReadFn({ data: { notificationId } }),
     onSuccess: () => {
       // Invalidate all notification queries
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
     },
     onError: (error) => {
-      toast.error("Failed to mark notification as read", {
+      toast.error('Failed to mark notification as read', {
         description: getErrorMessage(error),
       });
     },
@@ -59,10 +58,10 @@ export function useMarkAllAsRead() {
         toast.success(`Marked ${result.count} notifications as read`);
       }
       // Invalidate all notification queries
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
     },
     onError: (error) => {
-      toast.error("Failed to mark notifications as read", {
+      toast.error('Failed to mark notifications as read', {
         description: getErrorMessage(error),
       });
     },

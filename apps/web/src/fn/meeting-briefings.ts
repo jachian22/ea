@@ -1,30 +1,30 @@
-import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
-import { authenticatedMiddleware } from "./middleware";
+import { createServerFn } from '@tanstack/react-start';
+import { z } from 'zod';
+import { authenticatedMiddleware } from './middleware';
 import {
   findMeetingBriefingById,
   findMeetingBriefingsByUserId,
   findUpcomingMeetingBriefings,
   findTodaysMeetingBriefings,
   getBriefingStatusSummary,
-} from "~/data-access/meeting-briefings";
+} from '~/data-access/meeting-briefings';
 import {
   generateMeetingBriefing,
   generateUpcomingMeetingBriefings,
-} from "~/services/meeting-briefing-service";
-import { fetchEventsForDailyBrief } from "~/services/google-calendar";
-import { findGoogleIntegrationByUserId } from "~/data-access/google-integration";
-import { isIntegrationValid } from "~/lib/google-client";
+} from '~/services/meeting-briefing-service';
+import { fetchEventsForDailyBrief } from '~/services/google-calendar';
+import { findGoogleIntegrationByUserId } from '~/data-access/google-integration';
+import { isIntegrationValid } from '~/lib/google-client';
 
 // ============================================================================
 // Get Meeting Briefings
 // ============================================================================
 
-export const getMeetingBriefingsFn = createServerFn({ method: "GET" })
+export const getMeetingBriefingsFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z
       .object({
-        filter: z.enum(["all", "upcoming", "today"]).optional().default("upcoming"),
+        filter: z.enum(['all', 'upcoming', 'today']).optional().default('upcoming'),
         hoursAhead: z.number().min(1).max(168).optional().default(24),
         limit: z.number().min(1).max(100).optional().default(50),
       })
@@ -33,7 +33,7 @@ export const getMeetingBriefingsFn = createServerFn({ method: "GET" })
   .middleware([authenticatedMiddleware])
   .handler(async ({ data, context }) => {
     const { userId } = context;
-    const filter = data?.filter || "upcoming";
+    const filter = data?.filter || 'upcoming';
     const hoursAhead = data?.hoursAhead || 24;
     const limit = data?.limit || 50;
 
@@ -41,13 +41,13 @@ export const getMeetingBriefingsFn = createServerFn({ method: "GET" })
       let briefings;
 
       switch (filter) {
-        case "all":
+        case 'all':
           briefings = await findMeetingBriefingsByUserId(userId, limit);
           break;
-        case "upcoming":
+        case 'upcoming':
           briefings = await findUpcomingMeetingBriefings(userId, hoursAhead);
           break;
-        case "today":
+        case 'today':
           briefings = await findTodaysMeetingBriefings(userId);
           break;
         default:
@@ -60,11 +60,11 @@ export const getMeetingBriefingsFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get meeting briefings:", error);
+      console.error('Failed to get meeting briefings:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to get meeting briefings",
+        error: error instanceof Error ? error.message : 'Failed to get meeting briefings',
       };
     }
   });
@@ -73,7 +73,7 @@ export const getMeetingBriefingsFn = createServerFn({ method: "GET" })
 // Get Meeting Briefing by ID
 // ============================================================================
 
-export const getMeetingBriefingByIdFn = createServerFn({ method: "GET" })
+export const getMeetingBriefingByIdFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z.object({
       id: z.string(),
@@ -90,7 +90,7 @@ export const getMeetingBriefingByIdFn = createServerFn({ method: "GET" })
         return {
           success: false,
           data: null,
-          error: "Meeting briefing not found",
+          error: 'Meeting briefing not found',
         };
       }
 
@@ -100,11 +100,11 @@ export const getMeetingBriefingByIdFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get meeting briefing:", error);
+      console.error('Failed to get meeting briefing:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to get meeting briefing",
+        error: error instanceof Error ? error.message : 'Failed to get meeting briefing',
       };
     }
   });
@@ -113,7 +113,7 @@ export const getMeetingBriefingByIdFn = createServerFn({ method: "GET" })
 // Generate Meeting Briefings
 // ============================================================================
 
-export const generateMeetingBriefingsFn = createServerFn({ method: "POST" })
+export const generateMeetingBriefingsFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z
       .object({
@@ -135,7 +135,8 @@ export const generateMeetingBriefingsFn = createServerFn({ method: "POST" })
         return {
           success: false,
           data: null,
-          error: "Google account is not connected. Please connect your Google account to generate meeting briefings.",
+          error:
+            'Google account is not connected. Please connect your Google account to generate meeting briefings.',
         };
       }
 
@@ -158,11 +159,11 @@ export const generateMeetingBriefingsFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to generate meeting briefings:", error);
+      console.error('Failed to generate meeting briefings:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to generate meeting briefings",
+        error: error instanceof Error ? error.message : 'Failed to generate meeting briefings',
       };
     }
   });
@@ -171,7 +172,7 @@ export const generateMeetingBriefingsFn = createServerFn({ method: "POST" })
 // Get Briefing Status Summary
 // ============================================================================
 
-export const getBriefingStatusSummaryFn = createServerFn({ method: "GET" })
+export const getBriefingStatusSummaryFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z
       .object({
@@ -193,11 +194,11 @@ export const getBriefingStatusSummaryFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get briefing status summary:", error);
+      console.error('Failed to get briefing status summary:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to get briefing status summary",
+        error: error instanceof Error ? error.message : 'Failed to get briefing status summary',
       };
     }
   });
@@ -206,7 +207,7 @@ export const getBriefingStatusSummaryFn = createServerFn({ method: "GET" })
 // Get Upcoming Meetings (Calendar Events)
 // ============================================================================
 
-export const getUpcomingMeetingsFn = createServerFn({ method: "GET" })
+export const getUpcomingMeetingsFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z
       .object({
@@ -227,7 +228,7 @@ export const getUpcomingMeetingsFn = createServerFn({ method: "GET" })
         return {
           success: false,
           data: null,
-          error: "Google account is not connected.",
+          error: 'Google account is not connected.',
         };
       }
 
@@ -243,11 +244,11 @@ export const getUpcomingMeetingsFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get upcoming meetings:", error);
+      console.error('Failed to get upcoming meetings:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to get upcoming meetings",
+        error: error instanceof Error ? error.message : 'Failed to get upcoming meetings',
       };
     }
   });

@@ -1,7 +1,7 @@
-import { useMemo, useState, useEffect } from "react";
-import { Clock, MapPin, LinkIcon, Users } from "lucide-react";
-import { Button } from "~/components/ui/button";
-import type { CalendarEventData } from "~/db/schema";
+import { useMemo, useState, useEffect } from 'react';
+import { Clock, MapPin, LinkIcon, Users } from 'lucide-react';
+import { Button } from '~/components/ui/button';
+import type { CalendarEventData } from '~/db/schema';
 
 interface CalendarTimelineProps {
   events: CalendarEventData[];
@@ -45,7 +45,7 @@ export function CalendarTimeline({
   // Filter out "free" events if requested (these are self-notes/reminders)
   const filteredEvents = useMemo(() => {
     if (!hideFreeEvents) return events;
-    return events.filter((e) => e.transparency !== "transparent");
+    return events.filter((e) => e.transparency !== 'transparent');
   }, [events, hideFreeEvents]);
 
   // Separate all-day events from timed events
@@ -53,16 +53,16 @@ export function CalendarTimeline({
   const timedEvents = filteredEvents.filter((e) => !e.isAllDay);
 
   const formatHour = (hour: number) => {
-    if (hour === 0) return "12am";
-    if (hour === 12) return "12pm";
+    if (hour === 0) return '12am';
+    if (hour === 12) return '12pm';
     if (hour < 12) return `${hour}am`;
     return `${hour - 12}pm`;
   };
 
   const formatTime = (isoString: string) => {
-    return new Date(isoString).toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
+    return new Date(isoString).toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
       hour12: true,
     });
   };
@@ -84,7 +84,7 @@ export function CalendarTimeline({
     return {
       top: `${Math.max(0, top)}%`,
       height: `${Math.min(height, 100 - top)}%`,
-      minHeight: "2.5rem",
+      minHeight: '2.5rem',
     };
   };
 
@@ -98,14 +98,13 @@ export function CalendarTimeline({
     return `${position}%`;
   };
 
-  const isCurrentTimeVisible = currentTime !== null && currentHour >= startHour && currentHour <= endHour;
+  const isCurrentTimeVisible =
+    currentTime !== null && currentHour >= startHour && currentHour <= endHour;
 
   if (filteredEvents.length === 0) {
     return (
       <div className="bg-muted/30 rounded-lg p-4 text-center">
-        <p className="text-sm text-muted-foreground">
-          No meetings scheduled for today.
-        </p>
+        <p className="text-sm text-muted-foreground">No meetings scheduled for today.</p>
       </div>
     );
   }
@@ -134,13 +133,8 @@ export function CalendarTimeline({
         {/* Hour labels */}
         <div className="w-12 flex-shrink-0">
           {hours.map((hour) => (
-            <div
-              key={hour}
-              className="h-12 flex items-start justify-end pr-2"
-            >
-              <span className="text-xs text-muted-foreground -mt-1.5">
-                {formatHour(hour)}
-              </span>
+            <div key={hour} className="h-12 flex items-start justify-end pr-2">
+              <span className="text-xs text-muted-foreground -mt-1.5">{formatHour(hour)}</span>
             </div>
           ))}
         </div>
@@ -149,10 +143,7 @@ export function CalendarTimeline({
         <div className="flex-1 relative border-l border-border/50">
           {/* Hour lines */}
           {hours.map((hour) => (
-            <div
-              key={hour}
-              className="h-12 border-b border-border/30"
-            />
+            <div key={hour} className="h-12 border-b border-border/30" />
           ))}
 
           {/* Current time indicator */}
@@ -177,9 +168,7 @@ export function CalendarTimeline({
                   style={position}
                 >
                   <div className="p-1.5 h-full flex flex-col">
-                    <p className="text-xs font-medium text-white truncate">
-                      {event.title}
-                    </p>
+                    <p className="text-xs font-medium text-white truncate">{event.title}</p>
                     <p className="text-[10px] text-white/80">
                       {formatTime(event.startTime)} - {formatTime(event.endTime)}
                     </p>
@@ -229,11 +218,7 @@ export function CalendarTimeline({
                   </span>
                 )}
                 {event.meetingLink && (
-                  <a
-                    href={event.meetingLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
+                  <a href={event.meetingLink} target="_blank" rel="noopener noreferrer">
                     <Button variant="outline" size="sm" className="h-6 px-2 text-xs">
                       <LinkIcon className="h-3 w-3 mr-1" />
                       Join

@@ -1,6 +1,6 @@
-import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
-import { authenticatedMiddleware } from "./middleware";
+import { createServerFn } from '@tanstack/react-start';
+import { z } from 'zod';
+import { authenticatedMiddleware } from './middleware';
 import {
   createDomainRule,
   findDomainRulesByUserId,
@@ -8,18 +8,18 @@ import {
   updateDomainRule,
   deleteDomainRule,
   createDomainRules,
-} from "~/data-access/domain-rules";
+} from '~/data-access/domain-rules';
 
 // ============================================================================
 // Create Domain Rule
 // ============================================================================
 
-export const createDomainRuleFn = createServerFn({ method: "POST" })
+export const createDomainRuleFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
-      ruleType: z.enum(["email_domain", "email_address", "person", "keyword"]),
-      pattern: z.string().min(1, "Pattern is required"),
-      domain: z.enum(["family", "business", "job", "personal", "other"]),
+      ruleType: z.enum(['email_domain', 'email_address', 'person', 'keyword']),
+      pattern: z.string().min(1, 'Pattern is required'),
+      domain: z.enum(['family', 'business', 'job', 'personal', 'other']),
       priority: z.number().min(0).max(100).optional().default(0),
     })
   )
@@ -43,11 +43,11 @@ export const createDomainRuleFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to create domain rule:", error);
+      console.error('Failed to create domain rule:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to create domain rule",
+        error: error instanceof Error ? error.message : 'Failed to create domain rule',
       };
     }
   });
@@ -56,7 +56,7 @@ export const createDomainRuleFn = createServerFn({ method: "POST" })
 // Get Domain Rules
 // ============================================================================
 
-export const getDomainRulesFn = createServerFn({ method: "GET" })
+export const getDomainRulesFn = createServerFn({ method: 'GET' })
   .middleware([authenticatedMiddleware])
   .handler(async ({ context }) => {
     const { userId } = context;
@@ -70,11 +70,11 @@ export const getDomainRulesFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get domain rules:", error);
+      console.error('Failed to get domain rules:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to get domain rules",
+        error: error instanceof Error ? error.message : 'Failed to get domain rules',
       };
     }
   });
@@ -83,12 +83,12 @@ export const getDomainRulesFn = createServerFn({ method: "GET" })
 // Update Domain Rule
 // ============================================================================
 
-export const updateDomainRuleFn = createServerFn({ method: "POST" })
+export const updateDomainRuleFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       id: z.string(),
       pattern: z.string().min(1).optional(),
-      domain: z.enum(["family", "business", "job", "personal", "other"]).optional(),
+      domain: z.enum(['family', 'business', 'job', 'personal', 'other']).optional(),
       priority: z.number().min(0).max(100).optional(),
     })
   )
@@ -103,7 +103,7 @@ export const updateDomainRuleFn = createServerFn({ method: "POST" })
         return {
           success: false,
           data: null,
-          error: "Domain rule not found",
+          error: 'Domain rule not found',
         };
       }
 
@@ -119,11 +119,11 @@ export const updateDomainRuleFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to update domain rule:", error);
+      console.error('Failed to update domain rule:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to update domain rule",
+        error: error instanceof Error ? error.message : 'Failed to update domain rule',
       };
     }
   });
@@ -132,7 +132,7 @@ export const updateDomainRuleFn = createServerFn({ method: "POST" })
 // Delete Domain Rule
 // ============================================================================
 
-export const deleteDomainRuleFn = createServerFn({ method: "POST" })
+export const deleteDomainRuleFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       id: z.string(),
@@ -148,7 +148,7 @@ export const deleteDomainRuleFn = createServerFn({ method: "POST" })
       if (!existing || existing.userId !== userId) {
         return {
           success: false,
-          error: "Domain rule not found",
+          error: 'Domain rule not found',
         };
       }
 
@@ -159,10 +159,10 @@ export const deleteDomainRuleFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to delete domain rule:", error);
+      console.error('Failed to delete domain rule:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Failed to delete domain rule",
+        error: error instanceof Error ? error.message : 'Failed to delete domain rule',
       };
     }
   });
@@ -171,14 +171,14 @@ export const deleteDomainRuleFn = createServerFn({ method: "POST" })
 // Bulk Create Domain Rules
 // ============================================================================
 
-export const bulkCreateDomainRulesFn = createServerFn({ method: "POST" })
+export const bulkCreateDomainRulesFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       rules: z.array(
         z.object({
-          ruleType: z.enum(["email_domain", "email_address", "person", "keyword"]),
+          ruleType: z.enum(['email_domain', 'email_address', 'person', 'keyword']),
           pattern: z.string().min(1),
-          domain: z.enum(["family", "business", "job", "personal", "other"]),
+          domain: z.enum(['family', 'business', 'job', 'personal', 'other']),
           priority: z.number().min(0).max(100).optional().default(0),
         })
       ),
@@ -206,11 +206,11 @@ export const bulkCreateDomainRulesFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to bulk create domain rules:", error);
+      console.error('Failed to bulk create domain rules:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to create domain rules",
+        error: error instanceof Error ? error.message : 'Failed to create domain rules',
       };
     }
   });

@@ -9,7 +9,7 @@ import {
   resolveEmailParticipants,
   resolveCalendarAttendees,
   type BulkResolveResult,
-} from "./person-resolver";
+} from './person-resolver';
 import {
   detectCommitmentsInEmail,
   detectCommitmentsInCalendarEvent,
@@ -17,9 +17,9 @@ import {
   type EmailForAnalysis,
   type CalendarEventForAnalysis,
   type DetectedCommitment,
-} from "./commitment-detector";
-import { classifyEmail } from "./domain-classifier";
-import { createInteraction } from "~/data-access/interactions";
+} from './commitment-detector';
+import { classifyEmail } from './domain-classifier';
+import { createInteraction } from '~/data-access/interactions';
 import type {
   Person,
   Commitment,
@@ -27,7 +27,7 @@ import type {
   PersonDomain,
   EmailData,
   CalendarEventData,
-} from "~/db/schema";
+} from '~/db/schema';
 
 // ============================================================================
 // Types
@@ -121,12 +121,12 @@ export async function extractFromEmail(
         id: crypto.randomUUID(),
         userId,
         personId: primaryContact.person.id,
-        type: "email",
-        channel: "email",
-        direction: isInbound ? "inbound" : "outbound",
+        type: 'email',
+        channel: 'email',
+        direction: isInbound ? 'inbound' : 'outbound',
         subject: email.subject,
         summary: email.snippet,
-        sourceType: "email",
+        sourceType: 'email',
         sourceId: email.id,
         occurredAt: new Date(email.receivedAt),
       });
@@ -142,7 +142,7 @@ export async function extractFromEmail(
       body: email.snippet, // Using snippet as we don't have full body
       from: email.from,
       receivedAt: new Date(email.receivedAt),
-      direction: isInbound ? "inbound" : "outbound",
+      direction: isInbound ? 'inbound' : 'outbound',
     };
 
     const commitmentResult = detectCommitmentsInEmail(emailForAnalysis);
@@ -160,7 +160,7 @@ export async function extractFromEmail(
         userId,
         result.detectedCommitments,
         {
-          type: "email",
+          type: 'email',
           id: email.id,
           personId: primaryContact?.person.id,
           domain: classification.domain,
@@ -172,9 +172,7 @@ export async function extractFromEmail(
       result.commitmentsSaved = saved.length;
     }
   } catch (error) {
-    errors.push(
-      `Email extraction error: ${error instanceof Error ? error.message : "Unknown"}`
-    );
+    errors.push(`Email extraction error: ${error instanceof Error ? error.message : 'Unknown'}`);
   }
 
   result.errors = errors;
@@ -281,12 +279,12 @@ export async function extractFromCalendarEvent(
           id: crypto.randomUUID(),
           userId,
           personId: resolved.person.id,
-          type: "meeting",
-          channel: "meeting",
-          direction: "outbound", // Meetings are typically mutual
+          type: 'meeting',
+          channel: 'meeting',
+          direction: 'outbound', // Meetings are typically mutual
           subject: event.title,
           summary: event.description,
-          sourceType: "calendar",
+          sourceType: 'calendar',
           sourceId: event.id,
           occurredAt: new Date(event.startTime),
         });
@@ -319,7 +317,7 @@ export async function extractFromCalendarEvent(
         userId,
         result.detectedCommitments,
         {
-          type: "calendar",
+          type: 'calendar',
           id: event.id,
           personId: primaryAttendee?.id,
         },
@@ -330,9 +328,7 @@ export async function extractFromCalendarEvent(
       result.commitmentsSaved = saved.length;
     }
   } catch (error) {
-    errors.push(
-      `Calendar extraction error: ${error instanceof Error ? error.message : "Unknown"}`
-    );
+    errors.push(`Calendar extraction error: ${error instanceof Error ? error.message : 'Unknown'}`);
   }
 
   result.errors = errors;
@@ -366,12 +362,7 @@ export async function extractFromCalendarEvents(
   };
 
   for (let i = 0; i < events.length; i++) {
-    const result = await extractFromCalendarEvent(
-      userId,
-      userEmail,
-      events[i],
-      options
-    );
+    const result = await extractFromCalendarEvent(userId, userEmail, events[i], options);
     results.push(result);
 
     // Aggregate summary
@@ -428,7 +419,7 @@ export async function extractFromAll(
   const emailResults = await extractFromEmails(userId, userEmail, data.emails, {
     ...options,
     onProgress: (processed, total) => {
-      options?.onProgress?.("emails", processed, total);
+      options?.onProgress?.('emails', processed, total);
     },
   });
 
@@ -442,17 +433,12 @@ export async function extractFromAll(
   result.errors.push(...emailResults.summary.errors);
 
   // Process calendar events
-  const eventResults = await extractFromCalendarEvents(
-    userId,
-    userEmail,
-    data.calendarEvents,
-    {
-      ...options,
-      onProgress: (processed, total) => {
-        options?.onProgress?.("calendar", processed, total);
-      },
-    }
-  );
+  const eventResults = await extractFromCalendarEvents(userId, userEmail, data.calendarEvents, {
+    ...options,
+    onProgress: (processed, total) => {
+      options?.onProgress?.('calendar', processed, total);
+    },
+  });
 
   result.details.events = eventResults.results;
   result.eventsProcessed = data.calendarEvents.length;

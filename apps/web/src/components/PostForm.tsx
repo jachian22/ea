@@ -1,12 +1,12 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useState, useEffect } from "react";
-import { Loader2, MessageSquarePlus, Save } from "lucide-react";
-import { POST_CATEGORIES } from "~/fn/posts";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import { Textarea } from "~/components/ui/textarea";
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useState, useEffect } from 'react';
+import { Loader2, MessageSquarePlus, Save } from 'lucide-react';
+import { POST_CATEGORIES } from '~/fn/posts';
+import { Button } from '~/components/ui/button';
+import { Input } from '~/components/ui/input';
+import { Textarea } from '~/components/ui/textarea';
 import {
   Form,
   FormControl,
@@ -15,30 +15,27 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "~/components/ui/form";
+} from '~/components/ui/form';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "~/components/ui/select";
-import { MediaUploadToggle } from "~/components/MediaUploadToggle";
-import { AttachmentPreviewGrid } from "~/components/AttachmentPreviewGrid";
-import type { MediaUploadResult } from "~/utils/storage/media-helpers";
-import { revokeFilePreview } from "~/utils/storage/media-helpers";
-import type { PostAttachment } from "~/db/schema";
-import { useAttachmentUrls } from "~/hooks/useAttachments";
+} from '~/components/ui/select';
+import { MediaUploadToggle } from '~/components/MediaUploadToggle';
+import { AttachmentPreviewGrid } from '~/components/AttachmentPreviewGrid';
+import type { MediaUploadResult } from '~/utils/storage/media-helpers';
+import { revokeFilePreview } from '~/utils/storage/media-helpers';
+import type { PostAttachment } from '~/db/schema';
+import { useAttachmentUrls } from '~/hooks/useAttachments';
 
 export const postFormSchema = z.object({
-  title: z
-    .string()
-    .min(1, "Title is required")
-    .max(200, "Title must be less than 200 characters"),
+  title: z.string().min(1, 'Title is required').max(200, 'Title must be less than 200 characters'),
   content: z
     .string()
-    .min(1, "Content is required")
-    .max(10000, "Content must be less than 10000 characters"),
+    .min(1, 'Content is required')
+    .max(10000, 'Content must be less than 10000 characters'),
   category: z.enum(POST_CATEGORIES),
 });
 
@@ -49,26 +46,22 @@ export interface PostFormDataWithAttachments extends PostFormData {
   deletedAttachmentIds?: string[];
 }
 
-export const CATEGORY_LABELS: Record<(typeof POST_CATEGORIES)[number], string> =
-  {
-    general: "General",
-    question: "Question",
-    discussion: "Discussion",
-    announcement: "Announcement",
-    feedback: "Feedback",
-    showcase: "Showcase",
-  };
+export const CATEGORY_LABELS: Record<(typeof POST_CATEGORIES)[number], string> = {
+  general: 'General',
+  question: 'Question',
+  discussion: 'Discussion',
+  announcement: 'Announcement',
+  feedback: 'Feedback',
+  showcase: 'Showcase',
+};
 
-export const CATEGORY_DESCRIPTIONS: Record<
-  (typeof POST_CATEGORIES)[number],
-  string
-> = {
-  general: "General topics and conversations",
-  question: "Ask the community for help",
-  discussion: "Start a discussion on a topic",
-  announcement: "Share important updates",
-  feedback: "Share feedback or suggestions",
-  showcase: "Show off your work",
+export const CATEGORY_DESCRIPTIONS: Record<(typeof POST_CATEGORIES)[number], string> = {
+  general: 'General topics and conversations',
+  question: 'Ask the community for help',
+  discussion: 'Start a discussion on a topic',
+  announcement: 'Share important updates',
+  feedback: 'Share feedback or suggestions',
+  showcase: 'Show off your work',
 };
 
 interface PostFormProps {
@@ -87,17 +80,15 @@ export function PostForm({
   defaultValues,
   onSubmit,
   isPending = false,
-  submitLabel = "Publish Post",
+  submitLabel = 'Publish Post',
   submitIcon = <MessageSquarePlus className="h-4 w-4 mr-2" />,
   onCancel,
-  cancelLabel = "Cancel",
+  cancelLabel = 'Cancel',
   showMediaUpload = true,
   existingAttachments = [],
 }: PostFormProps) {
   const [uploadedMedia, setUploadedMedia] = useState<MediaUploadResult[]>([]);
-  const [deletedAttachmentIds, setDeletedAttachmentIds] = useState<string[]>(
-    []
-  );
+  const [deletedAttachmentIds, setDeletedAttachmentIds] = useState<string[]>([]);
 
   // Filter out deleted attachments for display
   const visibleExistingAttachments = existingAttachments.filter(
@@ -105,16 +96,14 @@ export function PostForm({
   );
 
   // Fetch URLs for existing attachments
-  const { data: existingUrlMap = {} } = useAttachmentUrls(
-    visibleExistingAttachments
-  );
+  const { data: existingUrlMap = {} } = useAttachmentUrls(visibleExistingAttachments);
 
   const form = useForm<PostFormData>({
     resolver: zodResolver(postFormSchema),
     defaultValues: {
-      title: "",
-      content: "",
-      category: "general",
+      title: '',
+      content: '',
+      category: 'general',
       ...defaultValues,
     },
   });
@@ -153,8 +142,7 @@ export function PostForm({
     await onSubmit({
       ...data,
       attachments: uploadedMedia,
-      deletedAttachmentIds:
-        deletedAttachmentIds.length > 0 ? deletedAttachmentIds : undefined,
+      deletedAttachmentIds: deletedAttachmentIds.length > 0 ? deletedAttachmentIds : undefined,
     });
     // Cleanup preview URLs after successful submission
     uploadedMedia.forEach((media) => {
@@ -164,8 +152,7 @@ export function PostForm({
     });
   };
 
-  const totalAttachments =
-    visibleExistingAttachments.length + uploadedMedia.length;
+  const totalAttachments = visibleExistingAttachments.length + uploadedMedia.length;
 
   return (
     <Form {...form}>
@@ -176,11 +163,7 @@ export function PostForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-base font-medium">Category</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                value={field.value}
-                disabled={isPending}
-              >
+              <Select onValueChange={field.onChange} value={field.value} disabled={isPending}>
                 <FormControl>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select a category" />
@@ -196,9 +179,7 @@ export function PostForm({
                   ))}
                 </SelectContent>
               </Select>
-              <FormDescription>
-                {CATEGORY_DESCRIPTIONS[field.value]}
-              </FormDescription>
+              <FormDescription>{CATEGORY_DESCRIPTIONS[field.value]}</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -218,9 +199,7 @@ export function PostForm({
                   {...field}
                 />
               </FormControl>
-              <FormDescription>
-                {field.value?.length || 0}/200 characters
-              </FormDescription>
+              <FormDescription>{field.value?.length || 0}/200 characters</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -240,9 +219,7 @@ export function PostForm({
                   {...field}
                 />
               </FormControl>
-              <FormDescription>
-                {field.value?.length || 0}/10000 characters
-              </FormDescription>
+              <FormDescription>{field.value?.length || 0}/10000 characters</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -262,7 +239,7 @@ export function PostForm({
               onDeleteExisting={removeExistingAttachment}
               onDeleteUploaded={removeUploadedMedia}
               deleteDisabled={isPending}
-              label={totalAttachments > 0 ? "Attached Media" : undefined}
+              label={totalAttachments > 0 ? 'Attached Media' : undefined}
             />
 
             {/* Toggle dropzone button or dropzone */}

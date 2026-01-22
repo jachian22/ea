@@ -30,10 +30,7 @@ The `R2Storage` class implements the `IStorage` interface and provides:
 ```typescript
 class R2Storage implements IStorage {
   // Generates presigned URL for direct uploads (1 hour expiry)
-  async getPresignedUploadUrl(
-    key: string,
-    contentType: string
-  ): Promise<string>;
+  async getPresignedUploadUrl(key: string, contentType: string): Promise<string>;
 
   // Generates presigned URL for downloads (1 hour expiry)
   async getPresignedUrl(key: string): Promise<string>;
@@ -135,7 +132,7 @@ bucket/
 To implement secure, private file access, you would modify the download server functions:
 
 ```typescript
-export const getAudioUrlFn = createServerFn({ method: "POST" })
+export const getAudioUrlFn = createServerFn({ method: 'POST' })
   .middleware([authenticatedMiddleware]) // Add authentication
   .inputValidator(
     z.object({
@@ -152,12 +149,12 @@ export const getAudioUrlFn = createServerFn({ method: "POST" })
     });
 
     if (!song) {
-      throw new Error("Song not found");
+      throw new Error('Song not found');
     }
 
     // Implement access control logic
-    if (song.status === "private" && song.userId !== userId) {
-      throw new Error("Access denied");
+    if (song.status === 'private' && song.userId !== userId) {
+      throw new Error('Access denied');
     }
 
     const { storage } = getStorage();

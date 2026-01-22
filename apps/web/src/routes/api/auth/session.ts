@@ -1,9 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import {
-  getUserFromSession,
-  getSessionTokenFromCookie,
-  extendSession,
-} from "~/lib/session";
+import { createFileRoute } from '@tanstack/react-router';
+import { getUserFromSession, getSessionTokenFromCookie, extendSession } from '~/lib/session';
 
 // Extend session if it's been more than 1 day since last activity
 const SESSION_EXTENSION_INTERVAL_MS = 24 * 60 * 60 * 1000; // 1 day
@@ -16,11 +12,11 @@ const lastExtensionTimes = new Map<string, number>();
  * Returns the authenticated user or null if not logged in.
  * Also extends the session if it hasn't been extended recently.
  */
-export const Route = createFileRoute("/api/auth/session")({
+export const Route = createFileRoute('/api/auth/session')({
   server: {
     handlers: {
       GET: async ({ request }) => {
-        const cookieHeader = request.headers.get("cookie");
+        const cookieHeader = request.headers.get('cookie');
         const token = getSessionTokenFromCookie(cookieHeader);
 
         if (!token) {
@@ -38,9 +34,7 @@ export const Route = createFileRoute("/api/auth/session")({
         const now = Date.now();
         if (now - lastExtension > SESSION_EXTENSION_INTERVAL_MS) {
           // Fire and forget - don't block the response
-          extendSession(token).catch((err) =>
-            console.error("Failed to extend session:", err)
-          );
+          extendSession(token).catch((err) => console.error('Failed to extend session:', err));
           lastExtensionTimes.set(token, now);
 
           // Clean up old entries to prevent memory leak

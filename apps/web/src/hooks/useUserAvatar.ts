@@ -1,5 +1,5 @@
-import { authClient } from "~/lib/auth-client";
-import { useAvatarImage } from "./useAvatarImage";
+import { authClient } from '~/lib/auth-client';
+import { useAvatarImage } from './useAvatarImage';
 
 export function useUserAvatar() {
   const { data: session } = authClient.useSession();

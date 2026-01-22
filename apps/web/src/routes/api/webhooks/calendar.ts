@@ -1,11 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from '@tanstack/react-router';
 import {
   processCalendarWebhook,
   type CalendarPushNotification,
-} from "~/services/webhook-ingestion-service";
-import { database } from "~/db";
-import { googleIntegration } from "~/db/schema";
-import { eq } from "drizzle-orm";
+} from '~/services/webhook-ingestion-service';
+import { database } from '~/db';
+import { googleIntegration } from '~/db/schema';
+import { eq } from 'drizzle-orm';
 
 /**
  * Google Calendar Push Notification Webhook Handler
@@ -32,26 +32,23 @@ import { eq } from "drizzle-orm";
  * - X-Goog-Resource-URI: URI of the changed resource
  * - X-Goog-Changed: Comma-separated list of changed fields (optional)
  */
-export const Route = createFileRoute("/api/webhooks/calendar")({
+export const Route = createFileRoute('/api/webhooks/calendar')({
   server: {
     handlers: {
       POST: async ({ request }) => {
         try {
           // Extract notification info from headers
-          const channelId = request.headers.get("X-Goog-Channel-ID");
-          const resourceId = request.headers.get("X-Goog-Resource-ID");
-          const resourceState = request.headers.get("X-Goog-Resource-State");
-          const resourceUri = request.headers.get("X-Goog-Resource-URI");
-          const channelExpiration = request.headers.get("X-Goog-Channel-Expiration");
-          const changed = request.headers.get("X-Goog-Changed");
+          const channelId = request.headers.get('X-Goog-Channel-ID');
+          const resourceId = request.headers.get('X-Goog-Resource-ID');
+          const resourceState = request.headers.get('X-Goog-Resource-State');
+          const resourceUri = request.headers.get('X-Goog-Resource-URI');
+          const channelExpiration = request.headers.get('X-Goog-Channel-Expiration');
+          const changed = request.headers.get('X-Goog-Changed');
 
           // Validate required headers
           if (!channelId || !resourceId || !resourceState) {
-            console.warn("[Calendar Webhook] Missing required headers");
-            return Response.json(
-              { error: "Missing required headers" },
-              { status: 400 }
-            );
+            console.warn('[Calendar Webhook] Missing required headers');
+            return Response.json({ error: 'Missing required headers' }, { status: 400 });
           }
 
           console.log(
@@ -62,16 +59,16 @@ export const Route = createFileRoute("/api/webhooks/calendar")({
           const notification: CalendarPushNotification = {
             channelId,
             resourceId,
-            resourceState: resourceState as "sync" | "exists" | "not_exists",
-            resourceUri: resourceUri || "",
+            resourceState: resourceState as 'sync' | 'exists' | 'not_exists',
+            resourceUri: resourceUri || '',
             channelExpiration: channelExpiration || undefined,
             changed: changed || undefined,
           };
 
           // For sync notifications, just acknowledge
-          if (resourceState === "sync") {
-            console.log("[Calendar Webhook] Received sync notification");
-            return Response.json({ received: true, type: "sync" });
+          if (resourceState === 'sync') {
+            console.log('[Calendar Webhook] Received sync notification');
+            return Response.json({ received: true, type: 'sync' });
           }
 
           // Find the user by their calendar channel ID
@@ -81,9 +78,7 @@ export const Route = createFileRoute("/api/webhooks/calendar")({
           const userId = await findUserByCalendarChannel(channelId);
 
           if (!userId) {
-            console.warn(
-              `[Calendar Webhook] No user found for channelId: ${channelId}`
-            );
+            console.warn(`[Calendar Webhook] No user found for channelId: ${channelId}`);
             // Return 200 to prevent Google from retrying
             return Response.json({ received: true, processed: false });
           }
@@ -92,9 +87,7 @@ export const Route = createFileRoute("/api/webhooks/calendar")({
           const result = await processCalendarWebhook(userId, notification);
 
           if (!result) {
-            console.warn(
-              `[Calendar Webhook] Failed to process notification for user: ${userId}`
-            );
+            console.warn(`[Calendar Webhook] Failed to process notification for user: ${userId}`);
             return Response.json({ received: true, processed: false });
           }
 
@@ -110,12 +103,9 @@ export const Route = createFileRoute("/api/webhooks/calendar")({
             interactionsCreated: result.interactionsCreated,
           });
         } catch (error) {
-          console.error("[Calendar Webhook] Error processing notification:", error);
+          console.error('[Calendar Webhook] Error processing notification:', error);
           // Return 500 to trigger Google's retry for transient errors
-          return Response.json(
-            { error: "Internal server error" },
-            { status: 500 }
-          );
+          return Response.json({ error: 'Internal server error' }, { status: 500 });
         }
       },
     },
@@ -156,7 +146,7 @@ async function findUserByCalendarChannel(channelId: string): Promise<string | nu
 
     return null;
   } catch (error) {
-    console.error("[Calendar Webhook] Error looking up user:", error);
+    console.error('[Calendar Webhook] Error looking up user:', error);
     return null;
   }
 }

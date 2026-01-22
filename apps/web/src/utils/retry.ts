@@ -37,7 +37,7 @@ export interface RetryResult<T> {
 /**
  * Default retry options
  */
-const DEFAULT_RETRY_OPTIONS: Required<Omit<RetryOptions, "onRetry" | "isRetryable">> = {
+const DEFAULT_RETRY_OPTIONS: Required<Omit<RetryOptions, 'onRetry' | 'isRetryable'>> = {
   maxRetries: 3,
   initialDelayMs: 1000,
   maxDelayMs: 10000,
@@ -65,10 +65,7 @@ const DEFAULT_RETRY_OPTIONS: Required<Omit<RetryOptions, "onRetry" | "isRetryabl
  * );
  * ```
  */
-export async function withRetry<T>(
-  fn: () => Promise<T>,
-  options: RetryOptions = {}
-): Promise<T> {
+export async function withRetry<T>(fn: () => Promise<T>, options: RetryOptions = {}): Promise<T> {
   const {
     maxRetries = DEFAULT_RETRY_OPTIONS.maxRetries,
     initialDelayMs = DEFAULT_RETRY_OPTIONS.initialDelayMs,
@@ -112,7 +109,7 @@ export async function withRetry<T>(
   }
 
   // This should never be reached, but TypeScript needs it
-  throw lastError || new Error("Retry failed");
+  throw lastError || new Error('Retry failed');
 }
 
 /**
@@ -240,12 +237,12 @@ export const GoogleAPIErrorCheckers = {
     if (error instanceof Error) {
       const message = error.message.toLowerCase();
       return (
-        message.includes("network") ||
-        message.includes("econnrefused") ||
-        message.includes("econnreset") ||
-        message.includes("etimedout") ||
-        message.includes("socket hang up") ||
-        message.includes("dns")
+        message.includes('network') ||
+        message.includes('econnrefused') ||
+        message.includes('econnreset') ||
+        message.includes('etimedout') ||
+        message.includes('socket hang up') ||
+        message.includes('dns')
       );
     }
     return false;
@@ -257,11 +254,11 @@ export const GoogleAPIErrorCheckers = {
   isQuotaExceededError(error: unknown): boolean {
     const apiError = error as { code?: number; message?: string };
     if (apiError.code === 403) {
-      const message = apiError.message?.toLowerCase() ?? "";
+      const message = apiError.message?.toLowerCase() ?? '';
       return (
-        message.includes("quota") ||
-        message.includes("rate limit") ||
-        message.includes("user rate limit")
+        message.includes('quota') ||
+        message.includes('rate limit') ||
+        message.includes('user rate limit')
       );
     }
     return false;
@@ -281,9 +278,9 @@ export const GoogleAPIErrorCheckers = {
   isPermissionError(error: unknown): boolean {
     const apiError = error as { code?: number; message?: string };
     if (apiError.code === 403) {
-      const message = apiError.message?.toLowerCase() ?? "";
+      const message = apiError.message?.toLowerCase() ?? '';
       // Permission errors (not quota) are not retryable
-      return !this.isQuotaExceededError(error) && message.includes("permission");
+      return !this.isQuotaExceededError(error) && message.includes('permission');
     }
     return false;
   },

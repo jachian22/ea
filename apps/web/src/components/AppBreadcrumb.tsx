@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link } from '@tanstack/react-router';
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -6,7 +6,7 @@ import {
   BreadcrumbLink,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "~/components/ui/breadcrumb";
+} from '~/components/ui/breadcrumb';
 
 interface BreadcrumbItem {
   label: string;

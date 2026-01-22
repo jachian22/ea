@@ -59,7 +59,9 @@ export async function refreshBrief(): Promise<RefreshResult> {
     }
 
     // Find the first valid integration
-    const validIntegration = integrations.find(({ integration }) => isIntegrationValid(integration));
+    const validIntegration = integrations.find(({ integration }) =>
+      isIntegrationValid(integration)
+    );
 
     if (!validIntegration) {
       return {

@@ -1,27 +1,30 @@
-import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
-import { authenticatedMiddleware } from "./middleware";
+import { createServerFn } from '@tanstack/react-start';
+import { z } from 'zod';
+import { authenticatedMiddleware } from './middleware';
 import {
   findPersonById,
   searchPersons,
   findPersonsByDomain,
   findStaleContacts,
   getPersonDossier,
-} from "~/data-access/persons";
+} from '~/data-access/persons';
 import {
   findCommitmentsWithPerson,
   findCommitmentsDueToday,
   findOverdueCommitments,
   findUpcomingCommitments,
-} from "~/data-access/commitments";
-import { findRelationshipsForPerson, getRelationshipsWithPersons } from "~/data-access/relationships";
-import type { PersonDomain } from "~/db/schema";
+} from '~/data-access/commitments';
+import {
+  findRelationshipsForPerson,
+  getRelationshipsWithPersons,
+} from '~/data-access/relationships';
+import type { PersonDomain } from '~/db/schema';
 
 // ============================================================================
 // Get Person Context (Full Dossier)
 // ============================================================================
 
-export const getPersonContextFn = createServerFn({ method: "GET" })
+export const getPersonContextFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z.object({
       personId: z.string(),
@@ -39,7 +42,7 @@ export const getPersonContextFn = createServerFn({ method: "GET" })
         return {
           success: false,
           data: null,
-          error: "Person not found",
+          error: 'Person not found',
         };
       }
 
@@ -55,11 +58,11 @@ export const getPersonContextFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get person context:", error);
+      console.error('Failed to get person context:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to get person context",
+        error: error instanceof Error ? error.message : 'Failed to get person context',
       };
     }
   });
@@ -68,7 +71,7 @@ export const getPersonContextFn = createServerFn({ method: "GET" })
 // Search Knowledge Graph
 // ============================================================================
 
-export const searchKnowledgeFn = createServerFn({ method: "GET" })
+export const searchKnowledgeFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z.object({
       query: z.string().min(1),
@@ -98,11 +101,11 @@ export const searchKnowledgeFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to search knowledge:", error);
+      console.error('Failed to search knowledge:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to search knowledge",
+        error: error instanceof Error ? error.message : 'Failed to search knowledge',
       };
     }
   });
@@ -111,7 +114,7 @@ export const searchKnowledgeFn = createServerFn({ method: "GET" })
 // Get Commitments Dashboard
 // ============================================================================
 
-export const getCommitmentsDashboardFn = createServerFn({ method: "GET" })
+export const getCommitmentsDashboardFn = createServerFn({ method: 'GET' })
   .middleware([authenticatedMiddleware])
   .handler(async ({ context }) => {
     const { userId } = context;
@@ -127,31 +130,31 @@ export const getCommitmentsDashboardFn = createServerFn({ method: "GET" })
       ] = await Promise.all([
         // Overdue - user owes
         findCommitmentsWithPerson(userId, {
-          direction: "user_owes",
+          direction: 'user_owes',
           overdue: true,
-          status: ["pending", "in_progress"],
+          status: ['pending', 'in_progress'],
         }),
         // Overdue - they owe
         findCommitmentsWithPerson(userId, {
-          direction: "they_owe",
+          direction: 'they_owe',
           overdue: true,
-          status: ["pending", "in_progress"],
+          status: ['pending', 'in_progress'],
         }),
         // Due today - user owes
-        findCommitmentsDueToday(userId).then(
-          (all) => all.filter((c) => c.direction === "user_owes")
+        findCommitmentsDueToday(userId).then((all) =>
+          all.filter((c) => c.direction === 'user_owes')
         ),
         // Due today - they owe
-        findCommitmentsDueToday(userId).then(
-          (all) => all.filter((c) => c.direction === "they_owe")
+        findCommitmentsDueToday(userId).then((all) =>
+          all.filter((c) => c.direction === 'they_owe')
         ),
         // Upcoming - user owes
-        findUpcomingCommitments(userId, 7).then(
-          (all) => all.filter((c) => c.direction === "user_owes")
+        findUpcomingCommitments(userId, 7).then((all) =>
+          all.filter((c) => c.direction === 'user_owes')
         ),
         // Upcoming - they owe
-        findUpcomingCommitments(userId, 7).then(
-          (all) => all.filter((c) => c.direction === "they_owe")
+        findUpcomingCommitments(userId, 7).then((all) =>
+          all.filter((c) => c.direction === 'they_owe')
         ),
       ]);
 
@@ -173,11 +176,11 @@ export const getCommitmentsDashboardFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get commitments dashboard:", error);
+      console.error('Failed to get commitments dashboard:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to get commitments dashboard",
+        error: error instanceof Error ? error.message : 'Failed to get commitments dashboard',
       };
     }
   });
@@ -186,10 +189,10 @@ export const getCommitmentsDashboardFn = createServerFn({ method: "GET" })
 // Get People by Domain
 // ============================================================================
 
-export const getPeopleByDomainFn = createServerFn({ method: "GET" })
+export const getPeopleByDomainFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z.object({
-      domain: z.enum(["family", "business", "job", "personal", "other"]),
+      domain: z.enum(['family', 'business', 'job', 'personal', 'other']),
       limit: z.number().min(1).max(100).optional().default(50),
     })
   )
@@ -198,11 +201,7 @@ export const getPeopleByDomainFn = createServerFn({ method: "GET" })
     const { userId } = context;
 
     try {
-      const people = await findPersonsByDomain(
-        userId,
-        data.domain as PersonDomain,
-        data.limit
-      );
+      const people = await findPersonsByDomain(userId, data.domain as PersonDomain, data.limit);
 
       return {
         success: true,
@@ -210,11 +209,11 @@ export const getPeopleByDomainFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get people by domain:", error);
+      console.error('Failed to get people by domain:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to get people by domain",
+        error: error instanceof Error ? error.message : 'Failed to get people by domain',
       };
     }
   });
@@ -223,7 +222,7 @@ export const getPeopleByDomainFn = createServerFn({ method: "GET" })
 // Get Follow-Up Radar (Stale Contacts)
 // ============================================================================
 
-export const getFollowUpRadarFn = createServerFn({ method: "GET" })
+export const getFollowUpRadarFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z
       .object({
@@ -258,11 +257,11 @@ export const getFollowUpRadarFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get follow-up radar:", error);
+      console.error('Failed to get follow-up radar:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to get follow-up radar",
+        error: error instanceof Error ? error.message : 'Failed to get follow-up radar',
       };
     }
   });
@@ -271,25 +270,25 @@ export const getFollowUpRadarFn = createServerFn({ method: "GET" })
 // Get Relationships
 // ============================================================================
 
-export const getRelationshipsFn = createServerFn({ method: "GET" })
+export const getRelationshipsFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z
       .object({
         relationType: z
           .enum([
-            "spouse",
-            "child",
-            "parent",
-            "sibling",
-            "friend",
-            "client",
-            "vendor",
-            "colleague",
-            "manager",
-            "report",
-            "investor",
-            "partner",
-            "other",
+            'spouse',
+            'child',
+            'parent',
+            'sibling',
+            'friend',
+            'client',
+            'vendor',
+            'colleague',
+            'manager',
+            'report',
+            'investor',
+            'partner',
+            'other',
           ])
           .optional(),
       })
@@ -300,10 +299,7 @@ export const getRelationshipsFn = createServerFn({ method: "GET" })
     const { userId } = context;
 
     try {
-      const relationships = await getRelationshipsWithPersons(
-        userId,
-        data?.relationType
-      );
+      const relationships = await getRelationshipsWithPersons(userId, data?.relationType);
 
       return {
         success: true,
@@ -311,11 +307,11 @@ export const getRelationshipsFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get relationships:", error);
+      console.error('Failed to get relationships:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to get relationships",
+        error: error instanceof Error ? error.message : 'Failed to get relationships',
       };
     }
   });
@@ -324,7 +320,7 @@ export const getRelationshipsFn = createServerFn({ method: "GET" })
 // Get Knowledge Summary
 // ============================================================================
 
-export const getKnowledgeSummaryFn = createServerFn({ method: "GET" })
+export const getKnowledgeSummaryFn = createServerFn({ method: 'GET' })
   .middleware([authenticatedMiddleware])
   .handler(async ({ context }) => {
     const { userId } = context;
@@ -333,17 +329,17 @@ export const getKnowledgeSummaryFn = createServerFn({ method: "GET" })
       // Get counts by domain
       const [familyPeople, businessPeople, jobPeople, personalPeople, otherPeople] =
         await Promise.all([
-          findPersonsByDomain(userId, "family", 1000),
-          findPersonsByDomain(userId, "business", 1000),
-          findPersonsByDomain(userId, "job", 1000),
-          findPersonsByDomain(userId, "personal", 1000),
-          findPersonsByDomain(userId, "other", 1000),
+          findPersonsByDomain(userId, 'family', 1000),
+          findPersonsByDomain(userId, 'business', 1000),
+          findPersonsByDomain(userId, 'job', 1000),
+          findPersonsByDomain(userId, 'personal', 1000),
+          findPersonsByDomain(userId, 'other', 1000),
         ]);
 
       // Get commitment stats
       const [openCommitments, overdueCommitments] = await Promise.all([
         findCommitmentsWithPerson(userId, {
-          status: ["pending", "in_progress"],
+          status: ['pending', 'in_progress'],
           limit: 1000,
         }),
         findOverdueCommitments(userId),
@@ -373,8 +369,8 @@ export const getKnowledgeSummaryFn = createServerFn({ method: "GET" })
           commitments: {
             open: openCommitments.length,
             overdue: overdueCommitments.length,
-            userOwes: openCommitments.filter((c) => c.direction === "user_owes").length,
-            theyOwe: openCommitments.filter((c) => c.direction === "they_owe").length,
+            userOwes: openCommitments.filter((c) => c.direction === 'user_owes').length,
+            theyOwe: openCommitments.filter((c) => c.direction === 'they_owe').length,
           },
           followUp: {
             staleContactsCount: staleContacts.length,
@@ -383,11 +379,11 @@ export const getKnowledgeSummaryFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get knowledge summary:", error);
+      console.error('Failed to get knowledge summary:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to get knowledge summary",
+        error: error instanceof Error ? error.message : 'Failed to get knowledge summary',
       };
     }
   });

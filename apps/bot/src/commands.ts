@@ -19,7 +19,7 @@ export interface Command {
 const askCommand: Command = {
   data: new SlashCommandBuilder()
     .setName('ask')
-    .setDescription('Ask Jason\'s EA anything')
+    .setDescription("Ask Jason's EA anything")
     .addStringOption((option) =>
       option.setName('question').setDescription('Your question or request').setRequired(true)
     )
@@ -48,7 +48,10 @@ const briefCommand: Command = {
     .setName('brief')
     .setDescription('View your daily brief with AI insights')
     .addBooleanOption((option) =>
-      option.setName('today').setDescription('Only show today\'s brief (default: latest)').setRequired(false)
+      option
+        .setName('today')
+        .setDescription("Only show today's brief (default: latest)")
+        .setRequired(false)
     )
     .toJSON(),
   execute: async (interaction, _claudeBridge) => {
@@ -61,8 +64,8 @@ const briefCommand: Command = {
       if (!brief) {
         await interaction.editReply(
           todayOnly
-            ? "No brief found for today. Generate one from the web app first!"
-            : "No briefs found. Generate one from the web app first!"
+            ? 'No brief found for today. Generate one from the web app first!'
+            : 'No briefs found. Generate one from the web app first!'
         );
         return;
       }
@@ -113,7 +116,9 @@ const briefCommand: Command = {
       // Topics
       if (brief.enrichedContent?.conversations?.byTopic?.length) {
         const topics = brief.enrichedContent.conversations.byTopic
-          .map((t) => `**${t.topic}:** ${t.threads.length} thread${t.threads.length === 1 ? '' : 's'}`)
+          .map(
+            (t) => `**${t.topic}:** ${t.threads.length} thread${t.threads.length === 1 ? '' : 's'}`
+          )
           .join('\n');
         embed.addFields({
           name: '🏷️ Topics',
@@ -151,7 +156,9 @@ const briefCommand: Command = {
       await interaction.editReply({ embeds: [embed] });
     } catch (error) {
       console.error('[BriefCommand] Error:', error);
-      await interaction.editReply(`Error fetching brief: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      await interaction.editReply(
+        `Error fetching brief: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   },
 };
@@ -226,7 +233,9 @@ const refreshCommand: Command = {
       }
     } catch (error) {
       console.error('[RefreshCommand] Error:', error);
-      await interaction.editReply(`Error refreshing brief: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      await interaction.editReply(
+        `Error refreshing brief: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   },
 };

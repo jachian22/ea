@@ -13,21 +13,21 @@
  * - Delegation
  */
 
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 
 // Import tool handlers
-import { registerKnowledgeTools } from "./tools/knowledge.js";
-import { registerCalendarTools } from "./tools/calendar.js";
-import { registerEmailTools } from "./tools/email.js";
-import { registerCommitmentTools } from "./tools/commitments.js";
-import { registerBriefingTools } from "./tools/briefings.js";
-import { registerActionTools } from "./tools/actions.js";
-import { registerDelegationTools } from "./tools/delegation.js";
+import { registerKnowledgeTools } from './tools/knowledge.js';
+import { registerCalendarTools } from './tools/calendar.js';
+import { registerEmailTools } from './tools/email.js';
+import { registerCommitmentTools } from './tools/commitments.js';
+import { registerBriefingTools } from './tools/briefings.js';
+import { registerActionTools } from './tools/actions.js';
+import { registerDelegationTools } from './tools/delegation.js';
 
 // Server configuration
-const SERVER_NAME = "ea-assistant";
-const SERVER_VERSION = "1.0.0";
+const SERVER_NAME = 'ea-assistant';
+const SERVER_VERSION = '1.0.0';
 
 /**
  * Get the user ID from environment variable
@@ -36,7 +36,7 @@ const SERVER_VERSION = "1.0.0";
 function getUserId(): string {
   const userId = process.env.EA_USER_ID;
   if (!userId) {
-    throw new Error("EA_USER_ID environment variable is required");
+    throw new Error('EA_USER_ID environment variable is required');
   }
   return userId;
 }

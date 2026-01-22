@@ -11,13 +11,13 @@ The project uses **Better Auth** for authentication, which provides a comprehens
 ### 1. Better Auth Configuration (`src/utils/auth.ts`)
 
 ```typescript
-import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { database } from "../db";
+import { betterAuth } from 'better-auth';
+import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { database } from '../db';
 
 export const auth = betterAuth({
   database: drizzleAdapter(database, {
-    provider: "pg",
+    provider: 'pg',
   }),
   emailAndPassword: {
     enabled: true,
@@ -35,10 +35,10 @@ export const auth = betterAuth({
 ### 2. Client-Side Auth (`src/lib/auth-client.ts`)
 
 ```typescript
-import { createAuthClient } from "better-auth/react";
+import { createAuthClient } from 'better-auth/react';
 
 export const authClient = createAuthClient({
-  baseURL: "http://localhost:3000",
+  baseURL: 'http://localhost:3000',
 });
 ```
 
@@ -55,30 +55,30 @@ The authentication system uses several database tables:
 #### User Table (`user`)
 
 ```typescript
-export const user = pgTable("user", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  email: text("email").notNull().unique(),
-  emailVerified: boolean("email_verified").notNull(),
-  image: text("image"),
+export const user = pgTable('user', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  email: text('email').notNull().unique(),
+  emailVerified: boolean('email_verified').notNull(),
+  image: text('image'),
   // ... subscription fields
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
+  createdAt: timestamp('created_at').notNull(),
+  updatedAt: timestamp('updated_at').notNull(),
 });
 ```
 
 #### Session Table (`session`)
 
 ```typescript
-export const session = pgTable("session", {
-  id: text("id").primaryKey(),
-  expiresAt: timestamp("expires_at").notNull(),
-  token: text("token").notNull().unique(),
-  userId: text("user_id")
+export const session = pgTable('session', {
+  id: text('id').primaryKey(),
+  expiresAt: timestamp('expires_at').notNull(),
+  token: text('token').notNull().unique(),
+  userId: text('user_id')
     .notNull()
     .references(() => user.id),
-  ipAddress: text("ip_address"),
-  userAgent: text("user_agent"),
+  ipAddress: text('ip_address'),
+  userAgent: text('user_agent'),
   // ... timestamps
 });
 ```
@@ -86,14 +86,14 @@ export const session = pgTable("session", {
 #### Account Table (`account`)
 
 ```typescript
-export const account = pgTable("account", {
-  id: text("id").primaryKey(),
-  accountId: text("account_id").notNull(),
-  providerId: text("provider_id").notNull(),
-  userId: text("user_id")
+export const account = pgTable('account', {
+  id: text('id').primaryKey(),
+  accountId: text('account_id').notNull(),
+  providerId: text('provider_id').notNull(),
+  userId: text('user_id')
     .notNull()
     .references(() => user.id),
-  password: text("password"), // For email/password auth
+  password: text('password'), // For email/password auth
   // ... OAuth tokens and timestamps
 });
 ```
@@ -101,11 +101,11 @@ export const account = pgTable("account", {
 #### Verification Table (`verification`)
 
 ```typescript
-export const verification = pgTable("verification", {
-  id: text("id").primaryKey(),
-  identifier: text("identifier").notNull(),
-  value: text("value").notNull(),
-  expiresAt: timestamp("expires_at").notNull(),
+export const verification = pgTable('verification', {
+  id: text('id').primaryKey(),
+  identifier: text('identifier').notNull(),
+  value: text('value').notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
   // ... timestamps
 });
 ```
@@ -126,7 +126,7 @@ const onSubmit = async (data: SignUpForm) => {
     setAuthError(result.error.message);
   } else {
     // Redirect to home or specified URL
-    router.navigate({ to: "/" });
+    router.navigate({ to: '/' });
   }
 };
 ```
@@ -149,7 +149,7 @@ const onSubmit = async (data: SignInForm) => {
     },
     {
       onSuccess: () => {
-        router.navigate({ to: "/" });
+        router.navigate({ to: '/' });
       },
       onError: (error) => {
         setAuthError(error.error.message);
@@ -169,7 +169,7 @@ const onSubmit = async (data: SignInForm) => {
 ### 3. API Routes (`src/routes/api/auth/$.ts`)
 
 ```typescript
-export const ServerRoute = createServerFileRoute("/api/auth/$").methods({
+export const ServerRoute = createServerFileRoute('/api/auth/$').methods({
   GET: ({ request }) => {
     return auth.handler(request);
   },
@@ -191,18 +191,18 @@ export const ServerRoute = createServerFileRoute("/api/auth/$").methods({
 
 ```typescript
 export const authenticatedMiddleware = createMiddleware({
-  type: "function",
+  type: 'function',
 }).server(async ({ next }) => {
   const request = getWebRequest();
 
   if (!request?.headers) {
-    throw new Error("No headers");
+    throw new Error('No headers');
   }
 
   const session = await auth.api.getSession({ headers: request.headers });
 
   if (!session) {
-    throw new Error("No session");
+    throw new Error('No session');
   }
 
   return next({
@@ -223,7 +223,7 @@ export const authenticatedMiddleware = createMiddleware({
 Example from `src/fn/songs.ts`:
 
 ```typescript
-export const createSongFn = createServerFn({ method: "POST" })
+export const createSongFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       title: z.string().min(1),
@@ -280,11 +280,11 @@ export function useUpdateUserProfile() {
   return useMutation({
     mutationFn: updateUserProfileFn,
     onSuccess: () => {
-      toast.success("Profile updated successfully");
+      toast.success('Profile updated successfully');
       refetchSession(); // Refresh session after profile update
     },
     onError: () => {
-      toast.error("Failed to update profile");
+      toast.error('Failed to update profile');
     },
   });
 }
@@ -294,11 +294,7 @@ export function useUpdateUserProfile() {
 
 ```typescript
 export async function findUserById(id: string): Promise<User | null> {
-  const [result] = await database
-    .select()
-    .from(user)
-    .where(eq(user.id, id))
-    .limit(1);
+  const [result] = await database.select().from(user).where(eq(user.id, id)).limit(1);
 
   return result || null;
 }
@@ -411,11 +407,11 @@ export const protectedFunction = createServerFn()
 ```typescript
 // Check current session server-side
 const session = await auth.api.getSession({ headers: request.headers });
-console.log("Current session:", session);
+console.log('Current session:', session);
 
 // Check session client-side
 const { data: session } = authClient.useSession();
-console.log("Client session:", session);
+console.log('Client session:', session);
 ```
 
 ## Migration and Setup

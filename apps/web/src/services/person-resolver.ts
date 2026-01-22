@@ -10,14 +10,9 @@ import {
   findOrCreatePerson,
   updatePerson,
   updatePersonLastContact,
-} from "~/data-access/persons";
-import { classifyEmail } from "./domain-classifier";
-import type {
-  Person,
-  CreatePersonData,
-  CommunicationChannel,
-  PersonDomain,
-} from "~/db/schema";
+} from '~/data-access/persons';
+import { classifyEmail } from './domain-classifier';
+import type { Person, CreatePersonData, CommunicationChannel, PersonDomain } from '~/db/schema';
 
 // ============================================================================
 // Types
@@ -70,10 +65,7 @@ export async function resolveEmailContact(
   const updates: string[] = [];
 
   // Check if person exists
-  let existingPerson = await findPersonByUserIdAndEmail(
-    userId,
-    normalizedEmail
-  );
+  let existingPerson = await findPersonByUserIdAndEmail(userId, normalizedEmail);
   let isNew = false;
   let wasUpdated = false;
 
@@ -84,14 +76,14 @@ export async function resolveEmailContact(
     // Update name if we have one and they don't
     if (contact.name && !existingPerson.name) {
       updateData.name = contact.name;
-      updates.push("name");
+      updates.push('name');
     }
 
     // Add email to emails array if not already there
     const currentEmails = existingPerson.emails || [];
     if (!currentEmails.includes(normalizedEmail)) {
       updateData.emails = [...currentEmails, normalizedEmail];
-      updates.push("emails");
+      updates.push('emails');
     }
 
     if (Object.keys(updateData).length > 0) {
@@ -103,10 +95,10 @@ export async function resolveEmailContact(
     if (options?.updateLastContact) {
       existingPerson = (await updatePersonLastContact(
         existingPerson.id,
-        options.channel || "email"
+        options.channel || 'email'
       ))!;
       wasUpdated = true;
-      updates.push("lastContact");
+      updates.push('lastContact');
     }
 
     return {
@@ -118,7 +110,7 @@ export async function resolveEmailContact(
   }
 
   // Create new person
-  let domain: PersonDomain = "other";
+  let domain: PersonDomain = 'other';
 
   // Classify domain if requested
   if (options?.classifyDomain !== false) {
@@ -162,7 +154,7 @@ export async function resolveCalendarAttendee(
     },
     {
       updateLastContact: true,
-      channel: "meeting",
+      channel: 'meeting',
       classifyDomain: true,
     }
   );
@@ -214,7 +206,7 @@ export async function resolveEmailContacts(
     } catch (error) {
       errors.push({
         email: contact.email,
-        error: error instanceof Error ? error.message : "Unknown error",
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   }
@@ -242,7 +234,7 @@ export async function resolveCalendarAttendees(
 
   return resolveEmailContacts(userId, contacts, {
     updateLastContact: true,
-    channel: "meeting",
+    channel: 'meeting',
     classifyDomain: true,
   });
 }
@@ -318,7 +310,7 @@ export async function resolveEmailParticipants(
 
   return resolveEmailContacts(userId, externalContacts, {
     updateLastContact: true,
-    channel: "email",
+    channel: 'email',
     classifyDomain: true,
   });
 }
@@ -344,11 +336,7 @@ export async function mergePersons(
 
   // For now, just a placeholder - full implementation would need
   // to update foreign keys across tables
-  console.warn(
-    "Person merging not fully implemented yet",
-    primaryPersonId,
-    secondaryPersonId
-  );
+  console.warn('Person merging not fully implemented yet', primaryPersonId, secondaryPersonId);
   return null;
 }
 

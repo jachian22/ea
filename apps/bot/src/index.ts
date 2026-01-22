@@ -12,7 +12,9 @@ async function main(): Promise<void> {
     const config = loadConfig();
     console.log('[Main] Configuration loaded');
     console.log(`[Main] Obsidian path: ${config.obsidian.path}`);
-    console.log(`[Main] Digest time: ${config.scheduler.digestTime} (${config.scheduler.timezone})`);
+    console.log(
+      `[Main] Digest time: ${config.scheduler.digestTime} (${config.scheduler.timezone})`
+    );
 
     // Create and start the bot
     const bot = new EABot(config);

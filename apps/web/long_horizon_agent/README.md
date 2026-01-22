@@ -10,7 +10,7 @@ This repository is intentionally **isolated** and **capability-scoped**. It is d
 
 **Long Horizon Agent** is a system for:
 
-- Turning vague natural-language intents (e.g. *“extract my bank transactions weekly”*)  
+- Turning vague natural-language intents (e.g. _“extract my bank transactions weekly”_)  
   into **explicit, reviewed JobSpecs**
 - Performing **deep research** to determine the safest and most reliable extraction method
 - Using an autonomous coding agent (OpenCode) to:
@@ -40,8 +40,8 @@ Every promotion to production requires **explicit human approval**.
 1. **Transactions First**  
    Structured transaction rows are the primary output. PDFs are secondary.
 
-2. **Two-Step Execution Model**  
-   - Step 1: Research + decisions → approved JobSpec  
+2. **Two-Step Execution Model**
+   - Step 1: Research + decisions → approved JobSpec
    - Step 2: Codegen + sandbox verification → review → promotion
 
 3. **Sandboxed Execution**  

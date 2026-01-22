@@ -1,8 +1,8 @@
-import { useCallback, useState } from "react";
-import { useDropzone } from "react-dropzone";
-import { Upload, File, X, AlertCircle } from "lucide-react";
-import { cn } from "~/lib/utils";
-import { Button } from "./button";
+import { useCallback, useState } from 'react';
+import { useDropzone } from 'react-dropzone';
+import { Upload, File, X, AlertCircle } from 'lucide-react';
+import { cn } from '~/lib/utils';
+import { Button } from './button';
 
 interface FileUploadProps {
   onFilesSelected: (files: File[]) => void;
@@ -22,7 +22,7 @@ interface FileWithPreview extends File {
 
 export function FileUpload({
   onFilesSelected,
-  accept = { "audio/*": [".mp3", ".wav", ".flac", ".aac", ".ogg"] },
+  accept = { 'audio/*': ['.mp3', '.wav', '.flac', '.aac', '.ogg'] },
   maxFiles = 1,
   maxSize = 50 * 1024 * 1024, // 50MB
   multiple = false,
@@ -41,10 +41,10 @@ export function FileUpload({
       // Handle rejected files
       if (rejectedFiles.length > 0) {
         const errorMessages = rejectedFiles.map((rejection: any) => {
-          if (rejection.errors[0]?.code === "file-too-large") {
+          if (rejection.errors[0]?.code === 'file-too-large') {
             return `${rejection.file.name} is too large. Max size is ${Math.round(maxSize / 1024 / 1024)}MB.`;
           }
-          if (rejection.errors[0]?.code === "file-invalid-type") {
+          if (rejection.errors[0]?.code === 'file-invalid-type') {
             return `${rejection.file.name} is not a valid file type.`;
           }
           return `${rejection.file.name} was rejected.`;
@@ -56,9 +56,7 @@ export function FileUpload({
       if (acceptedFiles.length > 0) {
         const newFiles = acceptedFiles.map((file) =>
           Object.assign(file, {
-            preview: file.type.startsWith("image/")
-              ? URL.createObjectURL(file)
-              : undefined,
+            preview: file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined,
           })
         );
 
@@ -92,23 +90,21 @@ export function FileUpload({
   };
 
   const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return "0 Bytes";
+    if (bytes === 0) return '0 Bytes';
     const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
   return (
-    <div className={cn("space-y-4", className)}>
+    <div className={cn('space-y-4', className)}>
       <div
         {...getRootProps()}
         className={cn(
-          "border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer",
-          isDragActive
-            ? "border-primary bg-primary/5"
-            : "border-border hover:border-primary/50",
-          disabled && "opacity-50 cursor-not-allowed"
+          'border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer',
+          isDragActive ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50',
+          disabled && 'opacity-50 cursor-not-allowed'
         )}
       >
         <input {...getInputProps()} />
@@ -120,11 +116,9 @@ export function FileUpload({
             </div>
             <div className="space-y-2">
               <p className="text-sm font-medium">
-                {isDragActive ? "Drop files here" : "Drag and drop files here"}
+                {isDragActive ? 'Drop files here' : 'Drag and drop files here'}
               </p>
-              <p className="text-xs text-muted-foreground">
-                or click anywhere to browse files
-              </p>
+              <p className="text-xs text-muted-foreground">or click anywhere to browse files</p>
               <p className="text-xs text-muted-foreground">
                 Max {Math.round(maxSize / 1024 / 1024)}MB per file
               </p>
@@ -137,10 +131,7 @@ export function FileUpload({
       {errors.length > 0 && (
         <div className="space-y-2">
           {errors.map((error, index) => (
-            <div
-              key={index}
-              className="flex items-center gap-2 text-sm text-destructive"
-            >
+            <div key={index} className="flex items-center gap-2 text-sm text-destructive">
               <AlertCircle className="w-4 h-4" />
               {error}
             </div>
@@ -162,14 +153,10 @@ export function FileUpload({
               key={index}
               className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg transition-all duration-200"
             >
-              {file.type.startsWith("image/") ? (
+              {file.type.startsWith('image/') ? (
                 <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-muted">
                   {file.preview ? (
-                    <img
-                      src={file.preview}
-                      alt=""
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={file.preview} alt="" className="w-full h-full object-cover" />
                   ) : (
                     <File className="w-6 h-6 text-muted-foreground m-2" />
                   )}

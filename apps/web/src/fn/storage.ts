@@ -1,12 +1,12 @@
-import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
-import { getStorage } from "~/utils/storage";
-import { authenticatedMiddleware } from "./middleware";
-import { database } from "~/db";
-import { user } from "~/db/schema";
-import { eq } from "drizzle-orm";
+import { createServerFn } from '@tanstack/react-start';
+import { z } from 'zod';
+import { getStorage } from '~/utils/storage';
+import { authenticatedMiddleware } from './middleware';
+import { database } from '~/db';
+import { user } from '~/db/schema';
+import { eq } from 'drizzle-orm';
 
-export const getPresignedUploadUrlFn = createServerFn({ method: "POST" })
+export const getPresignedUploadUrlFn = createServerFn({ method: 'POST' })
   .middleware([authenticatedMiddleware])
   .inputValidator(
     z.object({
@@ -20,7 +20,7 @@ export const getPresignedUploadUrlFn = createServerFn({ method: "POST" })
     return { presignedUrl, videoKey: data.videoKey };
   });
 
-export const getPresignedImageUploadUrlFn = createServerFn({ method: "POST" })
+export const getPresignedImageUploadUrlFn = createServerFn({ method: 'POST' })
   .middleware([authenticatedMiddleware])
   .inputValidator(
     z.object({
@@ -34,7 +34,7 @@ export const getPresignedImageUploadUrlFn = createServerFn({ method: "POST" })
     return { presignedUrl, imageKey: data.imageKey };
   });
 
-export const getImageUrlFn = createServerFn({ method: "POST" })
+export const getImageUrlFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       imageKey: z.string(),
@@ -47,7 +47,7 @@ export const getImageUrlFn = createServerFn({ method: "POST" })
     return { imageUrl };
   });
 
-export const updateUserProfileFn = createServerFn({ method: "POST" })
+export const updateUserProfileFn = createServerFn({ method: 'POST' })
   .middleware([authenticatedMiddleware])
   .inputValidator(
     z.object({
@@ -75,7 +75,7 @@ export const updateUserProfileFn = createServerFn({ method: "POST" })
     return { success: true };
   });
 
-export const getProfileImageUploadUrlFn = createServerFn({ method: "POST" })
+export const getProfileImageUploadUrlFn = createServerFn({ method: 'POST' })
   .middleware([authenticatedMiddleware])
   .inputValidator(
     z.object({
@@ -87,39 +87,36 @@ export const getProfileImageUploadUrlFn = createServerFn({ method: "POST" })
     const userId = context.userId;
 
     if (!userId) {
-      throw new Error("User not authenticated");
+      throw new Error('User not authenticated');
     }
 
-    const fileExtension = data.fileName.split(".").pop() || "";
+    const fileExtension = data.fileName.split('.').pop() || '';
     const imageKey = `profile-images/${userId}/${Date.now()}.${fileExtension}`;
 
     const { storage } = getStorage();
-    const presignedUrl = await storage.getPresignedUploadUrl(
-      imageKey,
-      data.contentType
-    );
+    const presignedUrl = await storage.getPresignedUploadUrl(imageKey, data.contentType);
 
     return { presignedUrl, imageKey };
   });
 
 // Generic file upload for modules content
-export const getModuleContentUploadUrlFn = createServerFn({ method: "POST" })
+export const getModuleContentUploadUrlFn = createServerFn({ method: 'POST' })
   .middleware([authenticatedMiddleware])
   .inputValidator(
     z.object({
       fileName: z.string(),
       fileType: z.string(),
-      folder: z.string().optional().default("modules"),
+      folder: z.string().optional().default('modules'),
     })
   )
   .handler(async ({ data, context }) => {
     const userId = context.userId;
 
     if (!userId) {
-      throw new Error("User not authenticated");
+      throw new Error('User not authenticated');
     }
 
-    const fileExtension = data.fileName.split(".").pop() || "";
+    const fileExtension = data.fileName.split('.').pop() || '';
     const key = `${data.folder}/${userId}/${Date.now()}.${fileExtension}`;
 
     const { storage } = getStorage();
@@ -128,7 +125,7 @@ export const getModuleContentUploadUrlFn = createServerFn({ method: "POST" })
     return { uploadUrl, key };
   });
 
-export const deleteUserAccountFn = createServerFn({ method: "POST" })
+export const deleteUserAccountFn = createServerFn({ method: 'POST' })
   .middleware([authenticatedMiddleware])
   .inputValidator(
     z.object({
@@ -139,19 +136,15 @@ export const deleteUserAccountFn = createServerFn({ method: "POST" })
     const userId = context.userId;
 
     // First, get the user's email to verify it matches
-    const [userRecord] = await database
-      .select()
-      .from(user)
-      .where(eq(user.id, userId))
-      .limit(1);
+    const [userRecord] = await database.select().from(user).where(eq(user.id, userId)).limit(1);
 
     if (!userRecord) {
-      throw new Error("User not found");
+      throw new Error('User not found');
     }
 
     // Verify the email matches (case insensitive)
     if (userRecord.email.toLowerCase() !== data.email.toLowerCase()) {
-      throw new Error("Email does not match your account email");
+      throw new Error('Email does not match your account email');
     }
 
     // Delete the user - this will cascade delete all related records

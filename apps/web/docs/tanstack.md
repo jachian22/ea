@@ -75,7 +75,7 @@ Loaders preload data on the server before the route component renders:
 
 ```typescript
 // src/routes/song/$id/index.tsx
-export const Route = createFileRoute("/song/$id/")({
+export const Route = createFileRoute('/song/$id/')({
   loader: ({ context: { queryClient }, params: { id } }) => {
     // Preload data using TanStack Query
     queryClient.ensureQueryData(getSongByIdQuery(id));
@@ -88,7 +88,7 @@ export const Route = createFileRoute("/song/$id/")({
 
 ```typescript
 // src/routes/song/$id/edit.tsx
-export const Route = createFileRoute("/song/$id/edit")({
+export const Route = createFileRoute('/song/$id/edit')({
   loader: async ({ context: { queryClient }, params: { id } }) => {
     // Ensure data is loaded before component renders
     await queryClient.ensureQueryData(getSongByIdQuery(id));
@@ -114,7 +114,7 @@ Server functions live in the `src/fn/` directory and handle backend logic, API c
 
 ```typescript
 // src/fn/songs.ts
-import { createServerFn } from "@tanstack/react-start";
+import { createServerFn } from '@tanstack/react-start';
 
 export const getRecentSongsFn = createServerFn().handler(async () => {
   return await findRecentSongsWithUrls(20);
@@ -125,13 +125,13 @@ export const getRecentSongsFn = createServerFn().handler(async () => {
 
 ```typescript
 export const createSongFn = createServerFn({
-  method: "POST",
+  method: 'POST',
 })
   .inputValidator(
     z.object({
       title: z.string().min(2).max(100),
       artist: z.string().min(1).max(50),
-      audioKey: z.string().min(1, "Audio key is required"),
+      audioKey: z.string().min(1, 'Audio key is required'),
       // ... more validation
     })
   )
@@ -150,16 +150,16 @@ export const createSongFn = createServerFn({
 
 ```typescript
 // src/fn/middleware.ts
-import { createMiddleware } from "@tanstack/react-start";
+import { createMiddleware } from '@tanstack/react-start';
 
 export const authenticatedMiddleware = createMiddleware({
-  type: "function",
+  type: 'function',
 }).server(async ({ next }) => {
   const request = getWebRequest();
   const session = await auth.api.getSession({ headers: request.headers });
 
   if (!session) {
-    throw new Error("No session");
+    throw new Error('No session');
   }
 
   return next({
@@ -178,7 +178,7 @@ export const getPopularSongsFn = createServerFn().handler(async () => {
 
 // Server function WITH authentication
 export const createSongFn = createServerFn({
-  method: "POST",
+  method: 'POST',
 })
   .inputValidator(/* validation schema */)
   .middleware([authenticatedMiddleware]) // 👈 Authentication required
@@ -197,7 +197,7 @@ export const createSongFn = createServerFn({
 ```typescript
 // Check resource ownership in server functions
 export const updateSongFn = createServerFn({
-  method: "POST",
+  method: 'POST',
 })
   .inputValidator(/* schema */)
   .middleware([authenticatedMiddleware])
@@ -207,7 +207,7 @@ export const updateSongFn = createServerFn({
     // Verify ownership before allowing update
     const existingSong = await findSongById(id);
     if (existingSong.userId !== context.userId) {
-      throw new Error("Unauthorized: You can only edit your own songs");
+      throw new Error('Unauthorized: You can only edit your own songs');
     }
 
     return await updateSong(id, updateData);
@@ -235,18 +235,18 @@ TanStack Query configurations that define how data is fetched and cached:
 
 ```typescript
 // src/queries/songs.ts - Query configurations
-import { queryOptions } from "@tanstack/react-query";
-import { getPopularSongsFn, getRecentSongsFn, getSongByIdFn } from "~/fn/songs";
+import { queryOptions } from '@tanstack/react-query';
+import { getPopularSongsFn, getRecentSongsFn, getSongByIdFn } from '~/fn/songs';
 
 export const getRecentSongsQuery = () =>
   queryOptions({
-    queryKey: ["recent-songs"],
+    queryKey: ['recent-songs'],
     queryFn: () => getRecentSongsFn(),
   });
 
 export const getSongByIdQuery = (id: string) =>
   queryOptions({
-    queryKey: ["song", id],
+    queryKey: ['song', id],
     queryFn: () => getSongByIdFn({ data: { id } }),
   });
 ```
@@ -257,21 +257,20 @@ React hooks that combine queries and mutations with UI logic:
 
 ```typescript
 // src/hooks/useSongs.ts - Component-friendly hooks
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createSongFn, deleteSongFn, updateSongFn } from "~/fn/songs";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createSongFn, deleteSongFn, updateSongFn } from '~/fn/songs';
 
 export function useCreateSong() {
   const navigate = useNavigate();
 
   return useMutation({
-    mutationFn: (data: Parameters<typeof createSongFn>[0]["data"]) =>
-      createSongFn({ data }),
+    mutationFn: (data: Parameters<typeof createSongFn>[0]['data']) => createSongFn({ data }),
     onSuccess: (song) => {
-      toast.success("Song created successfully!");
+      toast.success('Song created successfully!');
       navigate({ to: `/song/$songId`, params: { songId: song.id } });
     },
     onError: (error) => {
-      toast.error("Failed to create song");
+      toast.error('Failed to create song');
     },
   });
 }
@@ -282,10 +281,10 @@ export function useDeleteSong() {
   return useMutation({
     mutationFn: (id: string) => deleteSongFn({ data: { id } }),
     onSuccess: () => {
-      toast.success("Song deleted successfully");
+      toast.success('Song deleted successfully');
       // Invalidate related queries
-      queryClient.invalidateQueries({ queryKey: ["user-songs"] });
-      queryClient.invalidateQueries({ queryKey: ["popular-songs"] });
+      queryClient.invalidateQueries({ queryKey: ['user-songs'] });
+      queryClient.invalidateQueries({ queryKey: ['popular-songs'] });
     },
   });
 }

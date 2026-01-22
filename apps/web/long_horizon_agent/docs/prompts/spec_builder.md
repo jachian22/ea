@@ -42,7 +42,9 @@ You must NOT generate production code or schedules.
 You must produce the following artifacts:
 
 ### 1. Decision Brief
+
 A human-readable summary of:
+
 - What the user asked for
 - What sources are likely in scope
 - Recommended cadence and windowing
@@ -54,7 +56,9 @@ File: `DecisionBrief.md`
 ---
 
 ### 2. Source Plan
+
 A per-source table or list including:
+
 - `source_id`
 - Expected tier (0–3)
 - Preferred extraction methods (ordered)
@@ -65,7 +69,9 @@ File: `SourcePlan.md`
 ---
 
 ### 3. Risk Assessment
+
 Explicitly call out:
+
 - Authentication risks (2FA, device trust)
 - Prompt-injection exposure
 - Data sensitivity
@@ -76,7 +82,9 @@ File: `RiskAssessment.md`
 ---
 
 ### 4. Draft JobSpec JSON
+
 A complete JobSpec that:
+
 - Passes schema validation
 - Reflects checklist decisions
 - Is suitable for approval
@@ -91,6 +99,7 @@ You MUST resolve the checklist in:
 `docs/checklists/jobspec_decisions_v1.md`
 
 If a decision cannot be resolved, you must:
+
 - Mark it as unresolved
 - Explain why
 - Propose a concrete follow-up question for the user
@@ -120,6 +129,7 @@ If a decision cannot be resolved, you must:
 ## Success Criteria
 
 You succeed if:
+
 - A human can confidently approve or revise the JobSpec.
 - All checklist items are resolved or explicitly deferred.
 - The JobSpec can be handed directly to Step 2 without ambiguity.
@@ -129,6 +139,7 @@ You succeed if:
 ## Failure Criteria
 
 You have failed if:
+
 - Any checklist item is skipped
 - The JobSpec does not validate
 - Risks are minimized or ignored

@@ -1,13 +1,9 @@
-import { eq } from "drizzle-orm";
-import { database } from "~/db";
-import { user, type User, type CreateUserData } from "~/db/schema";
+import { eq } from 'drizzle-orm';
+import { database } from '~/db';
+import { user, type User, type CreateUserData } from '~/db/schema';
 
 export async function findUserById(id: string): Promise<User | null> {
-  const [result] = await database
-    .select()
-    .from(user)
-    .where(eq(user.id, id))
-    .limit(1);
+  const [result] = await database.select().from(user).where(eq(user.id, id)).limit(1);
 
   return result || null;
 }
@@ -36,7 +32,7 @@ export async function createUser(data: CreateUserData): Promise<User> {
 
 export async function updateUser(
   id: string,
-  data: Partial<Omit<CreateUserData, "id" | "createdAt">>
+  data: Partial<Omit<CreateUserData, 'id' | 'createdAt'>>
 ): Promise<User | null> {
   const [updated] = await database
     .update(user)
@@ -73,7 +69,7 @@ export async function findOrCreateUserByEmail(data: {
   }
 
   // Create new user
-  const { nanoid } = await import("nanoid");
+  const { nanoid } = await import('nanoid');
   return createUser({
     id: nanoid(),
     email: data.email,

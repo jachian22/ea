@@ -1,12 +1,12 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import {
   createCheckoutSessionFn,
   createPortalSessionFn,
   cancelSubscriptionFn,
-} from "~/fn/subscriptions";
-import { getUserPlanQuery } from "~/queries/subscription";
-import { getErrorMessage } from "~/utils/error";
+} from '~/fn/subscriptions';
+import { getUserPlanQuery } from '~/queries/subscription';
+import { getErrorMessage } from '~/utils/error';
 
 // Query hooks
 export function useUserPlan(enabled = true) {
@@ -19,20 +19,19 @@ export function useUserPlan(enabled = true) {
 // Mutation hooks
 export function useCreateCheckoutSession() {
   return useMutation({
-    mutationFn: (priceId: string) =>
-      createCheckoutSessionFn({ data: { priceId } }),
+    mutationFn: (priceId: string) => createCheckoutSessionFn({ data: { priceId } }),
     onSuccess: (result) => {
       if (result.success && result.data?.sessionUrl) {
         // Redirect to Stripe checkout
         window.location.href = result.data.sessionUrl;
       } else {
-        toast.error("Failed to create checkout session", {
-          description: result.error || "Unknown error occurred",
+        toast.error('Failed to create checkout session', {
+          description: result.error || 'Unknown error occurred',
         });
       }
     },
     onError: (error) => {
-      toast.error("Failed to create checkout session", {
+      toast.error('Failed to create checkout session', {
         description: getErrorMessage(error),
       });
     },
@@ -47,13 +46,13 @@ export function useCreatePortalSession() {
         // Redirect to Stripe customer portal
         window.location.href = result.data.sessionUrl;
       } else {
-        toast.error("Failed to create portal session", {
-          description: result.error || "Unknown error occurred",
+        toast.error('Failed to create portal session', {
+          description: result.error || 'Unknown error occurred',
         });
       }
     },
     onError: (error) => {
-      toast.error("Failed to create portal session", {
+      toast.error('Failed to create portal session', {
         description: getErrorMessage(error),
       });
     },
@@ -67,21 +66,20 @@ export function useCancelSubscription() {
     mutationFn: cancelSubscriptionFn,
     onSuccess: (result) => {
       if (result.success) {
-        toast.success("Subscription cancelled", {
-          description:
-            "Your subscription will be cancelled at the end of the current period.",
+        toast.success('Subscription cancelled', {
+          description: 'Your subscription will be cancelled at the end of the current period.',
         });
 
         // Invalidate user plan to refresh subscription status
-        queryClient.invalidateQueries({ queryKey: ["user-plan"] });
+        queryClient.invalidateQueries({ queryKey: ['user-plan'] });
       } else {
-        toast.error("Failed to cancel subscription", {
-          description: result.error || "Unknown error occurred",
+        toast.error('Failed to cancel subscription', {
+          description: result.error || 'Unknown error occurred',
         });
       }
     },
     onError: (error) => {
-      toast.error("Failed to cancel subscription", {
+      toast.error('Failed to cancel subscription', {
         description: getErrorMessage(error),
       });
     },
@@ -97,7 +95,7 @@ export function useSubscriptionManagement() {
   const cancelSubscription = useCancelSubscription();
 
   const refreshUserPlan = () => {
-    queryClient.invalidateQueries({ queryKey: ["user-plan"] });
+    queryClient.invalidateQueries({ queryKey: ['user-plan'] });
   };
 
   const handleUpgrade = (priceId: string) => {

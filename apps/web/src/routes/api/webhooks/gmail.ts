@@ -1,9 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from '@tanstack/react-router';
 import {
   processGmailWebhook,
   type GmailPushNotification,
-} from "~/services/webhook-ingestion-service";
-import { findGoogleIntegrationByGoogleEmail } from "~/data-access/google-integration";
+} from '~/services/webhook-ingestion-service';
+import { findGoogleIntegrationByGoogleEmail } from '~/data-access/google-integration';
 
 /**
  * Gmail Push Notification Webhook Handler
@@ -24,7 +24,7 @@ import { findGoogleIntegrationByGoogleEmail } from "~/data-access/google-integra
  * 4. Process the notification to extract new emails and create interactions
  * 5. Return 200 OK (or Pub/Sub will retry)
  */
-export const Route = createFileRoute("/api/webhooks/gmail")({
+export const Route = createFileRoute('/api/webhooks/gmail')({
   server: {
     handlers: {
       POST: async ({ request }) => {
@@ -33,11 +33,8 @@ export const Route = createFileRoute("/api/webhooks/gmail")({
 
           // Validate the payload structure
           if (!body.message?.data) {
-            console.warn("[Gmail Webhook] Invalid payload - missing message.data");
-            return Response.json(
-              { error: "Invalid payload" },
-              { status: 400 }
-            );
+            console.warn('[Gmail Webhook] Invalid payload - missing message.data');
+            return Response.json({ error: 'Invalid payload' }, { status: 400 });
           }
 
           const notification: GmailPushNotification = body;
@@ -45,24 +42,18 @@ export const Route = createFileRoute("/api/webhooks/gmail")({
           // Decode the notification data to get the email address
           let notificationData;
           try {
-            const decoded = Buffer.from(notification.message.data, "base64").toString();
+            const decoded = Buffer.from(notification.message.data, 'base64').toString();
             notificationData = JSON.parse(decoded);
           } catch (error) {
-            console.error("[Gmail Webhook] Failed to decode notification data:", error);
-            return Response.json(
-              { error: "Invalid notification data" },
-              { status: 400 }
-            );
+            console.error('[Gmail Webhook] Failed to decode notification data:', error);
+            return Response.json({ error: 'Invalid notification data' }, { status: 400 });
           }
 
           const { emailAddress, historyId } = notificationData;
 
           if (!emailAddress) {
-            console.warn("[Gmail Webhook] Missing email address in notification");
-            return Response.json(
-              { error: "Missing email address" },
-              { status: 400 }
-            );
+            console.warn('[Gmail Webhook] Missing email address in notification');
+            return Response.json({ error: 'Missing email address' }, { status: 400 });
           }
 
           console.log(
@@ -73,9 +64,7 @@ export const Route = createFileRoute("/api/webhooks/gmail")({
           const integration = await findGoogleIntegrationByGoogleEmail(emailAddress);
 
           if (!integration) {
-            console.warn(
-              `[Gmail Webhook] No integration found for email: ${emailAddress}`
-            );
+            console.warn(`[Gmail Webhook] No integration found for email: ${emailAddress}`);
             // Return 200 to prevent Pub/Sub from retrying
             return Response.json({ received: true, processed: false });
           }
@@ -102,12 +91,9 @@ export const Route = createFileRoute("/api/webhooks/gmail")({
             interactionsCreated: result.interactionsCreated,
           });
         } catch (error) {
-          console.error("[Gmail Webhook] Error processing notification:", error);
+          console.error('[Gmail Webhook] Error processing notification:', error);
           // Return 500 to trigger Pub/Sub retry for transient errors
-          return Response.json(
-            { error: "Internal server error" },
-            { status: 500 }
-          );
+          return Response.json({ error: 'Internal server error' }, { status: 500 });
         }
       },
     },

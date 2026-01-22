@@ -4,13 +4,13 @@
  * Tools for managing emails, viewing inbox, and drafting replies.
  */
 
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { z } from "zod";
-import { findGoogleIntegrationByUserId } from "~/data-access/google-integration";
-import { GmailService } from "~/services/gmail";
-import { findInteractionsByPersonId } from "~/data-access/interactions";
-import { findPersonByUserIdAndEmail } from "~/data-access/persons";
-import type { EmailData } from "~/db/schema";
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { z } from 'zod';
+import { findGoogleIntegrationByUserId } from '~/data-access/google-integration';
+import { GmailService } from '~/services/gmail';
+import { findInteractionsByPersonId } from '~/data-access/interactions';
+import { findPersonByUserIdAndEmail } from '~/data-access/persons';
+import type { EmailData } from '~/db/schema';
 
 /**
  * Register email tools with the MCP server
@@ -18,27 +18,29 @@ import type { EmailData } from "~/db/schema";
 export function registerEmailTools(server: McpServer, userId: string) {
   // ea_get_inbox - Get filtered inbox
   server.tool(
-    "ea_get_inbox",
-    "Get emails from inbox with optional filters. Returns emails with person context when available.",
+    'ea_get_inbox',
+    'Get emails from inbox with optional filters. Returns emails with person context when available.',
     {
-      unread: z.boolean().optional().describe("Filter to only unread emails"),
-      important: z.boolean().optional().describe("Filter to only important emails"),
-      sender: z.string().optional().describe("Filter by sender email address"),
-      limit: z.number().optional().default(50).describe("Maximum emails to return"),
-      hoursBack: z.number().optional().default(24).describe("Hours to look back"),
+      unread: z.boolean().optional().describe('Filter to only unread emails'),
+      important: z.boolean().optional().describe('Filter to only important emails'),
+      sender: z.string().optional().describe('Filter by sender email address'),
+      limit: z.number().optional().default(50).describe('Maximum emails to return'),
+      hoursBack: z.number().optional().default(24).describe('Hours to look back'),
     },
     async ({ unread, important, sender, limit, hoursBack }) => {
       try {
         const integration = await findGoogleIntegrationByUserId(userId);
         if (!integration || !integration.isConnected) {
           return {
-            content: [{
-              type: "text" as const,
-              text: JSON.stringify({
-                success: false,
-                error: "Gmail not connected. Please connect your Google account.",
-              }),
-            }],
+            content: [
+              {
+                type: 'text' as const,
+                text: JSON.stringify({
+                  success: false,
+                  error: 'Gmail not connected. Please connect your Google account.',
+                }),
+              },
+            ],
             isError: true,
           };
         }
@@ -47,55 +49,61 @@ export function registerEmailTools(server: McpServer, userId: string) {
         let emails = await gmailService.fetchRecentEmails({
           maxResults: limit,
           hoursBack,
-          labelIds: ["INBOX"],
+          labelIds: ['INBOX'],
         });
 
         // Apply filters
         if (unread) {
-          emails = emails.filter(e => !e.isRead);
+          emails = emails.filter((e) => !e.isRead);
         }
         if (important) {
-          emails = emails.filter(e => e.importance === "high");
+          emails = emails.filter((e) => e.importance === 'high');
         }
         if (sender) {
-          emails = emails.filter(e =>
-            e.from.email.toLowerCase().includes(sender.toLowerCase())
-          );
+          emails = emails.filter((e) => e.from.email.toLowerCase().includes(sender.toLowerCase()));
         }
 
         // Group by action status
         const grouped = {
-          needsResponse: emails.filter(e => e.actionStatus === "needs_response"),
-          awaitingReply: emails.filter(e => e.actionStatus === "awaiting_reply"),
-          fyi: emails.filter(e => e.actionStatus === "fyi"),
-          other: emails.filter(e => e.actionStatus === "none"),
+          needsResponse: emails.filter((e) => e.actionStatus === 'needs_response'),
+          awaitingReply: emails.filter((e) => e.actionStatus === 'awaiting_reply'),
+          fyi: emails.filter((e) => e.actionStatus === 'fyi'),
+          other: emails.filter((e) => e.actionStatus === 'none'),
         };
 
         return {
-          content: [{
-            type: "text" as const,
-            text: JSON.stringify({
-              success: true,
-              summary: {
-                total: emails.length,
-                needsResponse: grouped.needsResponse.length,
-                awaitingReply: grouped.awaitingReply.length,
-                fyi: grouped.fyi.length,
-                other: grouped.other.length,
-              },
-              emails: emails.map(formatEmail),
-            }, null, 2),
-          }],
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify(
+                {
+                  success: true,
+                  summary: {
+                    total: emails.length,
+                    needsResponse: grouped.needsResponse.length,
+                    awaitingReply: grouped.awaitingReply.length,
+                    fyi: grouped.fyi.length,
+                    other: grouped.other.length,
+                  },
+                  emails: emails.map(formatEmail),
+                },
+                null,
+                2
+              ),
+            },
+          ],
         };
       } catch (error) {
         return {
-          content: [{
-            type: "text" as const,
-            text: JSON.stringify({
-              success: false,
-              error: error instanceof Error ? error.message : "Unknown error",
-            }),
-          }],
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify({
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error',
+              }),
+            },
+          ],
           isError: true,
         };
       }
@@ -104,23 +112,25 @@ export function registerEmailTools(server: McpServer, userId: string) {
 
   // ea_get_email - Get a specific email with full context
   server.tool(
-    "ea_get_email",
-    "Get details for a specific email including thread context and sender information.",
+    'ea_get_email',
+    'Get details for a specific email including thread context and sender information.',
     {
-      emailId: z.string().describe("The Gmail message ID"),
+      emailId: z.string().describe('The Gmail message ID'),
     },
     async ({ emailId }) => {
       try {
         const integration = await findGoogleIntegrationByUserId(userId);
         if (!integration || !integration.isConnected) {
           return {
-            content: [{
-              type: "text" as const,
-              text: JSON.stringify({
-                success: false,
-                error: "Gmail not connected. Please connect your Google account.",
-              }),
-            }],
+            content: [
+              {
+                type: 'text' as const,
+                text: JSON.stringify({
+                  success: false,
+                  error: 'Gmail not connected. Please connect your Google account.',
+                }),
+              },
+            ],
             isError: true,
           };
         }
@@ -132,16 +142,18 @@ export function registerEmailTools(server: McpServer, userId: string) {
           hoursBack: 72, // Look back 3 days
         });
 
-        const email = emails.find(e => e.id === emailId);
+        const email = emails.find((e) => e.id === emailId);
         if (!email) {
           return {
-            content: [{
-              type: "text" as const,
-              text: JSON.stringify({
-                success: false,
-                error: "Email not found. It may be older than 72 hours.",
-              }),
-            }],
+            content: [
+              {
+                type: 'text' as const,
+                text: JSON.stringify({
+                  success: false,
+                  error: 'Email not found. It may be older than 72 hours.',
+                }),
+              },
+            ],
             isError: true,
           };
         }
@@ -165,7 +177,7 @@ export function registerEmailTools(server: McpServer, userId: string) {
 
           // Get recent interactions with this person
           const interactions = await findInteractionsByPersonId(senderPerson.id, 5);
-          recentInteractions = interactions.map(i => ({
+          recentInteractions = interactions.map((i) => ({
             type: i.type,
             channel: i.channel,
             subject: i.subject,
@@ -175,28 +187,36 @@ export function registerEmailTools(server: McpServer, userId: string) {
         }
 
         return {
-          content: [{
-            type: "text" as const,
-            text: JSON.stringify({
-              success: true,
-              email: {
-                ...formatEmail(email),
-                snippet: email.snippet,
-              },
-              senderContext,
-              recentInteractions,
-            }, null, 2),
-          }],
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify(
+                {
+                  success: true,
+                  email: {
+                    ...formatEmail(email),
+                    snippet: email.snippet,
+                  },
+                  senderContext,
+                  recentInteractions,
+                },
+                null,
+                2
+              ),
+            },
+          ],
         };
       } catch (error) {
         return {
-          content: [{
-            type: "text" as const,
-            text: JSON.stringify({
-              success: false,
-              error: error instanceof Error ? error.message : "Unknown error",
-            }),
-          }],
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify({
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error',
+              }),
+            },
+          ],
           isError: true,
         };
       }
@@ -205,24 +225,26 @@ export function registerEmailTools(server: McpServer, userId: string) {
 
   // ea_get_priority_emails - Get high priority emails
   server.tool(
-    "ea_get_priority_emails",
-    "Get emails that need your attention, sorted by priority.",
+    'ea_get_priority_emails',
+    'Get emails that need your attention, sorted by priority.',
     {
-      hoursBack: z.number().optional().default(24).describe("Hours to look back"),
-      limit: z.number().optional().default(20).describe("Maximum emails to return"),
+      hoursBack: z.number().optional().default(24).describe('Hours to look back'),
+      limit: z.number().optional().default(20).describe('Maximum emails to return'),
     },
     async ({ hoursBack, limit }) => {
       try {
         const integration = await findGoogleIntegrationByUserId(userId);
         if (!integration || !integration.isConnected) {
           return {
-            content: [{
-              type: "text" as const,
-              text: JSON.stringify({
-                success: false,
-                error: "Gmail not connected. Please connect your Google account.",
-              }),
-            }],
+            content: [
+              {
+                type: 'text' as const,
+                text: JSON.stringify({
+                  success: false,
+                  error: 'Gmail not connected. Please connect your Google account.',
+                }),
+              },
+            ],
             isError: true,
           };
         }
@@ -235,7 +257,7 @@ export function registerEmailTools(server: McpServer, userId: string) {
 
         // Sort by priority
         const priorityEmails = emails
-          .filter(e => !e.isRead || e.actionStatus === "needs_response")
+          .filter((e) => !e.isRead || e.actionStatus === 'needs_response')
           .sort((a, b) => {
             // High importance first
             if (a.importance !== b.importance) {
@@ -258,24 +280,32 @@ export function registerEmailTools(server: McpServer, userId: string) {
           .slice(0, limit);
 
         return {
-          content: [{
-            type: "text" as const,
-            text: JSON.stringify({
-              success: true,
-              count: priorityEmails.length,
-              emails: priorityEmails.map(formatEmail),
-            }, null, 2),
-          }],
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify(
+                {
+                  success: true,
+                  count: priorityEmails.length,
+                  emails: priorityEmails.map(formatEmail),
+                },
+                null,
+                2
+              ),
+            },
+          ],
         };
       } catch (error) {
         return {
-          content: [{
-            type: "text" as const,
-            text: JSON.stringify({
-              success: false,
-              error: error instanceof Error ? error.message : "Unknown error",
-            }),
-          }],
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify({
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error',
+              }),
+            },
+          ],
           isError: true,
         };
       }
@@ -284,25 +314,27 @@ export function registerEmailTools(server: McpServer, userId: string) {
 
   // ea_get_email_threads - Get email history with a person
   server.tool(
-    "ea_get_email_threads",
-    "Get recent email history with a specific person.",
+    'ea_get_email_threads',
+    'Get recent email history with a specific person.',
     {
-      personId: z.string().optional().describe("Person ID to get email history for"),
-      email: z.string().optional().describe("Email address to get history for (if no person ID)"),
-      hoursBack: z.number().optional().default(168).describe("Hours to look back (default 7 days)"),
-      limit: z.number().optional().default(20).describe("Maximum emails to return"),
+      personId: z.string().optional().describe('Person ID to get email history for'),
+      email: z.string().optional().describe('Email address to get history for (if no person ID)'),
+      hoursBack: z.number().optional().default(168).describe('Hours to look back (default 7 days)'),
+      limit: z.number().optional().default(20).describe('Maximum emails to return'),
     },
     async ({ personId, email, hoursBack, limit }) => {
       try {
         if (!personId && !email) {
           return {
-            content: [{
-              type: "text" as const,
-              text: JSON.stringify({
-                success: false,
-                error: "Either personId or email is required",
-              }),
-            }],
+            content: [
+              {
+                type: 'text' as const,
+                text: JSON.stringify({
+                  success: false,
+                  error: 'Either personId or email is required',
+                }),
+              },
+            ],
             isError: true,
           };
         }
@@ -310,13 +342,15 @@ export function registerEmailTools(server: McpServer, userId: string) {
         const integration = await findGoogleIntegrationByUserId(userId);
         if (!integration || !integration.isConnected) {
           return {
-            content: [{
-              type: "text" as const,
-              text: JSON.stringify({
-                success: false,
-                error: "Gmail not connected. Please connect your Google account.",
-              }),
-            }],
+            content: [
+              {
+                type: 'text' as const,
+                text: JSON.stringify({
+                  success: false,
+                  error: 'Gmail not connected. Please connect your Google account.',
+                }),
+              },
+            ],
             isError: true,
           };
         }
@@ -324,7 +358,7 @@ export function registerEmailTools(server: McpServer, userId: string) {
         // Get the email address to search for
         let searchEmail = email;
         if (personId && !searchEmail) {
-          const person = await findPersonByUserIdAndEmail(userId, ""); // Need to get by ID
+          const person = await findPersonByUserIdAndEmail(userId, ''); // Need to get by ID
           // Note: We'd need a findPersonById here, which exists in data-access
         }
 
@@ -337,10 +371,13 @@ export function registerEmailTools(server: McpServer, userId: string) {
         // Filter emails by sender/recipient
         const targetEmail = searchEmail?.toLowerCase();
         const filteredEmails = targetEmail
-          ? allEmails.filter(e =>
-              e.from.email.toLowerCase() === targetEmail ||
-              e.to.some(t => t.email.toLowerCase() === targetEmail)
-            ).slice(0, limit)
+          ? allEmails
+              .filter(
+                (e) =>
+                  e.from.email.toLowerCase() === targetEmail ||
+                  e.to.some((t) => t.email.toLowerCase() === targetEmail)
+              )
+              .slice(0, limit)
           : [];
 
         // Group by thread
@@ -360,26 +397,34 @@ export function registerEmailTools(server: McpServer, userId: string) {
         }));
 
         return {
-          content: [{
-            type: "text" as const,
-            text: JSON.stringify({
-              success: true,
-              email: searchEmail,
-              threadCount: threads.length,
-              messageCount: filteredEmails.length,
-              threads: threads.slice(0, 10),
-            }, null, 2),
-          }],
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify(
+                {
+                  success: true,
+                  email: searchEmail,
+                  threadCount: threads.length,
+                  messageCount: filteredEmails.length,
+                  threads: threads.slice(0, 10),
+                },
+                null,
+                2
+              ),
+            },
+          ],
         };
       } catch (error) {
         return {
-          content: [{
-            type: "text" as const,
-            text: JSON.stringify({
-              success: false,
-              error: error instanceof Error ? error.message : "Unknown error",
-            }),
-          }],
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify({
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error',
+              }),
+            },
+          ],
           isError: true,
         };
       }
@@ -388,26 +433,36 @@ export function registerEmailTools(server: McpServer, userId: string) {
 
   // ea_draft_reply - Draft a reply to an email
   server.tool(
-    "ea_draft_reply",
-    "Draft a reply to an email based on your intent. Returns the draft for review - does not send.",
+    'ea_draft_reply',
+    'Draft a reply to an email based on your intent. Returns the draft for review - does not send.',
     {
-      emailId: z.string().describe("The Gmail message ID to reply to"),
-      intent: z.string().describe("What you want to say or accomplish with this reply"),
-      tone: z.enum(["formal", "friendly", "brief", "detailed"]).optional().default("friendly").describe("Desired tone"),
-      includeOriginal: z.boolean().optional().default(true).describe("Include original message in reply"),
+      emailId: z.string().describe('The Gmail message ID to reply to'),
+      intent: z.string().describe('What you want to say or accomplish with this reply'),
+      tone: z
+        .enum(['formal', 'friendly', 'brief', 'detailed'])
+        .optional()
+        .default('friendly')
+        .describe('Desired tone'),
+      includeOriginal: z
+        .boolean()
+        .optional()
+        .default(true)
+        .describe('Include original message in reply'),
     },
     async ({ emailId, intent, tone, includeOriginal }) => {
       try {
         const integration = await findGoogleIntegrationByUserId(userId);
         if (!integration || !integration.isConnected) {
           return {
-            content: [{
-              type: "text" as const,
-              text: JSON.stringify({
-                success: false,
-                error: "Gmail not connected. Please connect your Google account.",
-              }),
-            }],
+            content: [
+              {
+                type: 'text' as const,
+                text: JSON.stringify({
+                  success: false,
+                  error: 'Gmail not connected. Please connect your Google account.',
+                }),
+              },
+            ],
             isError: true,
           };
         }
@@ -419,16 +474,18 @@ export function registerEmailTools(server: McpServer, userId: string) {
           hoursBack: 72,
         });
 
-        const originalEmail = emails.find(e => e.id === emailId);
+        const originalEmail = emails.find((e) => e.id === emailId);
         if (!originalEmail) {
           return {
-            content: [{
-              type: "text" as const,
-              text: JSON.stringify({
-                success: false,
-                error: "Original email not found",
-              }),
-            }],
+            content: [
+              {
+                type: 'text' as const,
+                text: JSON.stringify({
+                  success: false,
+                  error: 'Original email not found',
+                }),
+              },
+            ],
             isError: true,
           };
         }
@@ -444,25 +501,25 @@ export function registerEmailTools(server: McpServer, userId: string) {
             snippet: originalEmail.snippet,
             receivedAt: originalEmail.receivedAt,
           },
-          senderContext: senderPerson ? {
-            name: senderPerson.name,
-            company: senderPerson.company,
-            domain: senderPerson.domain,
-          } : null,
+          senderContext: senderPerson
+            ? {
+                name: senderPerson.name,
+                company: senderPerson.company,
+                domain: senderPerson.domain,
+              }
+            : null,
           intent,
           tone,
         };
 
         // Generate draft suggestion (this would ideally use an LLM)
-        const suggestedSubject = originalEmail.subject.startsWith("Re:")
+        const suggestedSubject = originalEmail.subject.startsWith('Re:')
           ? originalEmail.subject
           : `Re: ${originalEmail.subject}`;
 
-        const greeting = senderPerson?.name
-          ? `Hi ${senderPerson.name.split(' ')[0]},`
-          : `Hi,`;
+        const greeting = senderPerson?.name ? `Hi ${senderPerson.name.split(' ')[0]},` : `Hi,`;
 
-        const closing = tone === "formal" ? "Best regards," : "Thanks,";
+        const closing = tone === 'formal' ? 'Best regards,' : 'Thanks,';
 
         // Note: In a real implementation, this would use an LLM to generate the draft
         const draftBody = `${greeting}
@@ -473,31 +530,40 @@ ${closing}
 [Your name]`;
 
         return {
-          content: [{
-            type: "text" as const,
-            text: JSON.stringify({
-              success: true,
-              draft: {
-                to: [originalEmail.from],
-                subject: suggestedSubject,
-                body: draftBody,
-                inReplyTo: emailId,
-                threadId: originalEmail.threadId,
-              },
-              context: draftContext,
-              instructions: "This is a draft suggestion. Please review and edit before sending. Use ea_send_email to send when ready.",
-            }, null, 2),
-          }],
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify(
+                {
+                  success: true,
+                  draft: {
+                    to: [originalEmail.from],
+                    subject: suggestedSubject,
+                    body: draftBody,
+                    inReplyTo: emailId,
+                    threadId: originalEmail.threadId,
+                  },
+                  context: draftContext,
+                  instructions:
+                    'This is a draft suggestion. Please review and edit before sending. Use ea_send_email to send when ready.',
+                },
+                null,
+                2
+              ),
+            },
+          ],
         };
       } catch (error) {
         return {
-          content: [{
-            type: "text" as const,
-            text: JSON.stringify({
-              success: false,
-              error: error instanceof Error ? error.message : "Unknown error",
-            }),
-          }],
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify({
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error',
+              }),
+            },
+          ],
           isError: true,
         };
       }

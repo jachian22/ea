@@ -8,7 +8,7 @@
  * - Redirects to Google OAuth for sign-in
  */
 
-import { useState, useEffect, useCallback, useSyncExternalStore } from "react";
+import { useState, useEffect, useCallback, useSyncExternalStore } from 'react';
 
 type User = {
   id: string;
@@ -56,8 +56,8 @@ async function fetchSession(): Promise<SessionData> {
   // Create a new fetch promise
   fetchPromise = (async (): Promise<SessionData> => {
     try {
-      const response = await fetch("/api/auth/session", {
-        credentials: "include",
+      const response = await fetch('/api/auth/session', {
+        credentials: 'include',
       });
 
       let result: SessionData;
@@ -71,7 +71,7 @@ async function fetchSession(): Promise<SessionData> {
       notifyListeners();
       return result;
     } catch (error) {
-      console.error("Failed to fetch session:", error);
+      console.error('Failed to fetch session:', error);
       const result: SessionData = { user: null };
       sessionCache = result;
       notifyListeners();
@@ -139,12 +139,12 @@ export async function getSession(): Promise<SessionData | null> {
  */
 export async function signOut(): Promise<void> {
   try {
-    await fetch("/api/auth/sign-out", {
-      method: "POST",
-      credentials: "include",
+    await fetch('/api/auth/sign-out', {
+      method: 'POST',
+      credentials: 'include',
     });
   } catch (error) {
-    console.error("Sign out error:", error);
+    console.error('Sign out error:', error);
   }
 
   // Clear the session cache
@@ -156,9 +156,9 @@ export async function signOut(): Promise<void> {
  * Initiate Google sign-in by redirecting to the OAuth endpoint.
  */
 export function signInWithGoogle(redirectUrl?: string): void {
-  const url = new URL("/api/auth/google", window.location.origin);
+  const url = new URL('/api/auth/google', window.location.origin);
   if (redirectUrl) {
-    url.searchParams.set("redirect", redirectUrl);
+    url.searchParams.set('redirect', redirectUrl);
   }
   window.location.href = url.toString();
 }
@@ -178,7 +178,7 @@ export const authClient = {
   signOut,
   signIn: {
     social: ({ provider }: { provider: string }) => {
-      if (provider === "google") {
+      if (provider === 'google') {
         signInWithGoogle();
       }
     },

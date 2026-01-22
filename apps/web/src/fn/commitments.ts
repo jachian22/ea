@@ -1,6 +1,6 @@
-import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
-import { authenticatedMiddleware } from "./middleware";
+import { createServerFn } from '@tanstack/react-start';
+import { z } from 'zod';
+import { authenticatedMiddleware } from './middleware';
 import {
   createCommitment,
   findCommitmentById,
@@ -16,23 +16,23 @@ import {
   getCommitmentCountsByStatus,
   findCommitmentsWithPerson,
   createDefaultReminders,
-} from "~/data-access/commitments";
-import { findPersonByUserIdAndEmail, findOrCreatePerson } from "~/data-access/persons";
-import type { CommitmentStatus } from "~/db/schema";
+} from '~/data-access/commitments';
+import { findPersonByUserIdAndEmail, findOrCreatePerson } from '~/data-access/persons';
+import type { CommitmentStatus } from '~/db/schema';
 
 // ============================================================================
 // Create Commitment
 // ============================================================================
 
-export const createCommitmentFn = createServerFn({ method: "POST" })
+export const createCommitmentFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
-      description: z.string().min(1, "Description is required"),
-      direction: z.enum(["user_owes", "they_owe"]),
+      description: z.string().min(1, 'Description is required'),
+      direction: z.enum(['user_owes', 'they_owe']),
       personEmail: z.string().email().optional(),
       personName: z.string().optional(),
       dueDate: z.string().optional(), // ISO date string
-      priority: z.enum(["high", "medium", "low"]).optional(),
+      priority: z.enum(['high', 'medium', 'low']).optional(),
       createReminders: z.boolean().optional().default(true),
     })
   )
@@ -58,9 +58,9 @@ export const createCommitmentFn = createServerFn({ method: "POST" })
         description: data.description,
         direction: data.direction,
         dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
-        priority: data.priority || "medium",
+        priority: data.priority || 'medium',
         promisedAt: new Date(),
-        sourceType: "manual",
+        sourceType: 'manual',
       });
 
       // Create default reminders if due date is set
@@ -74,11 +74,11 @@ export const createCommitmentFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to create commitment:", error);
+      console.error('Failed to create commitment:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to create commitment",
+        error: error instanceof Error ? error.message : 'Failed to create commitment',
       };
     }
   });
@@ -87,14 +87,14 @@ export const createCommitmentFn = createServerFn({ method: "POST" })
 // Get Commitments
 // ============================================================================
 
-export const getCommitmentsFn = createServerFn({ method: "GET" })
+export const getCommitmentsFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z
       .object({
         filter: z
-          .enum(["all", "open", "user_owes", "they_owe", "due_today", "overdue", "upcoming"])
+          .enum(['all', 'open', 'user_owes', 'they_owe', 'due_today', 'overdue', 'upcoming'])
           .optional()
-          .default("open"),
+          .default('open'),
         limit: z.number().min(1).max(100).optional().default(50),
       })
       .optional()
@@ -102,43 +102,43 @@ export const getCommitmentsFn = createServerFn({ method: "GET" })
   .middleware([authenticatedMiddleware])
   .handler(async ({ data, context }) => {
     const { userId } = context;
-    const filter = data?.filter || "open";
+    const filter = data?.filter || 'open';
     const limit = data?.limit || 50;
 
     try {
       let commitments;
 
       switch (filter) {
-        case "all":
+        case 'all':
           commitments = await findCommitmentsWithPerson(userId, { limit });
           break;
-        case "open":
+        case 'open':
           commitments = await findCommitmentsWithPerson(userId, {
-            status: ["pending", "in_progress"],
+            status: ['pending', 'in_progress'],
             limit,
           });
           break;
-        case "user_owes":
+        case 'user_owes':
           commitments = await findCommitmentsWithPerson(userId, {
-            direction: "user_owes",
-            status: ["pending", "in_progress"],
+            direction: 'user_owes',
+            status: ['pending', 'in_progress'],
             limit,
           });
           break;
-        case "they_owe":
+        case 'they_owe':
           commitments = await findCommitmentsWithPerson(userId, {
-            direction: "they_owe",
-            status: ["pending", "in_progress"],
+            direction: 'they_owe',
+            status: ['pending', 'in_progress'],
             limit,
           });
           break;
-        case "due_today":
+        case 'due_today':
           commitments = await findCommitmentsDueToday(userId);
           break;
-        case "overdue":
+        case 'overdue':
           commitments = await findOverdueCommitments(userId);
           break;
-        case "upcoming":
+        case 'upcoming':
           commitments = await findUpcomingCommitments(userId, 7);
           break;
         default:
@@ -151,11 +151,11 @@ export const getCommitmentsFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get commitments:", error);
+      console.error('Failed to get commitments:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to get commitments",
+        error: error instanceof Error ? error.message : 'Failed to get commitments',
       };
     }
   });
@@ -164,7 +164,7 @@ export const getCommitmentsFn = createServerFn({ method: "GET" })
 // Get Commitment by ID
 // ============================================================================
 
-export const getCommitmentByIdFn = createServerFn({ method: "GET" })
+export const getCommitmentByIdFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z.object({
       id: z.string(),
@@ -181,7 +181,7 @@ export const getCommitmentByIdFn = createServerFn({ method: "GET" })
         return {
           success: false,
           data: null,
-          error: "Commitment not found",
+          error: 'Commitment not found',
         };
       }
 
@@ -191,11 +191,11 @@ export const getCommitmentByIdFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get commitment:", error);
+      console.error('Failed to get commitment:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to get commitment",
+        error: error instanceof Error ? error.message : 'Failed to get commitment',
       };
     }
   });
@@ -204,14 +204,14 @@ export const getCommitmentByIdFn = createServerFn({ method: "GET" })
 // Update Commitment
 // ============================================================================
 
-export const updateCommitmentFn = createServerFn({ method: "POST" })
+export const updateCommitmentFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       id: z.string(),
       description: z.string().optional(),
       dueDate: z.string().nullable().optional(),
-      priority: z.enum(["high", "medium", "low"]).optional(),
-      status: z.enum(["pending", "in_progress", "completed", "cancelled"]).optional(),
+      priority: z.enum(['high', 'medium', 'low']).optional(),
+      status: z.enum(['pending', 'in_progress', 'completed', 'cancelled']).optional(),
       completionEvidence: z.string().optional(),
     })
   )
@@ -226,17 +226,13 @@ export const updateCommitmentFn = createServerFn({ method: "POST" })
         return {
           success: false,
           data: null,
-          error: "Commitment not found",
+          error: 'Commitment not found',
         };
       }
 
       // If status is being updated, use the status update function
       if (data.status) {
-        const updated = await updateCommitmentStatus(
-          data.id,
-          data.status,
-          data.completionEvidence
-        );
+        const updated = await updateCommitmentStatus(data.id, data.status, data.completionEvidence);
         return {
           success: true,
           data: updated,
@@ -247,7 +243,7 @@ export const updateCommitmentFn = createServerFn({ method: "POST" })
       // Otherwise, update other fields
       const updated = await updateCommitment(data.id, {
         description: data.description,
-        dueDate: data.dueDate ? new Date(data.dueDate) : (data.dueDate === null ? null : undefined),
+        dueDate: data.dueDate ? new Date(data.dueDate) : data.dueDate === null ? null : undefined,
         priority: data.priority,
       });
 
@@ -257,11 +253,11 @@ export const updateCommitmentFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to update commitment:", error);
+      console.error('Failed to update commitment:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to update commitment",
+        error: error instanceof Error ? error.message : 'Failed to update commitment',
       };
     }
   });
@@ -270,7 +266,7 @@ export const updateCommitmentFn = createServerFn({ method: "POST" })
 // Delete Commitment
 // ============================================================================
 
-export const deleteCommitmentFn = createServerFn({ method: "POST" })
+export const deleteCommitmentFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       id: z.string(),
@@ -286,7 +282,7 @@ export const deleteCommitmentFn = createServerFn({ method: "POST" })
       if (!existing || existing.userId !== userId) {
         return {
           success: false,
-          error: "Commitment not found",
+          error: 'Commitment not found',
         };
       }
 
@@ -297,10 +293,10 @@ export const deleteCommitmentFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to delete commitment:", error);
+      console.error('Failed to delete commitment:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Failed to delete commitment",
+        error: error instanceof Error ? error.message : 'Failed to delete commitment',
       };
     }
   });
@@ -309,7 +305,7 @@ export const deleteCommitmentFn = createServerFn({ method: "POST" })
 // Get Commitment Stats
 // ============================================================================
 
-export const getCommitmentStatsFn = createServerFn({ method: "GET" })
+export const getCommitmentStatsFn = createServerFn({ method: 'GET' })
   .middleware([authenticatedMiddleware])
   .handler(async ({ context }) => {
     const { userId } = context;
@@ -330,11 +326,11 @@ export const getCommitmentStatsFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get commitment stats:", error);
+      console.error('Failed to get commitment stats:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to get commitment stats",
+        error: error instanceof Error ? error.message : 'Failed to get commitment stats',
       };
     }
   });

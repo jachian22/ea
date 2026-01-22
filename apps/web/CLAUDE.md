@@ -114,20 +114,26 @@ npm run stripe:listen      # Listen for Stripe webhooks in development
 ## Key Services
 
 ### Brief Generator (`src/services/brief-generator.ts`)
+
 Orchestrates the daily brief generation by:
+
 1. Fetching calendar events for the day
 2. Fetching recent emails from Gmail
 3. Using AI to generate a summarized brief
 4. Storing the result in the database
 
 ### Gmail Service (`src/services/gmail.ts`)
+
 Handles Gmail API interactions:
+
 - Fetching recent emails
 - Parsing email metadata
 - Categorizing by importance
 
 ### Google Calendar (`src/services/google-calendar.ts`)
+
 Handles Calendar API interactions:
+
 - Fetching today's events
 - Parsing event details and attendees
 
@@ -159,6 +165,7 @@ Research, backlog, and exploration for this project lives at:
 The EA app serves as the operational "cache" layer - pulling in real-time data (calendar, email, future: banking, health) and surfacing actionable intelligence.
 
 Key directions being explored:
+
 - **Expression Pipeline**: Help transform dormant vault knowledge into content outputs (videos, social posts)
 - **Data Expansion**: Banking and health data integration
 - **Build Awareness**: Connect calendar/email items to active projects in the vault

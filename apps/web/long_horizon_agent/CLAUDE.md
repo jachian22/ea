@@ -13,12 +13,14 @@ This is an **execution engine** designed to be embedded into a larger assistant 
 ### Two-Step Execution Model
 
 **Step 1 - Spec & Research (No Code Promotion)**
+
 - Transform natural-language requests into approved JobSpecs
 - Deep research on sources, APIs, authentication tiers
 - Outputs: DecisionBrief.md, SourcePlan.md, RiskAssessment.md, job_spec.json
 - Agent: Spec Builder (`docs/prompts/spec_builder.md`)
 
 **Step 2 - Build, Verify, Operate**
+
 - Implement approved JobSpecs in sandboxed Modal environments
 - Generate extractors, tests, validators, runbooks
 - Outputs per source: extractor code, tests, TEST_REPORT.md, RUNBOOK.md, RISKS.md, sample_output.jsonl, SCHEDULE.json
@@ -32,6 +34,7 @@ This is an **execution engine** designed to be embedded into a larger assistant 
 ### Tiered Access Model
 
 Sources are classified by automation feasibility:
+
 - **Tier 0**: API / OAuth (fully headless, stable)
 - **Tier 1**: Portal with stable session (cookies/storage usable)
 - **Tier 2**: Step-up auth required (regular human re-auth)
@@ -59,12 +62,12 @@ Artifacts are immutable once approved. Updates require a new run and review.
 
 ### Tool Permissions (Dev vs Prod)
 
-| Tool | Dev | Prod |
-|------|-----|------|
-| edit/read/grep | allowed | allowed |
-| bash | allowed | restricted |
-| install deps | allowed | forbidden |
-| web fetch | allowed | restricted |
+| Tool           | Dev     | Prod       |
+| -------------- | ------- | ---------- |
+| edit/read/grep | allowed | allowed    |
+| bash           | allowed | restricted |
+| install deps   | allowed | forbidden  |
+| web fetch      | allowed | restricted |
 
 ## Directory Structure (Modal Volumes)
 

@@ -1,15 +1,15 @@
-import { google, type Auth } from "googleapis";
-import { privateEnv } from "~/config/privateEnv";
-import { database } from "~/db";
-import { googleIntegration, type GoogleIntegration } from "~/db/schema";
-import { eq } from "drizzle-orm";
+import { google, type Auth } from 'googleapis';
+import { privateEnv } from '~/config/privateEnv';
+import { database } from '~/db';
+import { googleIntegration, type GoogleIntegration } from '~/db/schema';
+import { eq } from 'drizzle-orm';
 
 // Google OAuth2 scopes required for Gmail and Calendar access
 export const GOOGLE_SCOPES = [
-  "https://www.googleapis.com/auth/gmail.readonly",
-  "https://www.googleapis.com/auth/calendar.readonly",
-  "https://www.googleapis.com/auth/userinfo.email",
-  "https://www.googleapis.com/auth/userinfo.profile",
+  'https://www.googleapis.com/auth/gmail.readonly',
+  'https://www.googleapis.com/auth/calendar.readonly',
+  'https://www.googleapis.com/auth/userinfo.email',
+  'https://www.googleapis.com/auth/userinfo.profile',
 ];
 
 /**
@@ -33,9 +33,9 @@ export function getGoogleAuthUrl(state?: string): string {
   const oauth2Client = createOAuth2Client();
 
   return oauth2Client.generateAuthUrl({
-    access_type: "offline", // Required to get refresh token
+    access_type: 'offline', // Required to get refresh token
     scope: GOOGLE_SCOPES,
-    prompt: "consent", // Force consent screen to always get refresh token
+    prompt: 'consent', // Force consent screen to always get refresh token
     state,
   });
 }
@@ -65,11 +65,11 @@ export async function getGoogleUserInfo(accessToken: string): Promise<{
   const oauth2Client = createOAuth2Client();
   oauth2Client.setCredentials({ access_token: accessToken });
 
-  const oauth2 = google.oauth2({ version: "v2", auth: oauth2Client });
+  const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client });
   const { data } = await oauth2.userinfo.get();
 
   if (!data.id || !data.email) {
-    throw new Error("Failed to retrieve Google user info");
+    throw new Error('Failed to retrieve Google user info');
   }
 
   return {
@@ -103,11 +103,11 @@ export async function createAuthenticatedClient(
   });
 
   // Set up automatic token refresh handler
-  oauth2Client.on("tokens", async (tokens) => {
+  oauth2Client.on('tokens', async (tokens) => {
     try {
       await updateStoredTokens(integration.userId, tokens);
     } catch (error) {
-      console.error("Failed to update stored tokens:", error);
+      console.error('Failed to update stored tokens:', error);
     }
   });
 
@@ -149,8 +149,8 @@ async function refreshAccessToken(
     // If refresh fails, mark integration as disconnected
     await markIntegrationDisconnected(userId);
     throw new GoogleAuthError(
-      "Failed to refresh access token. User needs to re-authenticate.",
-      "TOKEN_REFRESH_FAILED",
+      'Failed to refresh access token. User needs to re-authenticate.',
+      'TOKEN_REFRESH_FAILED',
       error
     );
   }
@@ -161,10 +161,7 @@ async function refreshAccessToken(
  * @param userId The user ID to update
  * @param tokens The new tokens from Google
  */
-async function updateStoredTokens(
-  userId: string,
-  tokens: Auth.Credentials
-): Promise<void> {
+async function updateStoredTokens(userId: string, tokens: Auth.Credentials): Promise<void> {
   const updateData: Partial<GoogleIntegration> = {
     updatedAt: new Date(),
   };
@@ -223,7 +220,7 @@ export class GoogleAuthError extends Error {
 
   constructor(message: string, code: string, cause?: unknown) {
     super(message);
-    this.name = "GoogleAuthError";
+    this.name = 'GoogleAuthError';
     this.code = code;
     this.cause = cause;
   }
@@ -233,11 +230,11 @@ export class GoogleAuthError extends Error {
  * Error codes for Google authentication errors.
  */
 export const GoogleAuthErrorCodes = {
-  TOKEN_REFRESH_FAILED: "TOKEN_REFRESH_FAILED",
-  INVALID_CREDENTIALS: "INVALID_CREDENTIALS",
-  INTEGRATION_NOT_FOUND: "INTEGRATION_NOT_FOUND",
-  INTEGRATION_DISCONNECTED: "INTEGRATION_DISCONNECTED",
-  API_ERROR: "API_ERROR",
+  TOKEN_REFRESH_FAILED: 'TOKEN_REFRESH_FAILED',
+  INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
+  INTEGRATION_NOT_FOUND: 'INTEGRATION_NOT_FOUND',
+  INTEGRATION_DISCONNECTED: 'INTEGRATION_DISCONNECTED',
+  API_ERROR: 'API_ERROR',
 } as const;
 
 export type GoogleAuthErrorCode = keyof typeof GoogleAuthErrorCodes;

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { format, subMonths } from "date-fns";
+import { useState } from 'react';
+import { format, subMonths } from 'date-fns';
 import {
   Play,
   Pause,
@@ -12,42 +12,36 @@ import {
   CheckCircle,
   Loader2,
   AlertCircle,
-} from "lucide-react";
-import { Button } from "~/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
+} from 'lucide-react';
+import { Button } from '~/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "~/components/ui/select";
-import { Label } from "~/components/ui/label";
-import { Progress } from "~/components/ui/progress";
-import { Switch } from "~/components/ui/switch";
-import { Slider } from "~/components/ui/slider";
+} from '~/components/ui/select';
+import { Label } from '~/components/ui/label';
+import { Progress } from '~/components/ui/progress';
+import { Switch } from '~/components/ui/switch';
+import { Slider } from '~/components/ui/slider';
 import {
   useActiveBackfillJob,
   useStartBackfill,
   usePauseBackfill,
   useResumeBackfill,
   useDeleteBackfill,
-} from "~/hooks/use-backfill";
-import type { BackfillSourceType, BackfillJob } from "~/db/schema";
+} from '~/hooks/use-backfill';
+import type { BackfillSourceType, BackfillJob } from '~/db/schema';
 
 interface BackfillCardProps {
   onComplete?: () => void;
 }
 
 export function BackfillCard({ onComplete }: BackfillCardProps) {
-  const [sourceType, setSourceType] = useState<BackfillSourceType>("all");
-  const [dateRange, setDateRange] = useState("3"); // months
+  const [sourceType, setSourceType] = useState<BackfillSourceType>('all');
+  const [dateRange, setDateRange] = useState('3'); // months
   const [saveCommitments, setSaveCommitments] = useState(true);
   const [minConfidence, setMinConfidence] = useState([0.7]);
 
@@ -105,7 +99,14 @@ export function BackfillCard({ onComplete }: BackfillCardProps) {
 
   // Show active job status
   if (job) {
-    return <BackfillJobStatus job={job} onPause={handlePause} onResume={handleResume} onDelete={handleDelete} />;
+    return (
+      <BackfillJobStatus
+        job={job}
+        onPause={handlePause}
+        onResume={handleResume}
+        onDelete={handleDelete}
+      />
+    );
   }
 
   // Show configuration form
@@ -201,11 +202,7 @@ export function BackfillCard({ onComplete }: BackfillCardProps) {
         </div>
 
         {/* Start Button */}
-        <Button
-          onClick={handleStart}
-          disabled={startBackfill.isPending}
-          className="w-full"
-        >
+        <Button onClick={handleStart} disabled={startBackfill.isPending} className="w-full">
           {startBackfill.isPending ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -236,13 +233,13 @@ function BackfillJobStatus({ job, onPause, onResume, onDelete }: BackfillJobStat
 
   const getStatusIcon = () => {
     switch (job.status) {
-      case "running":
+      case 'running':
         return <Loader2 className="h-5 w-5 animate-spin text-blue-500" />;
-      case "paused":
+      case 'paused':
         return <Pause className="h-5 w-5 text-yellow-500" />;
-      case "completed":
+      case 'completed':
         return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case "failed":
+      case 'failed':
         return <AlertCircle className="h-5 w-5 text-red-500" />;
       default:
         return <RefreshCw className="h-5 w-5 text-muted-foreground" />;
@@ -251,16 +248,16 @@ function BackfillJobStatus({ job, onPause, onResume, onDelete }: BackfillJobStat
 
   const getStatusText = () => {
     switch (job.status) {
-      case "running":
-        return "Processing...";
-      case "paused":
-        return "Paused";
-      case "completed":
-        return "Completed";
-      case "failed":
-        return "Failed";
+      case 'running':
+        return 'Processing...';
+      case 'paused':
+        return 'Paused';
+      case 'completed':
+        return 'Completed';
+      case 'failed':
+        return 'Failed';
       default:
-        return "Pending";
+        return 'Pending';
     }
   };
 
@@ -273,17 +270,17 @@ function BackfillJobStatus({ job, onPause, onResume, onDelete }: BackfillJobStat
             Backfill {getStatusText()}
           </CardTitle>
           <div className="flex items-center gap-2">
-            {job.status === "running" && (
+            {job.status === 'running' && (
               <Button variant="outline" size="sm" onClick={onPause}>
                 <Pause className="h-4 w-4" />
               </Button>
             )}
-            {job.status === "paused" && (
+            {job.status === 'paused' && (
               <Button variant="outline" size="sm" onClick={onResume}>
                 <Play className="h-4 w-4" />
               </Button>
             )}
-            {(job.status === "completed" || job.status === "failed") && (
+            {(job.status === 'completed' || job.status === 'failed') && (
               <Button variant="outline" size="sm" onClick={onDelete}>
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -291,13 +288,13 @@ function BackfillJobStatus({ job, onPause, onResume, onDelete }: BackfillJobStat
           </div>
         </div>
         <CardDescription>
-          {job.sourceType === "all"
-            ? "Gmail & Calendar"
-            : job.sourceType === "gmail"
-            ? "Gmail"
-            : "Calendar"}{" "}
-          • {format(new Date(job.startDate), "MMM d, yyyy")} -{" "}
-          {format(new Date(job.endDate), "MMM d, yyyy")}
+          {job.sourceType === 'all'
+            ? 'Gmail & Calendar'
+            : job.sourceType === 'gmail'
+              ? 'Gmail'
+              : 'Calendar'}{' '}
+          • {format(new Date(job.startDate), 'MMM d, yyyy')} -{' '}
+          {format(new Date(job.endDate), 'MMM d, yyyy')}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -306,7 +303,7 @@ function BackfillJobStatus({ job, onPause, onResume, onDelete }: BackfillJobStat
           <div className="flex justify-between text-sm">
             <span>Progress</span>
             <span>
-              {progress.processed} / {progress.total || "?"}
+              {progress.processed} / {progress.total || '?'}
             </span>
           </div>
           <Progress value={progressPercent} />
@@ -317,27 +314,21 @@ function BackfillJobStatus({ job, onPause, onResume, onDelete }: BackfillJobStat
           <div className="text-center">
             <div className="flex items-center justify-center gap-1">
               <Users className="h-4 w-4 text-muted-foreground" />
-              <span className="text-2xl font-bold">
-                {job.personsCreated || 0}
-              </span>
+              <span className="text-2xl font-bold">{job.personsCreated || 0}</span>
             </div>
             <p className="text-xs text-muted-foreground">People</p>
           </div>
           <div className="text-center">
             <div className="flex items-center justify-center gap-1">
               <MessageSquare className="h-4 w-4 text-muted-foreground" />
-              <span className="text-2xl font-bold">
-                {job.interactionsCreated || 0}
-              </span>
+              <span className="text-2xl font-bold">{job.interactionsCreated || 0}</span>
             </div>
             <p className="text-xs text-muted-foreground">Interactions</p>
           </div>
           <div className="text-center">
             <div className="flex items-center justify-center gap-1">
               <CheckCircle className="h-4 w-4 text-muted-foreground" />
-              <span className="text-2xl font-bold">
-                {job.commitmentsDetected || 0}
-              </span>
+              <span className="text-2xl font-bold">{job.commitmentsDetected || 0}</span>
             </div>
             <p className="text-xs text-muted-foreground">Commitments</p>
           </div>
@@ -353,13 +344,9 @@ function BackfillJobStatus({ job, onPause, onResume, onDelete }: BackfillJobStat
         {/* Timing */}
         {job.startedAt && (
           <div className="text-xs text-muted-foreground">
-            Started: {format(new Date(job.startedAt), "MMM d, yyyy h:mm a")}
+            Started: {format(new Date(job.startedAt), 'MMM d, yyyy h:mm a')}
             {job.completedAt && (
-              <>
-                {" "}
-                • Completed:{" "}
-                {format(new Date(job.completedAt), "MMM d, yyyy h:mm a")}
-              </>
+              <> • Completed: {format(new Date(job.completedAt), 'MMM d, yyyy h:mm a')}</>
             )}
           </div>
         )}

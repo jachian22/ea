@@ -1,6 +1,6 @@
-import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
-import { authenticatedMiddleware } from "./middleware";
+import { createServerFn } from '@tanstack/react-start';
+import { z } from 'zod';
+import { authenticatedMiddleware } from './middleware';
 import {
   findOrCreatePrivacySettings,
   updatePrivacySettings,
@@ -13,14 +13,14 @@ import {
   addRedactPattern,
   removeRedactPattern,
   setCloudAIPermission,
-} from "~/data-access/privacy-settings";
-import { getCommonRedactionPatterns } from "~/services/privacy-filter";
+} from '~/data-access/privacy-settings';
+import { getCommonRedactionPatterns } from '~/services/privacy-filter';
 
 // ============================================================================
 // Get Privacy Settings
 // ============================================================================
 
-export const getPrivacySettingsFn = createServerFn({ method: "GET" })
+export const getPrivacySettingsFn = createServerFn({ method: 'GET' })
   .middleware([authenticatedMiddleware])
   .handler(async ({ context }) => {
     const { userId } = context;
@@ -34,11 +34,11 @@ export const getPrivacySettingsFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get privacy settings:", error);
+      console.error('Failed to get privacy settings:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to get privacy settings",
+        error: error instanceof Error ? error.message : 'Failed to get privacy settings',
       };
     }
   });
@@ -47,12 +47,12 @@ export const getPrivacySettingsFn = createServerFn({ method: "GET" })
 // Update Privacy Settings
 // ============================================================================
 
-export const updatePrivacySettingsFn = createServerFn({ method: "POST" })
+export const updatePrivacySettingsFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       allowCloudAI: z.boolean().optional(),
       excludedDomains: z
-        .array(z.enum(["family", "business", "job", "personal", "other"]))
+        .array(z.enum(['family', 'business', 'job', 'personal', 'other']))
         .optional(),
       excludedPersonIds: z.array(z.string()).optional(),
       excludedEmailDomains: z.array(z.string()).optional(),
@@ -73,11 +73,11 @@ export const updatePrivacySettingsFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to update privacy settings:", error);
+      console.error('Failed to update privacy settings:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to update privacy settings",
+        error: error instanceof Error ? error.message : 'Failed to update privacy settings',
       };
     }
   });
@@ -86,7 +86,7 @@ export const updatePrivacySettingsFn = createServerFn({ method: "POST" })
 // Toggle Cloud AI Permission
 // ============================================================================
 
-export const setCloudAIPermissionFn = createServerFn({ method: "POST" })
+export const setCloudAIPermissionFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       allow: z.boolean(),
@@ -105,11 +105,11 @@ export const setCloudAIPermissionFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to set cloud AI permission:", error);
+      console.error('Failed to set cloud AI permission:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to set cloud AI permission",
+        error: error instanceof Error ? error.message : 'Failed to set cloud AI permission',
       };
     }
   });
@@ -118,10 +118,10 @@ export const setCloudAIPermissionFn = createServerFn({ method: "POST" })
 // Add Excluded Domain
 // ============================================================================
 
-export const addExcludedDomainFn = createServerFn({ method: "POST" })
+export const addExcludedDomainFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
-      domain: z.enum(["family", "business", "job", "personal", "other"]),
+      domain: z.enum(['family', 'business', 'job', 'personal', 'other']),
     })
   )
   .middleware([authenticatedMiddleware])
@@ -137,11 +137,11 @@ export const addExcludedDomainFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to add excluded domain:", error);
+      console.error('Failed to add excluded domain:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to add excluded domain",
+        error: error instanceof Error ? error.message : 'Failed to add excluded domain',
       };
     }
   });
@@ -150,10 +150,10 @@ export const addExcludedDomainFn = createServerFn({ method: "POST" })
 // Remove Excluded Domain
 // ============================================================================
 
-export const removeExcludedDomainFn = createServerFn({ method: "POST" })
+export const removeExcludedDomainFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
-      domain: z.enum(["family", "business", "job", "personal", "other"]),
+      domain: z.enum(['family', 'business', 'job', 'personal', 'other']),
     })
   )
   .middleware([authenticatedMiddleware])
@@ -169,11 +169,11 @@ export const removeExcludedDomainFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to remove excluded domain:", error);
+      console.error('Failed to remove excluded domain:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to remove excluded domain",
+        error: error instanceof Error ? error.message : 'Failed to remove excluded domain',
       };
     }
   });
@@ -182,7 +182,7 @@ export const removeExcludedDomainFn = createServerFn({ method: "POST" })
 // Add Excluded Person
 // ============================================================================
 
-export const addExcludedPersonFn = createServerFn({ method: "POST" })
+export const addExcludedPersonFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       personId: z.string(),
@@ -201,11 +201,11 @@ export const addExcludedPersonFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to add excluded person:", error);
+      console.error('Failed to add excluded person:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to add excluded person",
+        error: error instanceof Error ? error.message : 'Failed to add excluded person',
       };
     }
   });
@@ -214,7 +214,7 @@ export const addExcludedPersonFn = createServerFn({ method: "POST" })
 // Remove Excluded Person
 // ============================================================================
 
-export const removeExcludedPersonFn = createServerFn({ method: "POST" })
+export const removeExcludedPersonFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       personId: z.string(),
@@ -233,11 +233,11 @@ export const removeExcludedPersonFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to remove excluded person:", error);
+      console.error('Failed to remove excluded person:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to remove excluded person",
+        error: error instanceof Error ? error.message : 'Failed to remove excluded person',
       };
     }
   });
@@ -246,7 +246,7 @@ export const removeExcludedPersonFn = createServerFn({ method: "POST" })
 // Add Excluded Email Domain
 // ============================================================================
 
-export const addExcludedEmailDomainFn = createServerFn({ method: "POST" })
+export const addExcludedEmailDomainFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       emailDomain: z.string().min(1),
@@ -265,11 +265,11 @@ export const addExcludedEmailDomainFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to add excluded email domain:", error);
+      console.error('Failed to add excluded email domain:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to add excluded email domain",
+        error: error instanceof Error ? error.message : 'Failed to add excluded email domain',
       };
     }
   });
@@ -278,7 +278,7 @@ export const addExcludedEmailDomainFn = createServerFn({ method: "POST" })
 // Remove Excluded Email Domain
 // ============================================================================
 
-export const removeExcludedEmailDomainFn = createServerFn({ method: "POST" })
+export const removeExcludedEmailDomainFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       emailDomain: z.string().min(1),
@@ -297,11 +297,11 @@ export const removeExcludedEmailDomainFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to remove excluded email domain:", error);
+      console.error('Failed to remove excluded email domain:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to remove excluded email domain",
+        error: error instanceof Error ? error.message : 'Failed to remove excluded email domain',
       };
     }
   });
@@ -310,7 +310,7 @@ export const removeExcludedEmailDomainFn = createServerFn({ method: "POST" })
 // Add Redact Pattern
 // ============================================================================
 
-export const addRedactPatternFn = createServerFn({ method: "POST" })
+export const addRedactPatternFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       pattern: z.string().min(1),
@@ -323,12 +323,12 @@ export const addRedactPatternFn = createServerFn({ method: "POST" })
     try {
       // Validate regex pattern
       try {
-        new RegExp(data.pattern, "gi");
+        new RegExp(data.pattern, 'gi');
       } catch {
         return {
           success: false,
           data: null,
-          error: "Invalid regex pattern",
+          error: 'Invalid regex pattern',
         };
       }
 
@@ -340,11 +340,11 @@ export const addRedactPatternFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to add redact pattern:", error);
+      console.error('Failed to add redact pattern:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to add redact pattern",
+        error: error instanceof Error ? error.message : 'Failed to add redact pattern',
       };
     }
   });
@@ -353,7 +353,7 @@ export const addRedactPatternFn = createServerFn({ method: "POST" })
 // Remove Redact Pattern
 // ============================================================================
 
-export const removeRedactPatternFn = createServerFn({ method: "POST" })
+export const removeRedactPatternFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       pattern: z.string(),
@@ -372,11 +372,11 @@ export const removeRedactPatternFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to remove redact pattern:", error);
+      console.error('Failed to remove redact pattern:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to remove redact pattern",
+        error: error instanceof Error ? error.message : 'Failed to remove redact pattern',
       };
     }
   });
@@ -385,7 +385,7 @@ export const removeRedactPatternFn = createServerFn({ method: "POST" })
 // Get Common Redaction Pattern Suggestions
 // ============================================================================
 
-export const getRedactionPatternSuggestionsFn = createServerFn({ method: "GET" })
+export const getRedactionPatternSuggestionsFn = createServerFn({ method: 'GET' })
   .middleware([authenticatedMiddleware])
   .handler(async () => {
     try {
@@ -397,11 +397,11 @@ export const getRedactionPatternSuggestionsFn = createServerFn({ method: "GET" }
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get redaction pattern suggestions:", error);
+      console.error('Failed to get redaction pattern suggestions:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to get suggestions",
+        error: error instanceof Error ? error.message : 'Failed to get suggestions',
       };
     }
   });

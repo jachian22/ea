@@ -1,5 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import {
   actionTypesQueryOptions,
   authoritySettingsQueryOptions,
@@ -7,7 +7,7 @@ import {
   pendingApprovalCountQueryOptions,
   actionLogsQueryOptions,
   actionStatsQueryOptions,
-} from "~/queries/authority";
+} from '~/queries/authority';
 import {
   updateAuthoritySettingFn,
   bulkUpdateAuthoritySettingsFn,
@@ -20,9 +20,9 @@ import {
   batchRejectActionsFn,
   reverseActionFn,
   submitFeedbackFn,
-} from "~/fn/authority";
-import { authClient } from "~/lib/auth-client";
-import { getErrorMessage } from "~/utils/error";
+} from '~/fn/authority';
+import { authClient } from '~/lib/auth-client';
+import { getErrorMessage } from '~/utils/error';
 import type {
   ActionType,
   AuthoritySetting,
@@ -31,7 +31,7 @@ import type {
   ActionLogStatus,
   UserFeedback,
   AuthorityConditions,
-} from "~/db/schema";
+} from '~/db/schema';
 
 // Type for standard server function response
 type ServerFnResponse<T = unknown> = {
@@ -94,16 +94,16 @@ export function useUpdateAuthoritySetting() {
     }) => updateAuthoritySettingFn({ data }),
     onSuccess: (result) => {
       if (result.success) {
-        toast.success("Setting updated", {
-          description: "Authority setting has been updated.",
+        toast.success('Setting updated', {
+          description: 'Authority setting has been updated.',
         });
-        queryClient.invalidateQueries({ queryKey: ["authority", "settings"] });
+        queryClient.invalidateQueries({ queryKey: ['authority', 'settings'] });
       } else {
-        toast.error(result.error || "Failed to update setting");
+        toast.error(result.error || 'Failed to update setting');
       }
     },
     onError: (error) => {
-      toast.error("Failed to update setting", {
+      toast.error('Failed to update setting', {
         description: getErrorMessage(error),
       });
     },
@@ -117,23 +117,25 @@ export function useBulkUpdateAuthoritySettings() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (updates: Array<{
-      actionTypeId: string;
-      authorityLevel: AuthorityLevel;
-      conditions?: AuthorityConditions;
-    }>) => bulkUpdateAuthoritySettingsFn({ data: { updates } }),
+    mutationFn: (
+      updates: Array<{
+        actionTypeId: string;
+        authorityLevel: AuthorityLevel;
+        conditions?: AuthorityConditions;
+      }>
+    ) => bulkUpdateAuthoritySettingsFn({ data: { updates } }),
     onSuccess: (result) => {
       if (result.success) {
-        toast.success("Settings updated", {
-          description: "Authority settings have been updated.",
+        toast.success('Settings updated', {
+          description: 'Authority settings have been updated.',
         });
-        queryClient.invalidateQueries({ queryKey: ["authority", "settings"] });
+        queryClient.invalidateQueries({ queryKey: ['authority', 'settings'] });
       } else {
-        toast.error(result.error || "Failed to update settings");
+        toast.error(result.error || 'Failed to update settings');
       }
     },
     onError: (error) => {
-      toast.error("Failed to update settings", {
+      toast.error('Failed to update settings', {
         description: getErrorMessage(error),
       });
     },
@@ -150,7 +152,7 @@ export function useInitializeAuthority() {
     mutationFn: () => initializeAuthorityFn(),
     onSuccess: (result) => {
       if (result.success) {
-        queryClient.invalidateQueries({ queryKey: ["authority"] });
+        queryClient.invalidateQueries({ queryKey: ['authority'] });
       }
     },
   });
@@ -166,16 +168,16 @@ export function useDisableAllAutomation() {
     mutationFn: () => disableAllAutomationFn(),
     onSuccess: (result) => {
       if (result.success) {
-        toast.success("Automation disabled", {
-          description: "All automation has been disabled.",
+        toast.success('Automation disabled', {
+          description: 'All automation has been disabled.',
         });
-        queryClient.invalidateQueries({ queryKey: ["authority", "settings"] });
+        queryClient.invalidateQueries({ queryKey: ['authority', 'settings'] });
       } else {
-        toast.error(result.error || "Failed to disable automation");
+        toast.error(result.error || 'Failed to disable automation');
       }
     },
     onError: (error) => {
-      toast.error("Failed to disable automation", {
+      toast.error('Failed to disable automation', {
         description: getErrorMessage(error),
       });
     },
@@ -192,16 +194,16 @@ export function useEnableConservativeAutomation() {
     mutationFn: () => enableConservativeAutomationFn(),
     onSuccess: (result) => {
       if (result.success) {
-        toast.success("Automation enabled", {
-          description: "Conservative automation defaults have been enabled.",
+        toast.success('Automation enabled', {
+          description: 'Conservative automation defaults have been enabled.',
         });
-        queryClient.invalidateQueries({ queryKey: ["authority", "settings"] });
+        queryClient.invalidateQueries({ queryKey: ['authority', 'settings'] });
       } else {
-        toast.error(result.error || "Failed to enable automation");
+        toast.error(result.error || 'Failed to enable automation');
       }
     },
     onError: (error) => {
-      toast.error("Failed to enable automation", {
+      toast.error('Failed to enable automation', {
         description: getErrorMessage(error),
       });
     },
@@ -280,16 +282,16 @@ export function useApproveAction() {
     onSuccess: (rawResult) => {
       const result = rawResult as ServerFnResponse;
       if (result.success) {
-        toast.success("Action approved");
-        queryClient.invalidateQueries({ queryKey: ["authority", "pending"] });
-        queryClient.invalidateQueries({ queryKey: ["authority", "logs"] });
-        queryClient.invalidateQueries({ queryKey: ["authority", "pending-count"] });
+        toast.success('Action approved');
+        queryClient.invalidateQueries({ queryKey: ['authority', 'pending'] });
+        queryClient.invalidateQueries({ queryKey: ['authority', 'logs'] });
+        queryClient.invalidateQueries({ queryKey: ['authority', 'pending-count'] });
       } else {
-        toast.error(result.error || "Failed to approve action");
+        toast.error(result.error || 'Failed to approve action');
       }
     },
     onError: (error) => {
-      toast.error("Failed to approve action", {
+      toast.error('Failed to approve action', {
         description: getErrorMessage(error),
       });
     },
@@ -303,21 +305,20 @@ export function useRejectAction() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { actionLogId: string; reason?: string }) =>
-      rejectActionFn({ data }),
+    mutationFn: (data: { actionLogId: string; reason?: string }) => rejectActionFn({ data }),
     onSuccess: (rawResult) => {
       const result = rawResult as ServerFnResponse;
       if (result.success) {
-        toast.success("Action rejected");
-        queryClient.invalidateQueries({ queryKey: ["authority", "pending"] });
-        queryClient.invalidateQueries({ queryKey: ["authority", "logs"] });
-        queryClient.invalidateQueries({ queryKey: ["authority", "pending-count"] });
+        toast.success('Action rejected');
+        queryClient.invalidateQueries({ queryKey: ['authority', 'pending'] });
+        queryClient.invalidateQueries({ queryKey: ['authority', 'logs'] });
+        queryClient.invalidateQueries({ queryKey: ['authority', 'pending-count'] });
       } else {
-        toast.error(result.error || "Failed to reject action");
+        toast.error(result.error || 'Failed to reject action');
       }
     },
     onError: (error) => {
-      toast.error("Failed to reject action", {
+      toast.error('Failed to reject action', {
         description: getErrorMessage(error),
       });
     },
@@ -331,23 +332,22 @@ export function useBatchApproveActions() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (actionLogIds: string[]) =>
-      batchApproveActionsFn({ data: { actionLogIds } }),
+    mutationFn: (actionLogIds: string[]) => batchApproveActionsFn({ data: { actionLogIds } }),
     onSuccess: (rawResult) => {
       const result = rawResult as BatchOperationResponse;
       if (result.success && result.data) {
-        toast.success("Actions approved", {
-          description: (result.data.approved || 0) + " actions approved",
+        toast.success('Actions approved', {
+          description: (result.data.approved || 0) + ' actions approved',
         });
-        queryClient.invalidateQueries({ queryKey: ["authority", "pending"] });
-        queryClient.invalidateQueries({ queryKey: ["authority", "logs"] });
-        queryClient.invalidateQueries({ queryKey: ["authority", "pending-count"] });
+        queryClient.invalidateQueries({ queryKey: ['authority', 'pending'] });
+        queryClient.invalidateQueries({ queryKey: ['authority', 'logs'] });
+        queryClient.invalidateQueries({ queryKey: ['authority', 'pending-count'] });
       } else {
-        toast.error(result.error || "Failed to approve actions");
+        toast.error(result.error || 'Failed to approve actions');
       }
     },
     onError: (error) => {
-      toast.error("Failed to approve actions", {
+      toast.error('Failed to approve actions', {
         description: getErrorMessage(error),
       });
     },
@@ -366,18 +366,18 @@ export function useBatchRejectActions() {
     onSuccess: (rawResult) => {
       const result = rawResult as BatchOperationResponse;
       if (result.success && result.data) {
-        toast.success("Actions rejected", {
-          description: (result.data.rejected || 0) + " actions rejected",
+        toast.success('Actions rejected', {
+          description: (result.data.rejected || 0) + ' actions rejected',
         });
-        queryClient.invalidateQueries({ queryKey: ["authority", "pending"] });
-        queryClient.invalidateQueries({ queryKey: ["authority", "logs"] });
-        queryClient.invalidateQueries({ queryKey: ["authority", "pending-count"] });
+        queryClient.invalidateQueries({ queryKey: ['authority', 'pending'] });
+        queryClient.invalidateQueries({ queryKey: ['authority', 'logs'] });
+        queryClient.invalidateQueries({ queryKey: ['authority', 'pending-count'] });
       } else {
-        toast.error(result.error || "Failed to reject actions");
+        toast.error(result.error || 'Failed to reject actions');
       }
     },
     onError: (error) => {
-      toast.error("Failed to reject actions", {
+      toast.error('Failed to reject actions', {
         description: getErrorMessage(error),
       });
     },
@@ -391,19 +391,18 @@ export function useReverseAction() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { actionLogId: string; reason?: string }) =>
-      reverseActionFn({ data }),
+    mutationFn: (data: { actionLogId: string; reason?: string }) => reverseActionFn({ data }),
     onSuccess: (rawResult) => {
       const result = rawResult as ServerFnResponse;
       if (result.success) {
-        toast.success("Action reversed");
-        queryClient.invalidateQueries({ queryKey: ["authority", "logs"] });
+        toast.success('Action reversed');
+        queryClient.invalidateQueries({ queryKey: ['authority', 'logs'] });
       } else {
-        toast.error(result.error || "Failed to reverse action");
+        toast.error(result.error || 'Failed to reverse action');
       }
     },
     onError: (error) => {
-      toast.error("Failed to reverse action", {
+      toast.error('Failed to reverse action', {
         description: getErrorMessage(error),
       });
     },
@@ -422,16 +421,16 @@ export function useSubmitFeedback() {
     onSuccess: (rawResult) => {
       const result = rawResult as ServerFnResponse;
       if (result.success) {
-        toast.success("Feedback submitted", {
-          description: "Thank you for your feedback!",
+        toast.success('Feedback submitted', {
+          description: 'Thank you for your feedback!',
         });
-        queryClient.invalidateQueries({ queryKey: ["authority", "logs"] });
+        queryClient.invalidateQueries({ queryKey: ['authority', 'logs'] });
       } else {
-        toast.error(result.error || "Failed to submit feedback");
+        toast.error(result.error || 'Failed to submit feedback');
       }
     },
     onError: (error) => {
-      toast.error("Failed to submit feedback", {
+      toast.error('Failed to submit feedback', {
         description: getErrorMessage(error),
       });
     },
@@ -444,7 +443,9 @@ export function useSubmitFeedback() {
 
 // Type aliases for query responses
 type ActionTypesResponse = ServerFnResponse<ActionType[]>;
-type AuthoritySettingsResponse = ServerFnResponse<Array<AuthoritySetting & { actionType: ActionType }>>;
+type AuthoritySettingsResponse = ServerFnResponse<
+  Array<AuthoritySetting & { actionType: ActionType }>
+>;
 type PendingApprovalsResponse = ServerFnResponse<Array<ActionLog & { actionType: ActionType }>>;
 type PendingCountResponse = ServerFnResponse<{ count: number }>;
 type ActionStatsResponse = ServerFnResponse<{
@@ -481,27 +482,23 @@ export function useAuthority() {
   const statsData = statsQuery.data as ActionStatsResponse | undefined;
 
   // Extract data with null fallbacks
-  const actionTypes: ActionType[] = actionTypesData?.success && actionTypesData.data
-    ? actionTypesData.data
-    : [];
+  const actionTypes: ActionType[] =
+    actionTypesData?.success && actionTypesData.data ? actionTypesData.data : [];
 
-  const settings: Array<AuthoritySetting & { actionType: ActionType }> = settingsData?.success && settingsData.data
-    ? settingsData.data
-    : [];
+  const settings: Array<AuthoritySetting & { actionType: ActionType }> =
+    settingsData?.success && settingsData.data ? settingsData.data : [];
 
-  const pendingActions: Array<ActionLog & { actionType: ActionType }> = pendingData?.success && pendingData.data
-    ? pendingData.data
-    : [];
+  const pendingActions: Array<ActionLog & { actionType: ActionType }> =
+    pendingData?.success && pendingData.data ? pendingData.data : [];
 
-  const pendingCount = pendingCountData?.success && pendingCountData.data
-    ? pendingCountData.data.count
-    : 0;
+  const pendingCount =
+    pendingCountData?.success && pendingCountData.data ? pendingCountData.data.count : 0;
 
   const stats = statsData?.success ? statsData.data : null;
 
   // Refresh all authority data
   const refresh = () => {
-    queryClient.invalidateQueries({ queryKey: ["authority"] });
+    queryClient.invalidateQueries({ queryKey: ['authority'] });
   };
 
   return {

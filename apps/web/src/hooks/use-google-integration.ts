@@ -1,13 +1,13 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { googleIntegrationStatusQueryOptions } from "~/queries/google-integration";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { googleIntegrationStatusQueryOptions } from '~/queries/google-integration';
 import {
   initiateGoogleAuthFn,
   disconnectGoogleIntegrationFn,
   type GoogleIntegrationStatus,
-} from "~/fn/google-auth";
-import { authClient } from "~/lib/auth-client";
-import { getErrorMessage } from "~/utils/error";
+} from '~/fn/google-auth';
+import { authClient } from '~/lib/auth-client';
+import { getErrorMessage } from '~/utils/error';
 
 /**
  * Hook to get the current user's Google integration status.
@@ -44,11 +44,11 @@ export function useConnectGoogle() {
         // Redirect to Google's OAuth consent screen
         window.location.href = result.data.authUrl;
       } else {
-        toast.error(result.error || "Failed to initiate Google connection");
+        toast.error(result.error || 'Failed to initiate Google connection');
       }
     },
     onError: (error) => {
-      toast.error("Failed to connect Google account", {
+      toast.error('Failed to connect Google account', {
         description: getErrorMessage(error),
       });
     },
@@ -70,21 +70,21 @@ export function useDisconnectGoogle() {
     mutationFn: disconnectGoogleIntegrationFn,
     onSuccess: (result) => {
       if (result.success) {
-        toast.success("Google account disconnected successfully");
+        toast.success('Google account disconnected successfully');
         // Invalidate the status query to reflect the disconnected state
         queryClient.invalidateQueries({
-          queryKey: ["google-integration"],
+          queryKey: ['google-integration'],
         });
         // Also invalidate daily briefs since they depend on Google integration
         queryClient.invalidateQueries({
-          queryKey: ["daily-brief"],
+          queryKey: ['daily-brief'],
         });
       } else {
-        toast.error(result.error || "Failed to disconnect Google account");
+        toast.error(result.error || 'Failed to disconnect Google account');
       }
     },
     onError: (error) => {
-      toast.error("Failed to disconnect Google account", {
+      toast.error('Failed to disconnect Google account', {
         description: getErrorMessage(error),
       });
     },
@@ -128,7 +128,7 @@ export function useGoogleIntegration() {
 
     // Query state
     isLoading: statusQuery.isLoading,
-    isError: statusQuery.isError || (statusQuery.data?.success === false),
+    isError: statusQuery.isError || statusQuery.data?.success === false,
     error: statusQuery.data?.error || statusQuery.error?.message,
 
     // Actions

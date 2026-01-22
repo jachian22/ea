@@ -1,22 +1,16 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { Page } from "~/components/Page";
-import { AppBreadcrumb } from "~/components/AppBreadcrumb";
-import { DailyBriefCard } from "~/components/DailyBriefCard";
-import { assertAuthenticatedFn } from "~/fn/guards";
-import { useBriefHistory, type DailyBriefSummary } from "~/hooks/use-daily-brief";
-import { useGoogleIntegration } from "~/hooks/use-google-integration";
-import { Home, Sun, Calendar, Mail, Clock, Settings, ChevronRight } from "lucide-react";
-import { Button } from "~/components/ui/button";
-import { Badge } from "~/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { Page } from '~/components/Page';
+import { AppBreadcrumb } from '~/components/AppBreadcrumb';
+import { DailyBriefCard } from '~/components/DailyBriefCard';
+import { assertAuthenticatedFn } from '~/fn/guards';
+import { useBriefHistory, type DailyBriefSummary } from '~/hooks/use-daily-brief';
+import { useGoogleIntegration } from '~/hooks/use-google-integration';
+import { Home, Sun, Calendar, Mail, Clock, Settings, ChevronRight } from 'lucide-react';
+import { Button } from '~/components/ui/button';
+import { Badge } from '~/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 
-export const Route = createFileRoute("/dashboard/brief")({
+export const Route = createFileRoute('/dashboard/brief')({
   component: BriefPage,
   beforeLoad: async () => {
     await assertAuthenticatedFn();
@@ -36,46 +30,46 @@ function BriefHistorySection() {
     : [];
 
   const formatBriefDate = (dateString: string) => {
-    const date = new Date(dateString + "T00:00:00");
+    const date = new Date(dateString + 'T00:00:00');
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const briefDate = new Date(dateString + "T00:00:00");
+    const briefDate = new Date(dateString + 'T00:00:00');
     briefDate.setHours(0, 0, 0, 0);
 
     if (briefDate.getTime() === today.getTime()) {
-      return "Today";
+      return 'Today';
     }
 
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
     if (briefDate.getTime() === yesterday.getTime()) {
-      return "Yesterday";
+      return 'Yesterday';
     }
 
-    return new Intl.DateTimeFormat("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
+    return new Intl.DateTimeFormat('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
     }).format(briefDate);
   };
 
-  const getStatusBadge = (status: DailyBriefSummary["status"]) => {
+  const getStatusBadge = (status: DailyBriefSummary['status']) => {
     switch (status) {
-      case "completed":
+      case 'completed':
         return (
           <Badge variant="default" className="bg-green-600 hover:bg-green-600/80 text-xs">
             Completed
           </Badge>
         );
-      case "failed":
+      case 'failed':
         return (
           <Badge variant="destructive" className="text-xs">
             Failed
           </Badge>
         );
-      case "generating":
-      case "pending":
+      case 'generating':
+      case 'pending':
         return (
           <Badge variant="secondary" className="text-xs">
             In Progress
@@ -96,10 +90,7 @@ function BriefHistorySection() {
         <CardContent>
           <div className="space-y-2">
             {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-16 bg-muted rounded-lg animate-pulse"
-              />
+              <div key={i} className="h-16 bg-muted rounded-lg animate-pulse" />
             ))}
           </div>
         </CardContent>
@@ -145,24 +136,20 @@ function BriefHistorySection() {
                   <Sun className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <p className="font-medium text-sm">
-                    {formatBriefDate(brief.briefDate)}
-                  </p>
+                  <p className="font-medium text-sm">{formatBriefDate(brief.briefDate)}</p>
                   <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
                     <span className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
-                      {brief.totalEvents || "0"} events
+                      {brief.totalEvents || '0'} events
                     </span>
                     <span className="flex items-center gap-1">
                       <Mail className="h-3 w-3" />
-                      {brief.totalEmails || "0"} emails
+                      {brief.totalEmails || '0'} emails
                     </span>
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                {getStatusBadge(brief.status)}
-              </div>
+              <div className="flex items-center gap-2">{getStatusBadge(brief.status)}</div>
             </div>
           ))}
         </div>
@@ -197,9 +184,9 @@ function QuickActionsSection() {
                 <p className="text-xs text-muted-foreground">
                   {isConnected
                     ? needsReauthorization
-                      ? "Needs reconnection"
-                      : "Connected and syncing"
-                    : "Connect your Google account"}
+                      ? 'Needs reconnection'
+                      : 'Connected and syncing'
+                    : 'Connect your Google account'}
                 </p>
               </div>
             </div>
@@ -210,8 +197,8 @@ function QuickActionsSection() {
         {!isConnected && (
           <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
             <p className="text-sm text-amber-600 dark:text-amber-400">
-              Connect your Google account to enable daily briefs with your
-              calendar events and emails.
+              Connect your Google account to enable daily briefs with your calendar events and
+              emails.
             </p>
             <Link to="/dashboard/settings">
               <Button variant="outline" size="sm" className="mt-2">
@@ -224,8 +211,8 @@ function QuickActionsSection() {
         {needsReauthorization && (
           <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3">
             <p className="text-sm text-destructive">
-              Your Google authorization has expired. Please reconnect your
-              account to continue receiving daily briefs.
+              Your Google authorization has expired. Please reconnect your account to continue
+              receiving daily briefs.
             </p>
             <Link to="/dashboard/settings">
               <Button variant="outline" size="sm" className="mt-2">
@@ -250,8 +237,8 @@ function BriefPage() {
     <Page>
       <AppBreadcrumb
         items={[
-          { label: "Dashboard", href: "/dashboard", icon: Home },
-          { label: "Daily Brief", icon: Sun },
+          { label: 'Dashboard', href: '/dashboard', icon: Home },
+          { label: 'Daily Brief', icon: Sun },
         ]}
       />
 
@@ -262,8 +249,7 @@ function BriefPage() {
             Daily Brief
           </h1>
           <p className="text-muted-foreground mt-2">
-            Your personalized morning summary of today's schedule and important
-            emails
+            Your personalized morning summary of today's schedule and important emails
           </p>
         </div>
 

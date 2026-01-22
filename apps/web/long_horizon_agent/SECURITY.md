@@ -22,14 +22,14 @@ The system must:
 
 ### 2.1 Primary Threats
 
-| Threat | Description |
-|------|-------------|
-| Credential exfiltration | Secrets leaked via network calls or logs |
-| Prompt injection | Web content influencing agent behavior |
-| Excessive automation | Agent taking irreversible actions |
-| Supply-chain compromise | Malicious dependencies or installs |
-| Silent data corruption | Wrong or incomplete transaction outputs |
-| Runaway execution | Infinite loops, excessive retries, cost spikes |
+| Threat                  | Description                                    |
+| ----------------------- | ---------------------------------------------- |
+| Credential exfiltration | Secrets leaked via network calls or logs       |
+| Prompt injection        | Web content influencing agent behavior         |
+| Excessive automation    | Agent taking irreversible actions              |
+| Supply-chain compromise | Malicious dependencies or installs             |
+| Silent data corruption  | Wrong or incomplete transaction outputs        |
+| Runaway execution       | Infinite loops, excessive retries, cost spikes |
 
 ---
 
@@ -65,16 +65,19 @@ Generated code must never execute on the host machine.
 ## 5. Secrets Management
 
 ### 5.1 Storage
+
 - All credentials are stored as Modal Secrets.
 - Secrets are never committed to source control.
 - No secrets are baked into container images.
 
 ### 5.2 Injection
+
 - Secrets are injected at runtime via environment variables.
 - Each extractor receives only the secrets it requires.
 - Dev and prod secrets are strictly separated.
 
 ### 5.3 Prohibited Actions
+
 - Logging secrets or derived tokens
 - Writing secrets to disk
 - Transmitting secrets to external endpoints
@@ -86,10 +89,12 @@ Violations are treated as critical failures.
 ## 6. Network Egress Controls
 
 ### 6.1 Development Mode
+
 - Broader egress allowed for research and debugging.
 - Still sandboxed and logged.
 
 ### 6.2 Production Mode
+
 - Network egress must be explicitly restricted.
 - Prefer allowlists (official APIs, known portals).
 - No arbitrary outbound connections.
@@ -102,14 +107,14 @@ If egress cannot be restricted safely, the extractor must be downgraded to a hig
 
 OpenCode tool access is explicitly gated:
 
-| Tool | Dev Mode | Prod Mode |
-|----|---------|----------|
-| edit | allowed | allowed |
-| read | allowed | allowed |
-| grep | allowed | allowed |
-| bash | allowed | restricted |
-| install deps | allowed | forbidden |
-| web fetch | allowed | restricted |
+| Tool         | Dev Mode | Prod Mode  |
+| ------------ | -------- | ---------- |
+| edit         | allowed  | allowed    |
+| read         | allowed  | allowed    |
+| grep         | allowed  | allowed    |
+| bash         | allowed  | restricted |
+| install deps | allowed  | forbidden  |
+| web fetch    | allowed  | restricted |
 
 Prod mode must rely on pre-installed, pinned dependencies only.
 
@@ -120,6 +125,7 @@ Prod mode must rely on pre-installed, pinned dependencies only.
 Web content is treated as **untrusted input**.
 
 Mitigations:
+
 - System prompts explicitly forbid following instructions found in web content.
 - Agents must never execute commands derived directly from page text.
 - No dynamic evaluation of downloaded scripts or code.
@@ -140,6 +146,7 @@ Mitigations:
 Failures are not retried indefinitely.
 
 Default failure behavior:
+
 1. Halt recurring execution
 2. Emit alert (`run_failed` or `needs_reauth`)
 3. Require human intervention
@@ -151,6 +158,7 @@ Retries are bounded and explicit.
 ## 11. Logging & Auditability
 
 The system must record:
+
 - Who approved a JobSpec
 - When extractors were promoted
 - When runs occurred
@@ -164,6 +172,7 @@ Logs must never include secrets or sensitive raw data.
 ## 12. Local-Only Interactions
 
 Certain actions are **never permitted in production**:
+
 - Interactive authentication flows
 - OpenCode `serve` mode
 - Manual browser sessions
@@ -175,6 +184,7 @@ These are allowed only in local or explicitly controlled environments.
 ## 13. Security Review Policy
 
 Any of the following require a security review:
+
 - New authentication methods
 - New dependency classes
 - Expanded network egress
@@ -185,6 +195,6 @@ Any of the following require a security review:
 
 ## 14. Guiding Rule
 
-> If the system cannot explain *why* an action is safe, it must not perform it.
+> If the system cannot explain _why_ an action is safe, it must not perform it.
 
 Security takes precedence over convenience, speed, or autonomy.

@@ -5,8 +5,8 @@
  * Uses rule-based detection first (no AI cost), with optional AI enhancement.
  */
 
-import type { PersonDomain, Commitment } from "~/db/schema";
-import { createCommitment } from "~/data-access/commitments";
+import type { PersonDomain, Commitment } from '~/db/schema';
+import { createCommitment } from '~/data-access/commitments';
 
 // ============================================================================
 // Types
@@ -14,9 +14,9 @@ import { createCommitment } from "~/data-access/commitments";
 
 export interface DetectedCommitment {
   description: string;
-  direction: "user_owes" | "they_owe";
+  direction: 'user_owes' | 'they_owe';
   dueDate?: Date;
-  priority: "high" | "medium" | "low";
+  priority: 'high' | 'medium' | 'low';
   confidence: number; // 0-1
   matchedPattern?: string;
   sourceText?: string;
@@ -35,7 +35,7 @@ export interface EmailForAnalysis {
   snippet?: string;
   from: { email: string; name?: string };
   receivedAt: Date;
-  direction: "inbound" | "outbound";
+  direction: 'inbound' | 'outbound';
 }
 
 export interface CalendarEventForAnalysis {
@@ -107,14 +107,18 @@ const THEY_OWE_PATTERNS = [
 
 // Date patterns
 const DATE_PATTERNS = [
-  { pattern: /\bby\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)/gi, type: "day" },
-  { pattern: /\bby\s+(tomorrow)/gi, type: "relative" },
-  { pattern: /\bby\s+end of (day|week|month)/gi, type: "relative" },
-  { pattern: /\bby\s+(\d{1,2}\/\d{1,2}(?:\/\d{2,4})?)/gi, type: "date" },
-  { pattern: /\bby\s+(next\s+(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday|week|month))/gi, type: "relative" },
-  { pattern: /\bdue\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)/gi, type: "day" },
-  { pattern: /\bdue\s+(\d{1,2}\/\d{1,2}(?:\/\d{2,4})?)/gi, type: "date" },
-  { pattern: /\bdeadline[:\s]+(\d{1,2}\/\d{1,2}(?:\/\d{2,4})?)/gi, type: "date" },
+  { pattern: /\bby\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)/gi, type: 'day' },
+  { pattern: /\bby\s+(tomorrow)/gi, type: 'relative' },
+  { pattern: /\bby\s+end of (day|week|month)/gi, type: 'relative' },
+  { pattern: /\bby\s+(\d{1,2}\/\d{1,2}(?:\/\d{2,4})?)/gi, type: 'date' },
+  {
+    pattern:
+      /\bby\s+(next\s+(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday|week|month))/gi,
+    type: 'relative',
+  },
+  { pattern: /\bdue\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)/gi, type: 'day' },
+  { pattern: /\bdue\s+(\d{1,2}\/\d{1,2}(?:\/\d{2,4})?)/gi, type: 'date' },
+  { pattern: /\bdeadline[:\s]+(\d{1,2}\/\d{1,2}(?:\/\d{2,4})?)/gi, type: 'date' },
 ];
 
 // Priority indicators
@@ -155,9 +159,7 @@ export function detectCommitmentsInText(
     ? USER_COMMITMENT_PATTERNS // Outbound = user is making commitments
     : THEY_OWE_PATTERNS; // Inbound = they might be making commitments
 
-  const direction: "user_owes" | "they_owe" = isOutboundEmail
-    ? "user_owes"
-    : "they_owe";
+  const direction: 'user_owes' | 'they_owe' = isOutboundEmail ? 'user_owes' : 'they_owe';
 
   for (const { pattern, extract } of patterns) {
     let match;
@@ -204,14 +206,10 @@ export function detectCommitmentsInText(
 /**
  * Detect commitments in an email
  */
-export function detectCommitmentsInEmail(
-  email: EmailForAnalysis
-): CommitmentDetectionResult {
-  const text = [email.subject, email.body || email.snippet]
-    .filter(Boolean)
-    .join(" ");
+export function detectCommitmentsInEmail(email: EmailForAnalysis): CommitmentDetectionResult {
+  const text = [email.subject, email.body || email.snippet].filter(Boolean).join(' ');
 
-  const isOutbound = email.direction === "outbound";
+  const isOutbound = email.direction === 'outbound';
   const commitments = detectCommitmentsInText(text, isOutbound);
 
   // For inbound emails, also check if they're requesting something (implies we owe)
@@ -233,7 +231,7 @@ export function detectCommitmentsInEmail(
 export function detectCommitmentsInCalendarEvent(
   event: CalendarEventForAnalysis
 ): CommitmentDetectionResult {
-  const text = [event.title, event.description].filter(Boolean).join(" ");
+  const text = [event.title, event.description].filter(Boolean).join(' ');
 
   // Calendar events with action items
   const actionItemPatterns = [
@@ -258,11 +256,11 @@ export function detectCommitmentsInCalendarEvent(
       for (const item of items) {
         commitments.push({
           description: cleanCommitmentDescription(item),
-          direction: "user_owes",
+          direction: 'user_owes',
           dueDate: event.startTime, // Meeting date as default due date
-          priority: "medium",
+          priority: 'medium',
           confidence: 0.6,
-          matchedPattern: "calendar_action_item",
+          matchedPattern: 'calendar_action_item',
           sourceText: item,
         });
       }
@@ -286,9 +284,9 @@ export function detectCommitmentsInCalendarEvent(
 function cleanCommitmentDescription(text: string): string {
   return text
     .trim()
-    .replace(/^[-•*]\s*/, "") // Remove bullet points
-    .replace(/\s+/g, " ") // Normalize whitespace
-    .replace(/[.!?,;:]+$/, "") // Remove trailing punctuation
+    .replace(/^[-•*]\s*/, '') // Remove bullet points
+    .replace(/\s+/g, ' ') // Normalize whitespace
+    .replace(/[.!?,;:]+$/, '') // Remove trailing punctuation
     .trim();
 }
 
@@ -314,46 +312,35 @@ function extractDueDate(text: string, matchIndex: number): Date | undefined {
 /**
  * Parse date reference to actual Date
  */
-function parseDateReference(
-  reference: string,
-  type: string
-): Date | undefined {
+function parseDateReference(reference: string, type: string): Date | undefined {
   const now = new Date();
   const lowerRef = reference.toLowerCase();
 
-  if (type === "relative") {
-    if (lowerRef === "tomorrow") {
+  if (type === 'relative') {
+    if (lowerRef === 'tomorrow') {
       const tomorrow = new Date(now);
       tomorrow.setDate(tomorrow.getDate() + 1);
       return tomorrow;
     }
-    if (lowerRef.includes("end of day")) {
+    if (lowerRef.includes('end of day')) {
       const endOfDay = new Date(now);
       endOfDay.setHours(23, 59, 59);
       return endOfDay;
     }
-    if (lowerRef.includes("end of week")) {
+    if (lowerRef.includes('end of week')) {
       const endOfWeek = new Date(now);
       const daysUntilFriday = (5 - now.getDay() + 7) % 7 || 7;
       endOfWeek.setDate(endOfWeek.getDate() + daysUntilFriday);
       return endOfWeek;
     }
-    if (lowerRef.includes("end of month")) {
+    if (lowerRef.includes('end of month')) {
       const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
       return endOfMonth;
     }
   }
 
-  if (type === "day") {
-    const days = [
-      "sunday",
-      "monday",
-      "tuesday",
-      "wednesday",
-      "thursday",
-      "friday",
-      "saturday",
-    ];
+  if (type === 'day') {
+    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const targetDay = days.indexOf(lowerRef);
     if (targetDay >= 0) {
       const result = new Date(now);
@@ -363,9 +350,9 @@ function parseDateReference(
     }
   }
 
-  if (type === "date") {
+  if (type === 'date') {
     // Try to parse MM/DD or MM/DD/YY(YY)
-    const parts = reference.split("/");
+    const parts = reference.split('/');
     if (parts.length >= 2) {
       const month = parseInt(parts[0], 10) - 1;
       const day = parseInt(parts[1], 10);
@@ -381,25 +368,22 @@ function parseDateReference(
 /**
  * Detect priority from text
  */
-function detectPriority(
-  fullText: string,
-  matchText: string
-): "high" | "medium" | "low" {
-  const searchText = matchText + " " + fullText.substring(0, 200);
+function detectPriority(fullText: string, matchText: string): 'high' | 'medium' | 'low' {
+  const searchText = matchText + ' ' + fullText.substring(0, 200);
 
   for (const pattern of HIGH_PRIORITY_INDICATORS) {
     if (pattern.test(searchText)) {
-      return "high";
+      return 'high';
     }
   }
 
   for (const pattern of LOW_PRIORITY_INDICATORS) {
     if (pattern.test(searchText)) {
-      return "low";
+      return 'low';
     }
   }
 
-  return "medium";
+  return 'medium';
 }
 
 /**
@@ -458,7 +442,7 @@ function detectRequestsInText(text: string): DetectedCommitment[] {
 
       commitments.push({
         description,
-        direction: "user_owes",
+        direction: 'user_owes',
         priority: detectPriority(text, match[0]),
         confidence: 0.5, // Lower confidence for inferred commitments
         matchedPattern: pattern.source,
@@ -481,7 +465,7 @@ export async function saveDetectedCommitments(
   userId: string,
   detected: DetectedCommitment[],
   source: {
-    type: "email" | "calendar" | "manual";
+    type: 'email' | 'calendar' | 'manual';
     id: string;
     personId?: string;
     domain?: PersonDomain;
@@ -502,7 +486,7 @@ export async function saveDetectedCommitments(
       personId: source.personId,
       description: commitment.description,
       direction: commitment.direction,
-      status: "pending",
+      status: 'pending',
       priority: commitment.priority,
       dueDate: commitment.dueDate,
       sourceType: source.type,

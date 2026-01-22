@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react';
 import {
   Check,
   Clock,
@@ -9,31 +9,28 @@ import {
   MoreHorizontal,
   Trash2,
   Edit2,
-} from "lucide-react";
-import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
+} from 'lucide-react';
+import { Badge } from '~/components/ui/badge';
+import { Button } from '~/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-import type { Commitment, Person } from "~/db/schema";
+} from '~/components/ui/dropdown-menu';
+import type { Commitment, Person } from '~/db/schema';
 
 export type CommitmentWithPerson = Commitment & {
-  person: Pick<Person, "id" | "name" | "email" | "company" | "domain"> | null;
+  person: Pick<Person, 'id' | 'name' | 'email' | 'company' | 'domain'> | null;
 };
 
 interface CommitmentCardProps {
   commitment: CommitmentWithPerson;
-  onStatusChange?: (id: string, status: "pending" | "in_progress" | "completed" | "cancelled") => void;
+  onStatusChange?: (
+    id: string,
+    status: 'pending' | 'in_progress' | 'completed' | 'cancelled'
+  ) => void;
   onEdit?: (commitment: CommitmentWithPerson) => void;
   onDelete?: (id: string) => void;
   compact?: boolean;
@@ -59,41 +56,39 @@ export function CommitmentCard({
   const isOverdue =
     commitment.dueDate &&
     commitment.dueDate < new Date() &&
-    commitment.status !== "completed" &&
-    commitment.status !== "cancelled";
+    commitment.status !== 'completed' &&
+    commitment.status !== 'cancelled';
 
   const daysUntilDue = commitment.dueDate
-    ? Math.ceil(
-        (commitment.dueDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-      )
+    ? Math.ceil((commitment.dueDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
     : null;
 
   const formatDueDate = (date: Date | null) => {
     if (!date) return null;
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
     });
   };
 
   const getStatusBadge = () => {
     switch (commitment.status) {
-      case "pending":
+      case 'pending':
         return <Badge variant="secondary">Pending</Badge>;
-      case "in_progress":
+      case 'in_progress':
         return (
           <Badge variant="default" className="bg-blue-600 hover:bg-blue-600/80">
             In Progress
           </Badge>
         );
-      case "completed":
+      case 'completed':
         return (
           <Badge variant="default" className="bg-green-600 hover:bg-green-600/80">
             <Check className="h-3 w-3 mr-1" />
             Completed
           </Badge>
         );
-      case "cancelled":
+      case 'cancelled':
         return <Badge variant="outline">Cancelled</Badge>;
       default:
         return null;
@@ -102,11 +97,11 @@ export function CommitmentCard({
 
   const getPriorityBadge = () => {
     switch (commitment.priority) {
-      case "high":
+      case 'high':
         return <Badge variant="destructive">High Priority</Badge>;
-      case "medium":
+      case 'medium':
         return null; // Don't show for medium
-      case "low":
+      case 'low':
         return <Badge variant="outline">Low Priority</Badge>;
       default:
         return null;
@@ -114,11 +109,11 @@ export function CommitmentCard({
   };
 
   const getDirectionLabel = () => {
-    return commitment.direction === "user_owes" ? "You owe" : "They owe you";
+    return commitment.direction === 'user_owes' ? 'You owe' : 'They owe you';
   };
 
   const handleStatusChange = async (
-    status: "pending" | "in_progress" | "completed" | "cancelled"
+    status: 'pending' | 'in_progress' | 'completed' | 'cancelled'
   ) => {
     if (!onStatusChange) return;
     setIsUpdating(true);
@@ -137,14 +132,12 @@ export function CommitmentCard({
     return (
       <div
         className={`flex items-center justify-between p-3 rounded-lg border ${
-          isOverdue
-            ? "border-destructive/50 bg-destructive/5"
-            : "border-border/50 bg-muted/30"
+          isOverdue ? 'border-destructive/50 bg-destructive/5' : 'border-border/50 bg-muted/30'
         }`}
       >
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            {commitment.direction === "user_owes" ? (
+            {commitment.direction === 'user_owes' ? (
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
             ) : (
               <ChevronRight className="h-4 w-4 text-muted-foreground rotate-180" />
@@ -162,14 +155,14 @@ export function CommitmentCard({
               <>
                 <span>•</span>
                 <Calendar className="h-3 w-3" />
-                <span className={isOverdue ? "text-destructive font-medium" : ""}>
+                <span className={isOverdue ? 'text-destructive font-medium' : ''}>
                   {isOverdue
                     ? `${Math.abs(daysUntilDue!)} days overdue`
                     : daysUntilDue === 0
-                    ? "Due today"
-                    : daysUntilDue === 1
-                    ? "Due tomorrow"
-                    : `Due ${formatDueDate(commitment.dueDate)}`}
+                      ? 'Due today'
+                      : daysUntilDue === 1
+                        ? 'Due tomorrow'
+                        : `Due ${formatDueDate(commitment.dueDate)}`}
                 </span>
               </>
             )}
@@ -184,7 +177,7 @@ export function CommitmentCard({
   }
 
   return (
-    <Card className={isOverdue ? "border-destructive/50" : ""}>
+    <Card className={isOverdue ? 'border-destructive/50' : ''}>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
@@ -194,10 +187,7 @@ export function CommitmentCard({
                 <User className="h-3 w-3" />
                 {getDirectionLabel()}: {personDisplay}
                 {commitment.person?.company && (
-                  <span className="text-muted-foreground">
-                    {" "}
-                    at {commitment.person.company}
-                  </span>
+                  <span className="text-muted-foreground"> at {commitment.person.company}</span>
                 )}
               </CardDescription>
             )}
@@ -209,18 +199,18 @@ export function CommitmentCard({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {commitment.status !== "completed" && (
+              {commitment.status !== 'completed' && (
                 <DropdownMenuItem
-                  onClick={() => handleStatusChange("completed")}
+                  onClick={() => handleStatusChange('completed')}
                   disabled={isUpdating}
                 >
                   <Check className="h-4 w-4 mr-2" />
                   Mark Complete
                 </DropdownMenuItem>
               )}
-              {commitment.status === "pending" && (
+              {commitment.status === 'pending' && (
                 <DropdownMenuItem
-                  onClick={() => handleStatusChange("in_progress")}
+                  onClick={() => handleStatusChange('in_progress')}
                   disabled={isUpdating}
                 >
                   <Clock className="h-4 w-4 mr-2" />
@@ -262,10 +252,10 @@ export function CommitmentCard({
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
               <Calendar className="h-4 w-4" />
               {daysUntilDue === 0
-                ? "Due today"
+                ? 'Due today'
                 : daysUntilDue === 1
-                ? "Due tomorrow"
-                : `Due ${formatDueDate(commitment.dueDate)}`}
+                  ? 'Due tomorrow'
+                  : `Due ${formatDueDate(commitment.dueDate)}`}
             </div>
           )}
         </div>
@@ -281,7 +271,10 @@ export function CommitmentCard({
  */
 interface CommitmentListProps {
   commitments: CommitmentWithPerson[];
-  onStatusChange?: (id: string, status: "pending" | "in_progress" | "completed" | "cancelled") => void;
+  onStatusChange?: (
+    id: string,
+    status: 'pending' | 'in_progress' | 'completed' | 'cancelled'
+  ) => void;
   onEdit?: (commitment: CommitmentWithPerson) => void;
   onDelete?: (id: string) => void;
   compact?: boolean;
@@ -296,7 +289,7 @@ export function CommitmentList({
   onDelete,
   compact = false,
   showEmpty = true,
-  emptyMessage = "No commitments found",
+  emptyMessage = 'No commitments found',
 }: CommitmentListProps) {
   if (commitments.length === 0 && showEmpty) {
     return (

@@ -15,7 +15,9 @@ const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 
 if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
-  console.warn('[GoogleClient] Missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET environment variables');
+  console.warn(
+    '[GoogleClient] Missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET environment variables'
+  );
 }
 
 // Mutex for token refresh operations to prevent race conditions
@@ -41,7 +43,9 @@ export function createOAuth2Client(): Auth.OAuth2Client {
  * Creates an authenticated OAuth2 client for a user with automatic token refresh.
  * Uses mutex to prevent race conditions during concurrent token refreshes.
  */
-export async function createAuthenticatedClient(integration: GoogleIntegration): Promise<Auth.OAuth2Client> {
+export async function createAuthenticatedClient(
+  integration: GoogleIntegration
+): Promise<Auth.OAuth2Client> {
   const oauth2Client = createOAuth2Client();
 
   // Set the user's stored credentials
@@ -84,7 +88,10 @@ export async function createAuthenticatedClient(integration: GoogleIntegration):
  * Refreshes the access token with a mutex lock to prevent race conditions.
  * If a refresh is already in progress for this user, waits for it to complete.
  */
-async function refreshAccessTokenWithLock(oauth2Client: Auth.OAuth2Client, userId: string): Promise<Auth.Credentials> {
+async function refreshAccessTokenWithLock(
+  oauth2Client: Auth.OAuth2Client,
+  userId: string
+): Promise<Auth.Credentials> {
   // Check if a refresh is already in progress for this user
   const existingRefresh = refreshLocks.get(userId);
   if (existingRefresh) {
@@ -108,14 +115,21 @@ async function refreshAccessTokenWithLock(oauth2Client: Auth.OAuth2Client, userI
 /**
  * Manually refreshes the access token using the refresh token.
  */
-async function refreshAccessToken(oauth2Client: Auth.OAuth2Client, userId: string): Promise<Auth.Credentials> {
+async function refreshAccessToken(
+  oauth2Client: Auth.OAuth2Client,
+  userId: string
+): Promise<Auth.Credentials> {
   try {
     const { credentials } = await oauth2Client.refreshAccessToken();
     await updateStoredTokens(userId, credentials);
     return credentials;
   } catch (error) {
     await markIntegrationDisconnected(userId);
-    throw new GoogleAuthError('Failed to refresh access token. User needs to re-authenticate.', 'TOKEN_REFRESH_FAILED', error);
+    throw new GoogleAuthError(
+      'Failed to refresh access token. User needs to re-authenticate.',
+      'TOKEN_REFRESH_FAILED',
+      error
+    );
   }
 }
 
@@ -139,7 +153,10 @@ async function updateStoredTokens(userId: string, tokens: Auth.Credentials): Pro
     updateData.accessTokenExpiresAt = new Date(tokens.expiry_date);
   }
 
-  await database.update(googleIntegration).set(updateData).where(eq(googleIntegration.userId, userId));
+  await database
+    .update(googleIntegration)
+    .set(updateData)
+    .where(eq(googleIntegration.userId, userId));
 }
 
 /**
@@ -158,7 +175,9 @@ export async function markIntegrationDisconnected(userId: string): Promise<void>
 /**
  * Validates that an integration has valid tokens and is still connected.
  */
-export function isIntegrationValid(integration: GoogleIntegration | null): integration is GoogleIntegration {
+export function isIntegrationValid(
+  integration: GoogleIntegration | null
+): integration is GoogleIntegration {
   if (!integration) return false;
   if (!integration.isConnected) return false;
   if (!integration.accessToken || !integration.refreshToken) return false;

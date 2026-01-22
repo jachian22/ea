@@ -141,9 +141,12 @@ export class EABot {
 
       const commandData = commands.map((cmd) => cmd.data);
 
-      await rest.put(Routes.applicationGuildCommands(this.client.user!.id, this.config.discord.guildId), {
-        body: commandData,
-      });
+      await rest.put(
+        Routes.applicationGuildCommands(this.client.user!.id, this.config.discord.guildId),
+        {
+          body: commandData,
+        }
+      );
 
       console.log('[EABot] Slash commands registered successfully');
     } catch (error) {

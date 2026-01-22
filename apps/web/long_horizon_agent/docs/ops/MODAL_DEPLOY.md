@@ -11,6 +11,7 @@ The deployment model is intentionally simple, explicit, and conservative.
 The system supports two primary environments:
 
 ### 1. Development
+
 - Used for:
   - Step 1 (spec + research)
   - Step 2 (codegen + sandbox verification)
@@ -19,6 +20,7 @@ The system supports two primary environments:
 - No recurring schedules enabled by default
 
 ### 2. Production
+
 - Used only for:
   - Approved extractors
   - Scheduled execution
@@ -46,6 +48,7 @@ Each function runs in its own sandbox.
 ## Images & Dependencies
 
 ### Image Build
+
 - Images are defined in `modal_app/images.py`
 - Images must include:
   - OpenCode
@@ -54,6 +57,7 @@ Each function runs in its own sandbox.
   - Parsing and validation libraries
 
 ### Rules
+
 - All dependencies must be pinned
 - No dynamic installs in production paths
 - Image rebuilds are explicit and versioned
@@ -63,15 +67,18 @@ Each function runs in its own sandbox.
 ## Secrets Management
 
 ### Naming Convention
+
 All secrets must be prefixed:
 
-LONG_HORIZON_AGENT_<SOURCE>_<TYPE>
+LONG*HORIZON_AGENT*<SOURCE>\_<TYPE>
 
 Examples:
+
 - `LONG_HORIZON_AGENT_CHASE_OAUTH`
 - `LONG_HORIZON_AGENT_AMEX_SESSION`
 
 ### Rules
+
 - Secrets are injected at runtime only
 - No secrets are logged or written to disk
 - Dev and prod secrets are distinct
@@ -95,12 +102,15 @@ Volumes are mounted explicitly per function.
 ## Scheduling
 
 ### Schedule Creation
+
 - Schedules are defined only from `approved/` artifacts
 - Schedules must match `SCHEDULE.json` exactly
 - No schedule may be created automatically by the agent
 
 ### Disabling Schedules
+
 At any time you may:
+
 - Disable a single schedule
 - Disable all schedules
 - Remove the Modal app entirely
@@ -139,17 +149,20 @@ Logs must never include secrets or raw credentials.
 ## Failure Handling
 
 ### Authentication Failure
+
 - Mark source as `needs_reauth`
 - Disable schedule
 - Emit alert
 - Require local re-auth workflow
 
 ### Validation Failure
+
 - Disable schedule
 - Archive outputs
 - Require repair run
 
 ### Runtime Failure
+
 - Retry only if explicitly configured
 - Otherwise pause and alert
 

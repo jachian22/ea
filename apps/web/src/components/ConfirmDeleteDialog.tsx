@@ -1,4 +1,4 @@
-import { Loader2 } from "lucide-react";
+import { Loader2 } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -8,7 +8,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "~/components/ui/alert-dialog";
+} from '~/components/ui/alert-dialog';
 
 interface ConfirmDeleteDialogProps {
   open: boolean;
@@ -26,10 +26,10 @@ export function ConfirmDeleteDialog({
   onOpenChange,
   onConfirm,
   isPending = false,
-  title = "Delete",
-  description = "Are you sure? This action cannot be undone.",
-  confirmLabel = "Delete",
-  cancelLabel = "Cancel",
+  title = 'Delete',
+  description = 'Are you sure? This action cannot be undone.',
+  confirmLabel = 'Delete',
+  cancelLabel = 'Cancel',
 }: ConfirmDeleteDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -39,9 +39,7 @@ export function ConfirmDeleteDialog({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>
-            {cancelLabel}
-          </AlertDialogCancel>
+          <AlertDialogCancel disabled={isPending}>{cancelLabel}</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
             disabled={isPending}

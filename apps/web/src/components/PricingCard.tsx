@@ -1,10 +1,10 @@
-import { Button } from "~/components/ui/button";
-import { Check } from "lucide-react";
-import { SUBSCRIPTION_PLANS } from "~/lib/plans";
-import type { SubscriptionPlan } from "~/db/schema";
-import { authClient } from "~/lib/auth-client";
-import { Panel } from "~/components/ui/panel";
-import { cn } from "~/lib/utils";
+import { Button } from '~/components/ui/button';
+import { Check } from 'lucide-react';
+import { SUBSCRIPTION_PLANS } from '~/lib/plans';
+import type { SubscriptionPlan } from '~/db/schema';
+import { authClient } from '~/lib/auth-client';
+import { Panel } from '~/components/ui/panel';
+import { cn } from '~/lib/utils';
 
 interface PricingCardProps {
   plan: (typeof SUBSCRIPTION_PLANS)[keyof typeof SUBSCRIPTION_PLANS];
@@ -26,7 +26,7 @@ export function PricingCard({
   const { data: session } = authClient.useSession();
   const isCurrentPlan = currentPlan === plan.plan;
   const isLoggedOut = !session;
-  const hasPaidPlan = currentPlan === "basic" || currentPlan === "pro";
+  const hasPaidPlan = currentPlan === 'basic' || currentPlan === 'pro';
 
   const formatPrice = (price: number) => {
     return (price / 100).toFixed(2);
@@ -36,53 +36,52 @@ export function PricingCard({
     if (isLoggedOut) {
       // For logged out users, onUpgrade should redirect to sign-in/sign-up
       if (onUpgrade) {
-        onUpgrade(plan.priceId || "");
+        onUpgrade(plan.priceId || '');
       }
-    } else if (hasPaidPlan && plan.plan !== "free") {
+    } else if (hasPaidPlan && plan.plan !== 'free') {
       // For users with paid plans, manage plans for paid subscription buttons
       if (onManagePlans) {
         onManagePlans();
       }
-    } else if (!hasPaidPlan && plan.plan !== "free") {
+    } else if (!hasPaidPlan && plan.plan !== 'free') {
       // For free users on paid plan buttons, upgrade
       if (onUpgrade && plan.priceId) {
         onUpgrade(plan.priceId);
       }
-    } else if (plan.plan === "free" && !hasPaidPlan) {
+    } else if (plan.plan === 'free' && !hasPaidPlan) {
       // For free users on free plan button, get started
       if (onUpgrade) {
-        onUpgrade("");
+        onUpgrade('');
       }
     }
   };
 
   const getButtonText = () => {
     if (isLoggedOut) {
-      return "Login Now";
+      return 'Login Now';
     }
 
-    if (hasPaidPlan && plan.plan !== "free") {
-      return "Manage Plan";
+    if (hasPaidPlan && plan.plan !== 'free') {
+      return 'Manage Plan';
     }
 
-    if (!hasPaidPlan && plan.plan === "free") {
-      return "Get Started";
+    if (!hasPaidPlan && plan.plan === 'free') {
+      return 'Get Started';
     }
 
-    if (!hasPaidPlan && plan.plan !== "free") {
-      return "Upgrade Now";
+    if (!hasPaidPlan && plan.plan !== 'free') {
+      return 'Upgrade Now';
     }
 
-    return "Get Started";
+    return 'Get Started';
   };
 
   return (
     <Panel
       className={cn(
-        "relative p-8 rounded-2xl transition-all duration-300 flex flex-col h-full hover:bg-slate-800/50",
-        isPopular &&
-          "gradient-border bg-slate-900/50 shadow-2xl scale-105 z-10",
-        isCurrentPlan && "ring-2 ring-primary"
+        'relative p-8 rounded-2xl transition-all duration-300 flex flex-col h-full hover:bg-slate-800/50',
+        isPopular && 'gradient-border bg-slate-900/50 shadow-2xl scale-105 z-10',
+        isCurrentPlan && 'ring-2 ring-primary'
       )}
     >
       {isPopular && (
@@ -98,11 +97,9 @@ export function PricingCard({
 
         <div className="my-6">
           <span className="text-4xl font-bold text-white">
-            ${plan.price === 0 ? "0" : formatPrice(plan.price)}
+            ${plan.price === 0 ? '0' : formatPrice(plan.price)}
           </span>
-          {plan.price > 0 && (
-            <span className="text-slate-400 font-medium">/month</span>
-          )}
+          {plan.price > 0 && <span className="text-slate-400 font-medium">/month</span>}
         </div>
 
         {!isLoading && !isLoggedOut && isCurrentPlan && (
@@ -120,9 +117,7 @@ export function PricingCard({
               <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center mt-0.5">
                 <Check className="h-3.5 w-3.5 text-primary" />
               </div>
-              <span className="text-slate-300 text-sm leading-relaxed">
-                {feature}
-              </span>
+              <span className="text-slate-300 text-sm leading-relaxed">{feature}</span>
             </li>
           ))}
         </ul>
@@ -131,8 +126,8 @@ export function PricingCard({
           onClick={handleButtonClick}
           className={`w-full py-6 rounded-xl font-bold text-base transition-all duration-300 ${
             isPopular
-              ? "bg-primary hover:bg-primary/90 text-white shadow-[0_0_20px_rgba(var(--primary),0.3)] hover:shadow-[0_0_30px_rgba(var(--primary),0.5)] hover:-translate-y-0.5"
-              : "bg-white/10 hover:bg-white/20 text-white border border-white/5 backdrop-blur-sm"
+              ? 'bg-primary hover:bg-primary/90 text-white shadow-[0_0_20px_rgba(var(--primary),0.3)] hover:shadow-[0_0_30px_rgba(var(--primary),0.5)] hover:-translate-y-0.5'
+              : 'bg-white/10 hover:bg-white/20 text-white border border-white/5 backdrop-blur-sm'
           }`}
           variant="ghost"
         >

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react';
 import {
   Shield,
   Cloud,
@@ -11,36 +11,22 @@ import {
   Loader2,
   AlertTriangle,
   Info,
-} from "lucide-react";
-import { Button } from "~/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
-import { Switch } from "~/components/ui/switch";
-import { Badge } from "~/components/ui/badge";
+} from 'lucide-react';
+import { Button } from '~/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
+import { Input } from '~/components/ui/input';
+import { Label } from '~/components/ui/label';
+import { Switch } from '~/components/ui/switch';
+import { Badge } from '~/components/ui/badge';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "~/components/ui/select";
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "~/components/ui/alert";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/popover";
+} from '~/components/ui/select';
+import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
+import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
 import {
   usePrivacySettings,
   useSetCloudAIPermission,
@@ -51,23 +37,23 @@ import {
   useAddRedactPattern,
   useRemoveRedactPattern,
   useRedactionPatternSuggestions,
-} from "~/hooks/use-privacy";
-import type { PersonDomain } from "~/db/schema";
+} from '~/hooks/use-privacy';
+import type { PersonDomain } from '~/db/schema';
 
 const DOMAIN_LABELS: Record<PersonDomain, string> = {
-  family: "Family",
-  business: "Business",
-  job: "Job",
-  personal: "Personal",
-  other: "Other",
+  family: 'Family',
+  business: 'Business',
+  job: 'Job',
+  personal: 'Personal',
+  other: 'Other',
 };
 
 const DOMAIN_COLORS: Record<PersonDomain, string> = {
-  family: "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300",
-  business: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
-  job: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
-  personal: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
-  other: "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300",
+  family: 'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300',
+  business: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+  job: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+  personal: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
+  other: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300',
 };
 
 export function PrivacySettings() {
@@ -95,9 +81,7 @@ export function PrivacySettings() {
             <Shield className="h-5 w-5" />
             Privacy Controls
           </CardTitle>
-          <CardDescription>
-            Control what data can be sent to cloud AI services
-          </CardDescription>
+          <CardDescription>Control what data can be sent to cloud AI services</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Cloud AI Master Switch */}
@@ -112,8 +96,8 @@ export function PrivacySettings() {
                 <p className="font-medium">Cloud AI Processing</p>
                 <p className="text-sm text-muted-foreground">
                   {settings?.allowCloudAI
-                    ? "AI features are enabled. Data may be sent to cloud AI services."
-                    : "AI features are disabled. No data is sent to cloud services."}
+                    ? 'AI features are enabled. Data may be sent to cloud AI services.'
+                    : 'AI features are disabled. No data is sent to cloud services.'}
                 </p>
               </div>
             </div>
@@ -143,29 +127,21 @@ export function PrivacySettings() {
           <ExcludedDomainsCard
             excludedDomains={(settings?.excludedDomains as PersonDomain[]) || []}
           />
-          <ExcludedEmailDomainsCard
-            excludedEmailDomains={settings?.excludedEmailDomains || []}
-          />
-          <RedactionPatternsCard
-            redactPatterns={settings?.redactPatterns || []}
-          />
+          <ExcludedEmailDomainsCard excludedEmailDomains={settings?.excludedEmailDomains || []} />
+          <RedactionPatternsCard redactPatterns={settings?.redactPatterns || []} />
         </>
       )}
     </div>
   );
 }
 
-function ExcludedDomainsCard({
-  excludedDomains,
-}: {
-  excludedDomains: PersonDomain[];
-}) {
+function ExcludedDomainsCard({ excludedDomains }: { excludedDomains: PersonDomain[] }) {
   const addDomain = useAddExcludedDomain();
   const removeDomain = useRemoveExcludedDomain();
 
-  const availableDomains = (["family", "business", "job", "personal", "other"] as PersonDomain[]).filter(
-    (d) => !excludedDomains.includes(d)
-  );
+  const availableDomains = (
+    ['family', 'business', 'job', 'personal', 'other'] as PersonDomain[]
+  ).filter((d) => !excludedDomains.includes(d));
 
   return (
     <Card>
@@ -183,11 +159,7 @@ function ExcludedDomainsCard({
         {excludedDomains.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {excludedDomains.map((domain) => (
-              <Badge
-                key={domain}
-                variant="secondary"
-                className={`${DOMAIN_COLORS[domain]} gap-1`}
-              >
+              <Badge key={domain} variant="secondary" className={`${DOMAIN_COLORS[domain]} gap-1`}>
                 {DOMAIN_LABELS[domain]}
                 <button
                   onClick={() => removeDomain.mutate(domain)}
@@ -227,8 +199,11 @@ function ExcludedDomainsCard({
         )}
 
         {/* Warning for Family */}
-        {!excludedDomains.includes("family") && (
-          <Alert variant="default" className="bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800">
+        {!excludedDomains.includes('family') && (
+          <Alert
+            variant="default"
+            className="bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800"
+          >
             <AlertTriangle className="h-4 w-4 text-yellow-600" />
             <AlertDescription className="text-yellow-800 dark:text-yellow-200">
               Consider excluding "Family" domain to keep personal family information private.
@@ -240,12 +215,8 @@ function ExcludedDomainsCard({
   );
 }
 
-function ExcludedEmailDomainsCard({
-  excludedEmailDomains,
-}: {
-  excludedEmailDomains: string[];
-}) {
-  const [newDomain, setNewDomain] = useState("");
+function ExcludedEmailDomainsCard({ excludedEmailDomains }: { excludedEmailDomains: string[] }) {
+  const [newDomain, setNewDomain] = useState('');
   const addDomain = useAddExcludedEmailDomain();
   const removeDomain = useRemoveExcludedEmailDomain();
 
@@ -254,10 +225,10 @@ function ExcludedEmailDomainsCard({
     if (!newDomain.trim()) return;
 
     const domain = newDomain.trim().toLowerCase();
-    const formatted = domain.startsWith("@") ? domain : `@${domain}`;
+    const formatted = domain.startsWith('@') ? domain : `@${domain}`;
 
     addDomain.mutate(formatted, {
-      onSuccess: () => setNewDomain(""),
+      onSuccess: () => setNewDomain(''),
     });
   };
 
@@ -290,9 +261,7 @@ function ExcludedEmailDomainsCard({
             ))}
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">
-            No email domains excluded.
-          </p>
+          <p className="text-sm text-muted-foreground">No email domains excluded.</p>
         )}
 
         {/* Add Domain */}
@@ -316,12 +285,8 @@ function ExcludedEmailDomainsCard({
   );
 }
 
-function RedactionPatternsCard({
-  redactPatterns,
-}: {
-  redactPatterns: string[];
-}) {
-  const [newPattern, setNewPattern] = useState("");
+function RedactionPatternsCard({ redactPatterns }: { redactPatterns: string[] }) {
+  const [newPattern, setNewPattern] = useState('');
   const addPattern = useAddRedactPattern();
   const removePattern = useRemoveRedactPattern();
   const { data: suggestionsResponse } = useRedactionPatternSuggestions();
@@ -331,13 +296,11 @@ function RedactionPatternsCard({
     if (!pattern.trim()) return;
 
     addPattern.mutate(pattern.trim(), {
-      onSuccess: () => setNewPattern(""),
+      onSuccess: () => setNewPattern(''),
     });
   };
 
-  const unusedSuggestions = suggestions.filter(
-    (s) => !redactPatterns.includes(s.pattern)
-  );
+  const unusedSuggestions = suggestions.filter((s) => !redactPatterns.includes(s.pattern));
 
   return (
     <Card>
@@ -368,9 +331,7 @@ function RedactionPatternsCard({
             ))}
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">
-            No redaction patterns configured.
-          </p>
+          <p className="text-sm text-muted-foreground">No redaction patterns configured.</p>
         )}
 
         {/* Add Pattern */}

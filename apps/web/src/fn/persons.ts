@@ -1,6 +1,6 @@
-import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
-import { authenticatedMiddleware } from "./middleware";
+import { createServerFn } from '@tanstack/react-start';
+import { z } from 'zod';
+import { authenticatedMiddleware } from './middleware';
 import {
   createPerson,
   findPersonById,
@@ -13,21 +13,21 @@ import {
   deletePerson,
   getPersonCount,
   getPersonDossier,
-} from "~/data-access/persons";
-import type { PersonDomain } from "~/db/schema";
+} from '~/data-access/persons';
+import type { PersonDomain } from '~/db/schema';
 
 // ============================================================================
 // Create Person
 // ============================================================================
 
-export const createPersonFn = createServerFn({ method: "POST" })
+export const createPersonFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       email: z.string().email(),
       name: z.string().optional(),
       role: z.string().optional(),
       company: z.string().optional(),
-      domain: z.enum(["business", "job", "family", "personal", "other"]).optional(),
+      domain: z.enum(['business', 'job', 'family', 'personal', 'other']).optional(),
       personalNotes: z.string().optional(),
     })
   )
@@ -43,7 +43,7 @@ export const createPersonFn = createServerFn({ method: "POST" })
         name: data.name,
         role: data.role,
         company: data.company,
-        domain: data.domain || "business",
+        domain: data.domain || 'business',
         personalNotes: data.personalNotes,
       });
 
@@ -53,11 +53,11 @@ export const createPersonFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to create person:", error);
+      console.error('Failed to create person:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to create person",
+        error: error instanceof Error ? error.message : 'Failed to create person',
       };
     }
   });
@@ -66,11 +66,11 @@ export const createPersonFn = createServerFn({ method: "POST" })
 // Get Persons
 // ============================================================================
 
-export const getPersonsFn = createServerFn({ method: "GET" })
+export const getPersonsFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z
       .object({
-        domain: z.enum(["business", "job", "family", "personal", "other"]).optional(),
+        domain: z.enum(['business', 'job', 'family', 'personal', 'other']).optional(),
         limit: z.number().min(1).max(200).optional().default(100),
         offset: z.number().min(0).optional().default(0),
       })
@@ -97,11 +97,11 @@ export const getPersonsFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get persons:", error);
+      console.error('Failed to get persons:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to get persons",
+        error: error instanceof Error ? error.message : 'Failed to get persons',
       };
     }
   });
@@ -110,7 +110,7 @@ export const getPersonsFn = createServerFn({ method: "GET" })
 // Search Persons
 // ============================================================================
 
-export const searchPersonsFn = createServerFn({ method: "GET" })
+export const searchPersonsFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z.object({
       query: z.string().min(1),
@@ -130,11 +130,11 @@ export const searchPersonsFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to search persons:", error);
+      console.error('Failed to search persons:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to search persons",
+        error: error instanceof Error ? error.message : 'Failed to search persons',
       };
     }
   });
@@ -143,7 +143,7 @@ export const searchPersonsFn = createServerFn({ method: "GET" })
 // Get Person Dossier (Full Profile)
 // ============================================================================
 
-export const getPersonDossierFn = createServerFn({ method: "GET" })
+export const getPersonDossierFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z.object({
       id: z.string(),
@@ -160,7 +160,7 @@ export const getPersonDossierFn = createServerFn({ method: "GET" })
         return {
           success: false,
           data: null,
-          error: "Person not found",
+          error: 'Person not found',
         };
       }
 
@@ -170,11 +170,11 @@ export const getPersonDossierFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get person dossier:", error);
+      console.error('Failed to get person dossier:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to get person dossier",
+        error: error instanceof Error ? error.message : 'Failed to get person dossier',
       };
     }
   });
@@ -183,7 +183,7 @@ export const getPersonDossierFn = createServerFn({ method: "GET" })
 // Get Stale Contacts (Follow-up Radar)
 // ============================================================================
 
-export const getStaleContactsFn = createServerFn({ method: "GET" })
+export const getStaleContactsFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z
       .object({
@@ -204,9 +204,7 @@ export const getStaleContactsFn = createServerFn({ method: "GET" })
       // Add days since last contact to each person
       const withDaysSince = persons.map((person) => {
         const daysSince = person.lastContactAt
-          ? Math.round(
-              (Date.now() - person.lastContactAt.getTime()) / (1000 * 60 * 60 * 24)
-            )
+          ? Math.round((Date.now() - person.lastContactAt.getTime()) / (1000 * 60 * 60 * 24))
           : null;
 
         return {
@@ -221,11 +219,11 @@ export const getStaleContactsFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get stale contacts:", error);
+      console.error('Failed to get stale contacts:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to get stale contacts",
+        error: error instanceof Error ? error.message : 'Failed to get stale contacts',
       };
     }
   });
@@ -234,7 +232,7 @@ export const getStaleContactsFn = createServerFn({ method: "GET" })
 // Get High Importance Persons
 // ============================================================================
 
-export const getHighImportancePersonsFn = createServerFn({ method: "GET" })
+export const getHighImportancePersonsFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z
       .object({
@@ -258,11 +256,11 @@ export const getHighImportancePersonsFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get high importance persons:", error);
+      console.error('Failed to get high importance persons:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to get high importance persons",
+        error: error instanceof Error ? error.message : 'Failed to get high importance persons',
       };
     }
   });
@@ -271,14 +269,14 @@ export const getHighImportancePersonsFn = createServerFn({ method: "GET" })
 // Update Person
 // ============================================================================
 
-export const updatePersonFn = createServerFn({ method: "POST" })
+export const updatePersonFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       id: z.string(),
       name: z.string().optional(),
       role: z.string().optional(),
       company: z.string().optional(),
-      domain: z.enum(["business", "job", "family", "personal", "other"]).optional(),
+      domain: z.enum(['business', 'job', 'family', 'personal', 'other']).optional(),
       personalNotes: z.string().optional(),
     })
   )
@@ -293,7 +291,7 @@ export const updatePersonFn = createServerFn({ method: "POST" })
         return {
           success: false,
           data: null,
-          error: "Person not found",
+          error: 'Person not found',
         };
       }
 
@@ -311,11 +309,11 @@ export const updatePersonFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to update person:", error);
+      console.error('Failed to update person:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to update person",
+        error: error instanceof Error ? error.message : 'Failed to update person',
       };
     }
   });
@@ -324,7 +322,7 @@ export const updatePersonFn = createServerFn({ method: "POST" })
 // Delete Person
 // ============================================================================
 
-export const deletePersonFn = createServerFn({ method: "POST" })
+export const deletePersonFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       id: z.string(),
@@ -340,7 +338,7 @@ export const deletePersonFn = createServerFn({ method: "POST" })
       if (!existing || existing.userId !== userId) {
         return {
           success: false,
-          error: "Person not found",
+          error: 'Person not found',
         };
       }
 
@@ -351,10 +349,10 @@ export const deletePersonFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to delete person:", error);
+      console.error('Failed to delete person:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Failed to delete person",
+        error: error instanceof Error ? error.message : 'Failed to delete person',
       };
     }
   });
@@ -363,7 +361,7 @@ export const deletePersonFn = createServerFn({ method: "POST" })
 // Get Person Stats
 // ============================================================================
 
-export const getPersonStatsFn = createServerFn({ method: "GET" })
+export const getPersonStatsFn = createServerFn({ method: 'GET' })
   .middleware([authenticatedMiddleware])
   .handler(async ({ context }) => {
     const { userId } = context;
@@ -383,11 +381,11 @@ export const getPersonStatsFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get person stats:", error);
+      console.error('Failed to get person stats:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to get person stats",
+        error: error instanceof Error ? error.message : 'Failed to get person stats',
       };
     }
   });

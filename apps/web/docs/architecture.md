@@ -28,7 +28,7 @@ Each layer builds upon the previous one, creating a clear dependency chain and s
 **Example**: `src/routes/song/$id/index.tsx`
 
 ```typescript
-export const Route = createFileRoute("/song/$id/")({
+export const Route = createFileRoute('/song/$id/')({
   loader: ({ context: { queryClient }, params: { id } }) => {
     queryClient.ensureQueryData(getSongByIdQuery(id));
   },
@@ -90,14 +90,13 @@ export function useCreateSong() {
   const navigate = useNavigate();
 
   return useMutation({
-    mutationFn: (data: Parameters<typeof createSongFn>[0]["data"]) =>
-      createSongFn({ data }),
+    mutationFn: (data: Parameters<typeof createSongFn>[0]['data']) => createSongFn({ data }),
     onSuccess: (song) => {
-      toast.success("Song created successfully!");
+      toast.success('Song created successfully!');
       navigate({ to: `/song/${song.id}` });
     },
     onError: (error) => {
-      toast.error("Failed to create song");
+      toast.error('Failed to create song');
     },
   });
 }
@@ -119,13 +118,13 @@ export function useCreateSong() {
 ```typescript
 export const getSongByIdQuery = (id: string) =>
   queryOptions({
-    queryKey: ["song", id],
+    queryKey: ['song', id],
     queryFn: () => getSongByIdFn({ data: { id } }),
   });
 
 export const getUserSongsQuery = () =>
   queryOptions({
-    queryKey: ["user-songs"],
+    queryKey: ['user-songs'],
     queryFn: () => getUserSongsFn(),
   });
 ```
@@ -146,7 +145,7 @@ export const getUserSongsQuery = () =>
 
 ```typescript
 export const createSongFn = createServerFn({
-  method: "POST",
+  method: 'POST',
 })
   .inputValidator(
     z.object({
@@ -197,10 +196,7 @@ export async function createPlaylistUseCase(
 
   // Check business rules
   if (!userPlan.isActive) {
-    throw new PlaylistLimitError(
-      "Your subscription has expired.",
-      "SUBSCRIPTION_EXPIRED"
-    );
+    throw new PlaylistLimitError('Your subscription has expired.', 'SUBSCRIPTION_EXPIRED');
   }
 
   if (hasReachedPlaylistLimit(userPlan.plan, currentCount)) {
@@ -229,11 +225,7 @@ export async function createPlaylistUseCase(
 
 ```typescript
 export async function findSongById(id: string): Promise<Song | null> {
-  const [result] = await database
-    .select()
-    .from(song)
-    .where(eq(song.id, id))
-    .limit(1);
+  const [result] = await database.select().from(song).where(eq(song.id, id)).limit(1);
 
   return result || null;
 }

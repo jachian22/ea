@@ -1,4 +1,4 @@
-import { format, formatDistanceToNow, isAfter, isBefore, addDays } from "date-fns";
+import { format, formatDistanceToNow, isAfter, isBefore, addDays } from 'date-fns';
 import {
   CheckCircle,
   Clock,
@@ -7,24 +7,19 @@ import {
   Loader2,
   ArrowUpRight,
   ArrowDownLeft,
-} from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
-import { Badge } from "~/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { ScrollArea } from "~/components/ui/scroll-area";
-import { useCommitmentsDashboard } from "~/hooks/use-knowledge";
-import type { Commitment, CommitmentPriority } from "~/db/schema";
+} from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
+import { Badge } from '~/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
+import { ScrollArea } from '~/components/ui/scroll-area';
+import { useCommitmentsDashboard } from '~/hooks/use-knowledge';
+import type { Commitment, CommitmentPriority } from '~/db/schema';
 
 const PRIORITY_COLORS: Record<CommitmentPriority, string> = {
-  high: "bg-red-100 text-red-800 border-red-300 dark:bg-red-900/30 dark:text-red-300",
-  medium: "bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-300",
-  low: "bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-900/30 dark:text-gray-300",
+  high: 'bg-red-100 text-red-800 border-red-300 dark:bg-red-900/30 dark:text-red-300',
+  medium:
+    'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-300',
+  low: 'bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-900/30 dark:text-gray-300',
 };
 
 interface CommitmentWithPerson extends Commitment {
@@ -72,9 +67,7 @@ export function CommitmentsDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Commitments</h2>
-          <p className="text-muted-foreground">
-            Track promises made and received
-          </p>
+          <p className="text-muted-foreground">Track promises made and received</p>
         </div>
       </div>
 
@@ -112,7 +105,7 @@ export function CommitmentsDashboard() {
           <TabsTrigger value="you-owe" className="flex items-center gap-2">
             <ArrowUpRight className="h-4 w-4" />
             You Owe
-            {(overdueByMe.length + upcomingByMe.length) > 0 && (
+            {overdueByMe.length + upcomingByMe.length > 0 && (
               <Badge variant="secondary" className="h-5 px-1.5">
                 {overdueByMe.length + upcomingByMe.length}
               </Badge>
@@ -121,7 +114,7 @@ export function CommitmentsDashboard() {
           <TabsTrigger value="they-owe" className="flex items-center gap-2">
             <ArrowDownLeft className="h-4 w-4" />
             They Owe You
-            {(overdueToMe.length + upcomingToMe.length) > 0 && (
+            {overdueToMe.length + upcomingToMe.length > 0 && (
               <Badge variant="secondary" className="h-5 px-1.5">
                 {overdueToMe.length + upcomingToMe.length}
               </Badge>
@@ -131,18 +124,10 @@ export function CommitmentsDashboard() {
 
         <TabsContent value="you-owe" className="space-y-4">
           {overdueByMe.length > 0 && (
-            <CommitmentSection
-              title="Overdue"
-              commitments={overdueByMe}
-              variant="danger"
-            />
+            <CommitmentSection title="Overdue" commitments={overdueByMe} variant="danger" />
           )}
           {upcomingByMe.length > 0 && (
-            <CommitmentSection
-              title="Upcoming"
-              commitments={upcomingByMe}
-              variant="default"
-            />
+            <CommitmentSection title="Upcoming" commitments={upcomingByMe} variant="default" />
           )}
           {overdueByMe.length === 0 && upcomingByMe.length === 0 && (
             <EmptyState message="No pending commitments you owe" />
@@ -151,18 +136,10 @@ export function CommitmentsDashboard() {
 
         <TabsContent value="they-owe" className="space-y-4">
           {overdueToMe.length > 0 && (
-            <CommitmentSection
-              title="Overdue"
-              commitments={overdueToMe}
-              variant="warning"
-            />
+            <CommitmentSection title="Overdue" commitments={overdueToMe} variant="warning" />
           )}
           {upcomingToMe.length > 0 && (
-            <CommitmentSection
-              title="Upcoming"
-              commitments={upcomingToMe}
-              variant="default"
-            />
+            <CommitmentSection title="Upcoming" commitments={upcomingToMe} variant="default" />
           )}
           {overdueToMe.length === 0 && upcomingToMe.length === 0 && (
             <EmptyState message="No pending commitments owed to you" />
@@ -182,21 +159,21 @@ function SummaryCard({
   title: string;
   count: number;
   icon: React.ReactNode;
-  variant: "default" | "danger" | "warning";
+  variant: 'default' | 'danger' | 'warning';
 }) {
   const bgColor =
-    variant === "danger"
-      ? "bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800"
-      : variant === "warning"
-      ? "bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800"
-      : "";
+    variant === 'danger'
+      ? 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800'
+      : variant === 'warning'
+        ? 'bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800'
+        : '';
 
   const textColor =
-    variant === "danger"
-      ? "text-red-600 dark:text-red-400"
-      : variant === "warning"
-      ? "text-yellow-600 dark:text-yellow-400"
-      : "text-foreground";
+    variant === 'danger'
+      ? 'text-red-600 dark:text-red-400'
+      : variant === 'warning'
+        ? 'text-yellow-600 dark:text-yellow-400'
+        : 'text-foreground';
 
   return (
     <Card className={bgColor}>
@@ -218,14 +195,14 @@ function CommitmentSection({
 }: {
   title: string;
   commitments: CommitmentWithPerson[];
-  variant: "default" | "danger" | "warning";
+  variant: 'default' | 'danger' | 'warning';
 }) {
   const titleColor =
-    variant === "danger"
-      ? "text-red-600 dark:text-red-400"
-      : variant === "warning"
-      ? "text-yellow-600 dark:text-yellow-400"
-      : "";
+    variant === 'danger'
+      ? 'text-red-600 dark:text-red-400'
+      : variant === 'warning'
+        ? 'text-yellow-600 dark:text-yellow-400'
+        : '';
 
   return (
     <Card>
@@ -247,7 +224,7 @@ function CommitmentItem({ commitment }: { commitment: CommitmentWithPerson }) {
   const isOverdue =
     commitment.dueDate &&
     isBefore(new Date(commitment.dueDate), new Date()) &&
-    commitment.status === "pending";
+    commitment.status === 'pending';
 
   const isDueSoon =
     commitment.dueDate &&
@@ -258,10 +235,10 @@ function CommitmentItem({ commitment }: { commitment: CommitmentWithPerson }) {
     <div
       className={`rounded-md border p-4 ${
         isOverdue
-          ? "border-red-300 bg-red-50/50 dark:border-red-800 dark:bg-red-900/10"
+          ? 'border-red-300 bg-red-50/50 dark:border-red-800 dark:bg-red-900/10'
           : isDueSoon
-          ? "border-yellow-300 bg-yellow-50/50 dark:border-yellow-800 dark:bg-yellow-900/10"
-          : ""
+            ? 'border-yellow-300 bg-yellow-50/50 dark:border-yellow-800 dark:bg-yellow-900/10'
+            : ''
       }`}
     >
       <div className="flex items-start justify-between gap-4">
@@ -286,7 +263,7 @@ function CommitmentItem({ commitment }: { commitment: CommitmentWithPerson }) {
                     {formatDistanceToNow(new Date(commitment.dueDate), { addSuffix: true })}
                   </span>
                 ) : (
-                  <span>Due {format(new Date(commitment.dueDate), "MMM d, yyyy")}</span>
+                  <span>Due {format(new Date(commitment.dueDate), 'MMM d, yyyy')}</span>
                 )}
               </div>
             )}
@@ -302,7 +279,7 @@ function CommitmentItem({ commitment }: { commitment: CommitmentWithPerson }) {
 
         <div className="flex flex-col items-end gap-2">
           {/* Priority */}
-          {commitment.priority && commitment.priority !== "medium" && (
+          {commitment.priority && commitment.priority !== 'medium' && (
             <Badge className={PRIORITY_COLORS[commitment.priority as CommitmentPriority]}>
               {commitment.priority}
             </Badge>

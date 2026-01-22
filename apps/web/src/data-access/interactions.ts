@@ -1,5 +1,5 @@
-import { eq, and, desc, gte, sql, count } from "drizzle-orm";
-import { database } from "~/db";
+import { eq, and, desc, gte, sql, count } from 'drizzle-orm';
+import { database } from '~/db';
 import {
   interaction,
   person,
@@ -8,7 +8,7 @@ import {
   type InteractionType,
   type CommunicationChannel,
   type Person,
-} from "~/db/schema";
+} from '~/db/schema';
 
 // ============================================================================
 // Interaction CRUD
@@ -17,13 +17,8 @@ import {
 /**
  * Create a new interaction
  */
-export async function createInteraction(
-  data: CreateInteractionData
-): Promise<Interaction> {
-  const [newInteraction] = await database
-    .insert(interaction)
-    .values(data)
-    .returning();
+export async function createInteraction(data: CreateInteractionData): Promise<Interaction> {
+  const [newInteraction] = await database.insert(interaction).values(data).returning();
 
   return newInteraction;
 }
@@ -55,14 +50,8 @@ export async function createInteractionAndUpdatePerson(
 /**
  * Find interaction by ID
  */
-export async function findInteractionById(
-  id: string
-): Promise<Interaction | null> {
-  const [result] = await database
-    .select()
-    .from(interaction)
-    .where(eq(interaction.id, id))
-    .limit(1);
+export async function findInteractionById(id: string): Promise<Interaction | null> {
+  const [result] = await database.select().from(interaction).where(eq(interaction.id, id)).limit(1);
 
   return result || null;
 }
@@ -71,16 +60,13 @@ export async function findInteractionById(
  * Find interaction by source (for deduplication)
  */
 export async function findInteractionBySource(
-  sourceType: "email" | "calendar" | "manual",
+  sourceType: 'email' | 'calendar' | 'manual',
   sourceId: string
 ): Promise<Interaction | null> {
   const [result] = await database
     .select()
     .from(interaction)
-    .where(and(
-      eq(interaction.sourceType, sourceType),
-      eq(interaction.sourceId, sourceId)
-    ))
+    .where(and(eq(interaction.sourceType, sourceType), eq(interaction.sourceId, sourceId)))
     .limit(1);
 
   return result || null;
@@ -90,7 +76,7 @@ export async function findInteractionBySource(
  * Check if interaction exists by source
  */
 export async function interactionExistsBySource(
-  sourceType: "email" | "calendar" | "manual",
+  sourceType: 'email' | 'calendar' | 'manual',
   sourceId: string
 ): Promise<boolean> {
   const result = await findInteractionBySource(sourceType, sourceId);
@@ -154,10 +140,7 @@ export async function findInteractionsByType(
   const results = await database
     .select()
     .from(interaction)
-    .where(and(
-      eq(interaction.userId, userId),
-      eq(interaction.type, type)
-    ))
+    .where(and(eq(interaction.userId, userId), eq(interaction.type, type)))
     .orderBy(desc(interaction.occurredAt))
     .limit(limit);
 
@@ -175,10 +158,7 @@ export async function findInteractionsSince(
   const results = await database
     .select()
     .from(interaction)
-    .where(and(
-      eq(interaction.userId, userId),
-      gte(interaction.occurredAt, since)
-    ))
+    .where(and(eq(interaction.userId, userId), gte(interaction.occurredAt, since)))
     .orderBy(desc(interaction.occurredAt))
     .limit(limit);
 
@@ -189,10 +169,7 @@ export async function findInteractionsSince(
  * Delete an interaction
  */
 export async function deleteInteraction(id: string): Promise<boolean> {
-  const [deleted] = await database
-    .delete(interaction)
-    .where(eq(interaction.id, id))
-    .returning();
+  const [deleted] = await database.delete(interaction).where(eq(interaction.id, id)).returning();
 
   return deleted !== undefined;
 }
@@ -214,7 +191,7 @@ export async function getInteractionCount(userId: string): Promise<number> {
 // ============================================================================
 
 export type InteractionWithPerson = Interaction & {
-  person: Pick<Person, "id" | "name" | "email" | "company"> | null;
+  person: Pick<Person, 'id' | 'name' | 'email' | 'company'> | null;
 };
 
 /**
@@ -271,10 +248,7 @@ export type InteractionStats = {
 /**
  * Get interaction statistics for a user
  */
-export async function getInteractionStats(
-  userId: string,
-  since?: Date
-): Promise<InteractionStats> {
+export async function getInteractionStats(userId: string, since?: Date): Promise<InteractionStats> {
   const conditions = [eq(interaction.userId, userId)];
   if (since) {
     conditions.push(gte(interaction.occurredAt, since));
@@ -343,7 +317,7 @@ export async function getInteractionStats(
     outbound: 0,
   };
   for (const row of directionResults) {
-    if (row.direction === "inbound" || row.direction === "outbound") {
+    if (row.direction === 'inbound' || row.direction === 'outbound') {
       byDirection[row.direction] = row.count;
     }
   }
@@ -359,9 +333,7 @@ export async function getInteractionStats(
 /**
  * Get interaction frequency for a person (avg days between interactions)
  */
-export async function getPersonInteractionFrequency(
-  personId: string
-): Promise<number | null> {
+export async function getPersonInteractionFrequency(personId: string): Promise<number | null> {
   const interactions = await database
     .select({
       occurredAt: interaction.occurredAt,
@@ -396,10 +368,7 @@ export async function bulkCreateInteractions(
 ): Promise<Interaction[]> {
   if (data.length === 0) return [];
 
-  const created = await database
-    .insert(interaction)
-    .values(data)
-    .returning();
+  const created = await database.insert(interaction).values(data).returning();
 
   return created;
 }

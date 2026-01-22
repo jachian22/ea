@@ -1,11 +1,11 @@
-import { eq } from "drizzle-orm";
-import { database } from "~/db";
+import { eq } from 'drizzle-orm';
+import { database } from '~/db';
 import {
   googleIntegration,
   type GoogleIntegration,
   type CreateGoogleIntegrationData,
   type UpdateGoogleIntegrationData,
-} from "~/db/schema";
+} from '~/db/schema';
 
 /**
  * Create a new Google integration for a user
@@ -13,10 +13,7 @@ import {
 export async function createGoogleIntegration(
   data: CreateGoogleIntegrationData
 ): Promise<GoogleIntegration> {
-  const [newIntegration] = await database
-    .insert(googleIntegration)
-    .values(data)
-    .returning();
+  const [newIntegration] = await database.insert(googleIntegration).values(data).returning();
 
   return newIntegration;
 }
@@ -24,9 +21,7 @@ export async function createGoogleIntegration(
 /**
  * Find a Google integration by its ID
  */
-export async function findGoogleIntegrationById(
-  id: string
-): Promise<GoogleIntegration | null> {
+export async function findGoogleIntegrationById(id: string): Promise<GoogleIntegration | null> {
   const [result] = await database
     .select()
     .from(googleIntegration)
@@ -191,9 +186,7 @@ export async function deleteGoogleIntegration(id: string): Promise<boolean> {
 /**
  * Delete a Google integration by user ID
  */
-export async function deleteGoogleIntegrationByUserId(
-  userId: string
-): Promise<boolean> {
+export async function deleteGoogleIntegrationByUserId(userId: string): Promise<boolean> {
   const [deleted] = await database
     .delete(googleIntegration)
     .where(eq(googleIntegration.userId, userId))
@@ -205,9 +198,7 @@ export async function deleteGoogleIntegrationByUserId(
 /**
  * Check if a user has an active Google integration
  */
-export async function hasActiveGoogleIntegration(
-  userId: string
-): Promise<boolean> {
+export async function hasActiveGoogleIntegration(userId: string): Promise<boolean> {
   const integration = await findGoogleIntegrationByUserId(userId);
   return integration !== null && integration.isConnected;
 }
@@ -227,7 +218,7 @@ export function isAccessTokenExpired(integration: GoogleIntegration): boolean {
  */
 export async function upsertGoogleIntegration(
   userId: string,
-  data: Omit<CreateGoogleIntegrationData, "userId">
+  data: Omit<CreateGoogleIntegrationData, 'userId'>
 ): Promise<GoogleIntegration> {
   const existing = await findGoogleIntegrationByUserId(userId);
 
@@ -253,9 +244,7 @@ export async function upsertGoogleIntegration(
 /**
  * Find all connected Google integrations (for batch processing like daily briefs)
  */
-export async function findAllConnectedGoogleIntegrations(): Promise<
-  GoogleIntegration[]
-> {
+export async function findAllConnectedGoogleIntegrations(): Promise<GoogleIntegration[]> {
   const results = await database
     .select()
     .from(googleIntegration)

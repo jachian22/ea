@@ -1,21 +1,21 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import {
   latestBriefQueryOptions,
   todaysBriefQueryOptions,
   briefHistoryQueryOptions,
   briefByDateQueryOptions,
-} from "~/queries/daily-brief";
-import { generateBriefFn } from "~/fn/daily-brief";
-import { authClient } from "~/lib/auth-client";
-import { getErrorMessage } from "~/utils/error";
+} from '~/queries/daily-brief';
+import { generateBriefFn } from '~/fn/daily-brief';
+import { authClient } from '~/lib/auth-client';
+import { getErrorMessage } from '~/utils/error';
 import type {
   CalendarEventData,
   EmailData,
   DailyBriefStatus,
   WeatherBriefData,
   EnrichedBriefData,
-} from "~/db/schema";
+} from '~/db/schema';
 
 /**
  * Brief data returned from queries
@@ -142,21 +142,20 @@ export function useGenerateBrief() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (options?: { timeZone?: string }) =>
-      generateBriefFn({ data: options }),
+    mutationFn: (options?: { timeZone?: string }) => generateBriefFn({ data: options }),
     onSuccess: (result) => {
       if (result.success) {
-        toast.success("Brief generated successfully", {
-          description: "Your daily brief has been updated with the latest information.",
+        toast.success('Brief generated successfully', {
+          description: 'Your daily brief has been updated with the latest information.',
         });
         // Invalidate all brief-related queries to refresh the data
-        queryClient.invalidateQueries({ queryKey: ["daily-brief"] });
+        queryClient.invalidateQueries({ queryKey: ['daily-brief'] });
       } else {
-        toast.error(result.error || "Failed to generate brief");
+        toast.error(result.error || 'Failed to generate brief');
       }
     },
     onError: (error) => {
-      toast.error("Failed to generate brief", {
+      toast.error('Failed to generate brief', {
         description: getErrorMessage(error),
       });
     },
@@ -190,7 +189,7 @@ export function useDailyBrief() {
   // Helper to check if the latest brief is from today
   const isLatestBriefFromToday = (): boolean => {
     if (!latestBrief) return false;
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date().toISOString().split('T')[0];
     return latestBrief.briefDate === today;
   };
 
@@ -204,15 +203,15 @@ export function useDailyBrief() {
       };
     }
     return {
-      totalEvents: parseInt(brief.totalEvents || "0", 10),
-      totalEmails: parseInt(brief.totalEmails || "0", 10),
-      emailsNeedingResponse: parseInt(brief.emailsNeedingResponse || "0", 10),
+      totalEvents: parseInt(brief.totalEvents || '0', 10),
+      totalEmails: parseInt(brief.totalEmails || '0', 10),
+      emailsNeedingResponse: parseInt(brief.emailsNeedingResponse || '0', 10),
     };
   };
 
   // Refresh function to invalidate all brief queries
   const refresh = () => {
-    queryClient.invalidateQueries({ queryKey: ["daily-brief"] });
+    queryClient.invalidateQueries({ queryKey: ['daily-brief'] });
   };
 
   return {

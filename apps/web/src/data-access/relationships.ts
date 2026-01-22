@@ -1,5 +1,5 @@
-import { eq, and, desc } from "drizzle-orm";
-import { database } from "~/db";
+import { eq, and, desc } from 'drizzle-orm';
+import { database } from '~/db';
 import {
   relationship,
   person,
@@ -7,7 +7,7 @@ import {
   type CreateRelationshipData,
   type UpdateRelationshipData,
   type RelationType,
-} from "~/db/schema";
+} from '~/db/schema';
 
 // ============================================================================
 // Relationship CRUD
@@ -16,13 +16,8 @@ import {
 /**
  * Create a new relationship
  */
-export async function createRelationship(
-  data: CreateRelationshipData
-): Promise<Relationship> {
-  const [newRelationship] = await database
-    .insert(relationship)
-    .values(data)
-    .returning();
+export async function createRelationship(data: CreateRelationshipData): Promise<Relationship> {
+  const [newRelationship] = await database.insert(relationship).values(data).returning();
 
   return newRelationship;
 }
@@ -30,9 +25,7 @@ export async function createRelationship(
 /**
  * Find relationship by ID
  */
-export async function findRelationshipById(
-  id: string
-): Promise<Relationship | null> {
+export async function findRelationshipById(id: string): Promise<Relationship | null> {
   const [result] = await database
     .select()
     .from(relationship)
@@ -52,9 +45,7 @@ export async function findRelationshipByUserAndPerson(
   const [result] = await database
     .select()
     .from(relationship)
-    .where(
-      and(eq(relationship.userId, userId), eq(relationship.personId, personId))
-    )
+    .where(and(eq(relationship.userId, userId), eq(relationship.personId, personId)))
     .limit(1);
 
   return result || null;
@@ -87,12 +78,7 @@ export async function findRelationshipsByType(
   const results = await database
     .select()
     .from(relationship)
-    .where(
-      and(
-        eq(relationship.userId, userId),
-        eq(relationship.relationType, relationType)
-      )
-    )
+    .where(and(eq(relationship.userId, userId), eq(relationship.relationType, relationType)))
     .orderBy(desc(relationship.createdAt));
 
   return results;
@@ -101,9 +87,7 @@ export async function findRelationshipsByType(
 /**
  * Find relationships for a person (with person data)
  */
-export async function findRelationshipsForPerson(
-  personId: string
-): Promise<Relationship[]> {
+export async function findRelationshipsForPerson(personId: string): Promise<Relationship[]> {
   const results = await database
     .select()
     .from(relationship)
@@ -155,10 +139,7 @@ export async function updateRelationship(
  * Delete a relationship
  */
 export async function deleteRelationship(id: string): Promise<boolean> {
-  const [deleted] = await database
-    .delete(relationship)
-    .where(eq(relationship.id, id))
-    .returning();
+  const [deleted] = await database.delete(relationship).where(eq(relationship.id, id)).returning();
 
   return deleted !== undefined;
 }

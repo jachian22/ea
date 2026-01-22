@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { getImageUrlQuery } from "~/queries/storage";
+import { useQuery } from '@tanstack/react-query';
+import { getImageUrlQuery } from '~/queries/storage';
 
 /**
  * Hook to fetch avatar image URL from R2 bucket
@@ -8,7 +8,7 @@ import { getImageUrlQuery } from "~/queries/storage";
  */
 export function useAvatarImage(imageKey: string | null) {
   const avatarQuery = useQuery({
-    ...getImageUrlQuery(imageKey || ""),
+    ...getImageUrlQuery(imageKey || ''),
     enabled: !!imageKey,
   });
 

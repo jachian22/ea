@@ -1,19 +1,19 @@
-import { google, type gmail_v1 } from "googleapis";
-import type { Auth } from "googleapis";
-import type { EmailData, GoogleIntegration } from "~/db/schema";
+import { google, type gmail_v1 } from 'googleapis';
+import type { Auth } from 'googleapis';
+import type { EmailData, GoogleIntegration } from '~/db/schema';
 import {
   createAuthenticatedClient,
   GoogleAuthError,
   GoogleAuthErrorCodes,
   isIntegrationValid,
-} from "~/lib/google-client";
+} from '~/lib/google-client';
 import {
   withRetry,
   createGoogleAPIRetryChecker,
   createRetryLogger,
   GoogleAPIErrorCheckers,
   type RetryOptions,
-} from "~/utils/retry";
+} from '~/utils/retry';
 
 /**
  * Configuration options for fetching emails
@@ -50,7 +50,7 @@ const DEFAULT_GMAIL_RETRY_OPTIONS: RetryOptions = {
   maxDelayMs: 10000,
   backoffMultiplier: 2,
   isRetryable: createGoogleAPIRetryChecker(),
-  onRetry: createRetryLogger("GmailService"),
+  onRetry: createRetryLogger('GmailService'),
 };
 
 /**
@@ -68,12 +68,8 @@ export class GmailService {
   private userEmail: string;
   private retryOptions: RetryOptions;
 
-  constructor(
-    auth: Auth.OAuth2Client,
-    userEmail: string,
-    retryOptions: RetryOptions = {}
-  ) {
-    this.gmail = google.gmail({ version: "v1", auth });
+  constructor(auth: Auth.OAuth2Client, userEmail: string, retryOptions: RetryOptions = {}) {
+    this.gmail = google.gmail({ version: 'v1', auth });
     this.userEmail = userEmail;
     this.retryOptions = { ...DEFAULT_GMAIL_RETRY_OPTIONS, ...retryOptions };
   }
@@ -92,7 +88,7 @@ export class GmailService {
   ): Promise<GmailService> {
     if (!isIntegrationValid(integration)) {
       throw new GoogleAuthError(
-        "Google integration is not valid or connected",
+        'Google integration is not valid or connected',
         GoogleAuthErrorCodes.INTEGRATION_DISCONNECTED
       );
     }
@@ -113,12 +109,7 @@ export class GmailService {
    * @throws GoogleAuthError for authentication or API errors
    */
   async fetchRecentEmails(options: FetchEmailsOptions = {}): Promise<EmailData[]> {
-    const {
-      maxResults = 50,
-      hoursBack = 24,
-      labelIds = ["INBOX"],
-      retryOptions,
-    } = options;
+    const { maxResults = 50, hoursBack = 24, labelIds = ['INBOX'], retryOptions } = options;
 
     // Merge retry options
     const effectiveRetryOptions = { ...this.retryOptions, ...retryOptions };
@@ -133,17 +124,14 @@ export class GmailService {
 
     try {
       // List messages matching the query with retry logic
-      const listResponse = await withRetry(
-        async () => {
-          return this.gmail.users.messages.list({
-            userId: "me",
-            q: query,
-            labelIds,
-            maxResults,
-          });
-        },
-        effectiveRetryOptions
-      );
+      const listResponse = await withRetry(async () => {
+        return this.gmail.users.messages.list({
+          userId: 'me',
+          q: query,
+          labelIds,
+          maxResults,
+        });
+      }, effectiveRetryOptions);
 
       const messages = listResponse.data.messages || [];
 
@@ -180,10 +168,10 @@ export class GmailService {
       const response = await withRetry(
         async () => {
           return this.gmail.users.messages.get({
-            userId: "me",
+            userId: 'me',
             id: messageId,
-            format: "metadata",
-            metadataHeaders: ["From", "To", "Subject", "Date"],
+            format: 'metadata',
+            metadataHeaders: ['From', 'To', 'Subject', 'Date'],
           });
         },
         {
@@ -218,10 +206,10 @@ export class GmailService {
   private async fetchMessageDetails(messageId: string): Promise<EmailData | null> {
     try {
       const response = await this.gmail.users.messages.get({
-        userId: "me",
+        userId: 'me',
         id: messageId,
-        format: "metadata",
-        metadataHeaders: ["From", "To", "Subject", "Date"],
+        format: 'metadata',
+        metadataHeaders: ['From', 'To', 'Subject', 'Date'],
       });
 
       const message = response.data as GmailMessageMetadata;
@@ -245,8 +233,8 @@ export class GmailService {
 
     const apiError = error as { code?: number; message?: string };
     return {
-      code: apiError.code ?? "UNKNOWN",
-      message: apiError.message ?? "Unknown error",
+      code: apiError.code ?? 'UNKNOWN',
+      message: apiError.message ?? 'Unknown error',
     };
   }
 
@@ -260,16 +248,14 @@ export class GmailService {
     const headers = message.payload.headers || [];
 
     const getHeader = (name: string): string => {
-      const header = headers.find(
-        (h) => h.name?.toLowerCase() === name.toLowerCase()
-      );
-      return header?.value || "";
+      const header = headers.find((h) => h.name?.toLowerCase() === name.toLowerCase());
+      return header?.value || '';
     };
 
-    const fromHeader = getHeader("From");
-    const toHeader = getHeader("To");
-    const subject = getHeader("Subject");
-    const dateHeader = getHeader("Date");
+    const fromHeader = getHeader('From');
+    const toHeader = getHeader('To');
+    const subject = getHeader('Subject');
+    const dateHeader = getHeader('Date');
 
     // Parse the 'From' header into email and name
     const from = this.parseEmailAddress(fromHeader);
@@ -278,7 +264,7 @@ export class GmailService {
     const to = this.parseEmailAddresses(toHeader);
 
     // Check if the email is unread
-    const isRead = !message.labelIds.includes("UNREAD");
+    const isRead = !message.labelIds.includes('UNREAD');
 
     // Get meaningful labels (filter out internal Gmail labels)
     const labels = this.getReadableLabels(message.labelIds);
@@ -287,19 +273,15 @@ export class GmailService {
     const importance = this.determineImportance(message.labelIds, from.email);
 
     // Determine action status based on email characteristics
-    const actionStatus = this.determineActionStatus(
-      message.labelIds,
-      from.email,
-      to
-    );
+    const actionStatus = this.determineActionStatus(message.labelIds, from.email, to);
 
     return {
       id: message.id,
       threadId: message.threadId,
-      subject: subject || "(No Subject)",
+      subject: subject || '(No Subject)',
       from,
       to,
-      snippet: message.snippet || "",
+      snippet: message.snippet || '',
       receivedAt: dateHeader
         ? new Date(dateHeader).toISOString()
         : new Date(parseInt(message.internalDate)).toISOString(),
@@ -318,7 +300,7 @@ export class GmailService {
    */
   private parseEmailAddress(header: string): { email: string; name?: string } {
     if (!header) {
-      return { email: "" };
+      return { email: '' };
     }
 
     // Match "Name <email>" format
@@ -326,7 +308,7 @@ export class GmailService {
 
     if (match) {
       const name = match[1]?.trim();
-      const email = match[2]?.trim() || "";
+      const email = match[2]?.trim() || '';
       return name ? { email, name } : { email };
     }
 
@@ -347,18 +329,18 @@ export class GmailService {
 
     // Split by comma, but be careful of commas inside quotes
     const addresses: string[] = [];
-    let current = "";
+    let current = '';
     let inQuotes = false;
 
     for (const char of header) {
       if (char === '"') {
         inQuotes = !inQuotes;
         current += char;
-      } else if (char === "," && !inQuotes) {
+      } else if (char === ',' && !inQuotes) {
         if (current.trim()) {
           addresses.push(current.trim());
         }
-        current = "";
+        current = '';
       } else {
         current += char;
       }
@@ -380,25 +362,25 @@ export class GmailService {
   private getReadableLabels(labelIds: string[]): string[] {
     // Gmail system labels to exclude
     const systemLabels = new Set([
-      "INBOX",
-      "UNREAD",
-      "CATEGORY_PERSONAL",
-      "CATEGORY_SOCIAL",
-      "CATEGORY_PROMOTIONS",
-      "CATEGORY_UPDATES",
-      "CATEGORY_FORUMS",
+      'INBOX',
+      'UNREAD',
+      'CATEGORY_PERSONAL',
+      'CATEGORY_SOCIAL',
+      'CATEGORY_PROMOTIONS',
+      'CATEGORY_UPDATES',
+      'CATEGORY_FORUMS',
     ]);
 
     return labelIds
       .filter((label) => !systemLabels.has(label))
       .map((label) => {
         // Convert IMPORTANT to a readable format
-        if (label === "IMPORTANT") return "Important";
-        if (label === "STARRED") return "Starred";
-        if (label === "SENT") return "Sent";
-        if (label === "DRAFT") return "Draft";
+        if (label === 'IMPORTANT') return 'Important';
+        if (label === 'STARRED') return 'Starred';
+        if (label === 'SENT') return 'Sent';
+        if (label === 'DRAFT') return 'Draft';
         // Remove Label_ prefix from custom labels
-        return label.replace(/^Label_/, "");
+        return label.replace(/^Label_/, '');
       });
   }
 
@@ -410,36 +392,30 @@ export class GmailService {
    * @param fromEmail The sender's email address
    * @returns Importance level: "high", "medium", or "low"
    */
-  private determineImportance(
-    labelIds: string[],
-    fromEmail: string
-  ): "high" | "medium" | "low" {
+  private determineImportance(labelIds: string[], fromEmail: string): 'high' | 'medium' | 'low' {
     // High importance indicators
-    if (labelIds.includes("IMPORTANT") || labelIds.includes("STARRED")) {
-      return "high";
+    if (labelIds.includes('IMPORTANT') || labelIds.includes('STARRED')) {
+      return 'high';
     }
 
     // Low importance indicators (promotional/social)
-    if (
-      labelIds.includes("CATEGORY_PROMOTIONS") ||
-      labelIds.includes("CATEGORY_SOCIAL")
-    ) {
-      return "low";
+    if (labelIds.includes('CATEGORY_PROMOTIONS') || labelIds.includes('CATEGORY_SOCIAL')) {
+      return 'low';
     }
 
     // Check for common no-reply addresses
     const lowerEmail = fromEmail.toLowerCase();
     if (
-      lowerEmail.includes("noreply") ||
-      lowerEmail.includes("no-reply") ||
-      lowerEmail.includes("notifications") ||
-      lowerEmail.includes("mailer-daemon")
+      lowerEmail.includes('noreply') ||
+      lowerEmail.includes('no-reply') ||
+      lowerEmail.includes('notifications') ||
+      lowerEmail.includes('mailer-daemon')
     ) {
-      return "low";
+      return 'low';
     }
 
     // Default to medium importance
-    return "medium";
+    return 'medium';
   }
 
   /**
@@ -455,51 +431,50 @@ export class GmailService {
     labelIds: string[],
     fromEmail: string,
     to: { email: string; name?: string }[]
-  ): "needs_response" | "awaiting_reply" | "fyi" | "none" {
-    const isUnread = labelIds.includes("UNREAD");
-    const isSent = labelIds.includes("SENT");
+  ): 'needs_response' | 'awaiting_reply' | 'fyi' | 'none' {
+    const isUnread = labelIds.includes('UNREAD');
+    const isSent = labelIds.includes('SENT');
 
     // If it's a sent email, we might be awaiting a reply
     if (isSent) {
-      return "awaiting_reply";
+      return 'awaiting_reply';
     }
 
     // Check for automated/no-reply senders
     const lowerEmail = fromEmail.toLowerCase();
     if (
-      lowerEmail.includes("noreply") ||
-      lowerEmail.includes("no-reply") ||
-      lowerEmail.includes("notifications") ||
-      lowerEmail.includes("mailer-daemon")
+      lowerEmail.includes('noreply') ||
+      lowerEmail.includes('no-reply') ||
+      lowerEmail.includes('notifications') ||
+      lowerEmail.includes('mailer-daemon')
     ) {
-      return "fyi";
+      return 'fyi';
     }
 
     // If addressed directly to the user and unread, likely needs response
     const isDirectlyAddressed = to.some(
-      (recipient) =>
-        recipient.email.toLowerCase() === this.userEmail.toLowerCase()
+      (recipient) => recipient.email.toLowerCase() === this.userEmail.toLowerCase()
     );
 
     if (isUnread && isDirectlyAddressed) {
-      return "needs_response";
+      return 'needs_response';
     }
 
     // Promotional/social emails are FYI
     if (
-      labelIds.includes("CATEGORY_PROMOTIONS") ||
-      labelIds.includes("CATEGORY_SOCIAL") ||
-      labelIds.includes("CATEGORY_UPDATES")
+      labelIds.includes('CATEGORY_PROMOTIONS') ||
+      labelIds.includes('CATEGORY_SOCIAL') ||
+      labelIds.includes('CATEGORY_UPDATES')
     ) {
-      return "fyi";
+      return 'fyi';
     }
 
     // Default for unread personal emails
     if (isUnread) {
-      return "needs_response";
+      return 'needs_response';
     }
 
-    return "none";
+    return 'none';
   }
 
   /**
@@ -522,12 +497,16 @@ export class GmailService {
     }
 
     // Check for specific Google API errors
-    const apiError = error as { code?: number; message?: string; errors?: Array<{ reason?: string }> };
+    const apiError = error as {
+      code?: number;
+      message?: string;
+      errors?: Array<{ reason?: string }>;
+    };
 
     // Authentication failed (401)
     if (apiError.code === 401) {
       return new GoogleAuthError(
-        "Gmail authentication failed. Please reconnect your Google account.",
+        'Gmail authentication failed. Please reconnect your Google account.',
         GoogleAuthErrorCodes.INVALID_CREDENTIALS,
         error
       );
@@ -538,14 +517,14 @@ export class GmailService {
       // Check if it's a quota/rate limit issue vs permission issue
       if (GoogleAPIErrorCheckers.isQuotaExceededError(error)) {
         return new GoogleAuthError(
-          "Gmail API quota exceeded. Please try again later.",
+          'Gmail API quota exceeded. Please try again later.',
           GoogleAuthErrorCodes.API_ERROR,
           error
         );
       }
 
       return new GoogleAuthError(
-        "Access to Gmail was denied. Please check your permissions and reconnect your Google account.",
+        'Access to Gmail was denied. Please check your permissions and reconnect your Google account.',
         GoogleAuthErrorCodes.INVALID_CREDENTIALS,
         error
       );
@@ -554,7 +533,7 @@ export class GmailService {
     // Not found (404)
     if (apiError.code === 404) {
       return new GoogleAuthError(
-        "Requested Gmail resource not found.",
+        'Requested Gmail resource not found.',
         GoogleAuthErrorCodes.API_ERROR,
         error
       );
@@ -563,7 +542,7 @@ export class GmailService {
     // Rate limited (429)
     if (apiError.code === 429) {
       return new GoogleAuthError(
-        "Gmail API rate limit exceeded. Please try again in a few minutes.",
+        'Gmail API rate limit exceeded. Please try again in a few minutes.',
         GoogleAuthErrorCodes.API_ERROR,
         error
       );
@@ -581,7 +560,7 @@ export class GmailService {
     // Network errors
     if (GoogleAPIErrorCheckers.isNetworkError(error)) {
       return new GoogleAuthError(
-        "Network error while connecting to Gmail. Please check your connection and try again.",
+        'Network error while connecting to Gmail. Please check your connection and try again.',
         GoogleAuthErrorCodes.API_ERROR,
         error
       );
@@ -589,7 +568,7 @@ export class GmailService {
 
     // Generic API error
     return new GoogleAuthError(
-      `Gmail API error: ${apiError.message || "Unknown error"}`,
+      `Gmail API error: ${apiError.message || 'Unknown error'}`,
       GoogleAuthErrorCodes.API_ERROR,
       error
     );
@@ -610,10 +589,7 @@ export async function fetchUserEmails(
   integration: GoogleIntegration,
   options?: FetchEmailsOptions
 ): Promise<EmailData[]> {
-  const gmailService = await GmailService.fromIntegration(
-    integration,
-    options?.retryOptions
-  );
+  const gmailService = await GmailService.fromIntegration(integration, options?.retryOptions);
   return gmailService.fetchRecentEmails(options);
 }
 
@@ -639,10 +615,10 @@ export async function fetchEmailsForDailyBrief(
   return fetchUserEmails(integration, {
     maxResults: 50,
     hoursBack: 24,
-    labelIds: ["INBOX"],
+    labelIds: ['INBOX'],
     retryOptions,
   });
 }
 
 // Re-export retry utilities for consumers who want to customize retry behavior
-export { type RetryOptions } from "~/utils/retry";
+export { type RetryOptions } from '~/utils/retry';

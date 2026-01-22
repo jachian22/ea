@@ -1,13 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { Page } from "~/components/Page";
-import { AppBreadcrumb } from "~/components/AppBreadcrumb";
-import { assertAuthenticatedFn } from "~/fn/guards";
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { Page } from '~/components/Page';
+import { AppBreadcrumb } from '~/components/AppBreadcrumb';
+import { assertAuthenticatedFn } from '~/fn/guards';
 import {
   useStatementsDashboard,
   type StatementRunData,
   type StatementData,
   type BankAccountData,
-} from "~/hooks/use-statements";
+} from '~/hooks/use-statements';
 import {
   Home,
   FileText,
@@ -23,19 +23,13 @@ import {
   AlertCircle,
   ChevronRight,
   Loader2,
-} from "lucide-react";
-import { Badge } from "~/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
-import { Button } from "~/components/ui/button";
-import type { StatementRunStatus } from "~/db/schema";
+} from 'lucide-react';
+import { Badge } from '~/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
+import { Button } from '~/components/ui/button';
+import type { StatementRunStatus } from '~/db/schema';
 
-export const Route = createFileRoute("/dashboard/statements")({
+export const Route = createFileRoute('/dashboard/statements')({
   component: StatementsPage,
   beforeLoad: async () => {
     await assertAuthenticatedFn();
@@ -47,11 +41,11 @@ export const Route = createFileRoute("/dashboard/statements")({
  */
 function getAccountIcon(accountType: string) {
   switch (accountType.toLowerCase()) {
-    case "credit":
+    case 'credit':
       return CreditCard;
-    case "checking":
+    case 'checking':
       return Wallet;
-    case "savings":
+    case 'savings':
       return Building2;
     default:
       return Wallet;
@@ -68,15 +62,15 @@ function formatRelativeTime(date: Date): string {
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffMins < 1) return "Just now";
+  if (diffMins < 1) return 'Just now';
   if (diffMins < 60) return `${diffMins}m ago`;
   if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays === 1) return "Yesterday";
+  if (diffDays === 1) return 'Yesterday';
   if (diffDays < 7) return `${diffDays}d ago`;
 
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
   }).format(new Date(date));
 }
 
@@ -85,37 +79,28 @@ function formatRelativeTime(date: Date): string {
  */
 function StatusBadge({ status }: { status: StatementRunStatus }) {
   switch (status) {
-    case "running":
+    case 'running':
       return (
-        <Badge
-          variant="secondary"
-          className="bg-blue-500/10 text-blue-600 border-blue-500/20"
-        >
+        <Badge variant="secondary" className="bg-blue-500/10 text-blue-600 border-blue-500/20">
           <Loader2 className="h-3 w-3 mr-1 animate-spin" />
           Running
         </Badge>
       );
-    case "completed":
+    case 'completed':
       return (
-        <Badge
-          variant="secondary"
-          className="bg-green-500/10 text-green-600 border-green-500/20"
-        >
+        <Badge variant="secondary" className="bg-green-500/10 text-green-600 border-green-500/20">
           <Check className="h-3 w-3 mr-1" />
           Completed
         </Badge>
       );
-    case "failed":
+    case 'failed':
       return (
-        <Badge
-          variant="secondary"
-          className="bg-red-500/10 text-red-600 border-red-500/20"
-        >
+        <Badge variant="secondary" className="bg-red-500/10 text-red-600 border-red-500/20">
           <X className="h-3 w-3 mr-1" />
           Failed
         </Badge>
       );
-    case "mfa_required":
+    case 'mfa_required':
       return (
         <Badge
           variant="secondary"
@@ -161,28 +146,28 @@ function StatsOverview() {
 
   const statCards = [
     {
-      label: "Total Runs",
+      label: 'Total Runs',
       value: stats.totalRuns,
       icon: RefreshCw,
-      color: "text-blue-500",
+      color: 'text-blue-500',
     },
     {
-      label: "Successful",
+      label: 'Successful',
       value: stats.successfulRuns,
       icon: Check,
-      color: "text-green-500",
+      color: 'text-green-500',
     },
     {
-      label: "Failed",
+      label: 'Failed',
       value: stats.failedRuns,
       icon: X,
-      color: "text-red-500",
+      color: 'text-red-500',
     },
     {
-      label: "Statements",
+      label: 'Statements',
       value: stats.totalStatementsDownloaded,
       icon: FileText,
-      color: "text-purple-500",
+      color: 'text-purple-500',
     },
   ];
 
@@ -254,9 +239,7 @@ function LatestRunCard() {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-lg">Latest Run</CardTitle>
-            <CardDescription>
-              {formatRelativeTime(latestRun.startedAt)}
-            </CardDescription>
+            <CardDescription>{formatRelativeTime(latestRun.startedAt)}</CardDescription>
           </div>
           <StatusBadge status={latestRun.status} />
         </div>
@@ -267,9 +250,7 @@ function LatestRunCard() {
           <div className="flex items-center gap-4 text-sm">
             <div className="flex items-center gap-1.5">
               <FileText className="h-4 w-4 text-muted-foreground" />
-              <span>
-                {latestRun.statementsDownloaded ?? 0} statements downloaded
-              </span>
+              <span>{latestRun.statementsDownloaded ?? 0} statements downloaded</span>
             </div>
             <div className="flex items-center gap-1.5">
               <Building2 className="h-4 w-4 text-muted-foreground" />
@@ -286,15 +267,15 @@ function LatestRunCard() {
               <div className="flex flex-wrap gap-2">
                 {bankNames.map((bank) => {
                   const bankResult = banksProcessed[bank];
-                  const isSuccess = bankResult?.status === "success";
+                  const isSuccess = bankResult?.status === 'success';
                   return (
                     <Badge
                       key={bank}
                       variant="outline"
                       className={
                         isSuccess
-                          ? "border-green-500/30 bg-green-500/5"
-                          : "border-red-500/30 bg-red-500/5"
+                          ? 'border-green-500/30 bg-green-500/5'
+                          : 'border-red-500/30 bg-red-500/5'
                       }
                     >
                       {isSuccess ? (
@@ -315,9 +296,7 @@ function LatestRunCard() {
             <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
               <div className="flex items-start gap-2">
                 <AlertCircle className="h-4 w-4 text-red-500 mt-0.5" />
-                <p className="text-sm text-red-600 dark:text-red-400">
-                  {latestRun.errorMessage}
-                </p>
+                <p className="text-sm text-red-600 dark:text-red-400">{latestRun.errorMessage}</p>
               </div>
             </div>
           )}
@@ -343,10 +322,7 @@ function RunHistorySection() {
         <CardContent>
           <div className="space-y-2">
             {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-16 bg-muted rounded-lg animate-pulse"
-              />
+              <div key={i} className="h-16 bg-muted rounded-lg animate-pulse" />
             ))}
           </div>
         </CardContent>
@@ -393,9 +369,7 @@ function RunHistorySection() {
                     <RefreshCw className="h-5 w-5 text-muted-foreground" />
                   </div>
                   <div>
-                    <p className="font-medium text-sm">
-                      {formatRelativeTime(run.startedAt)}
-                    </p>
+                    <p className="font-medium text-sm">{formatRelativeTime(run.startedAt)}</p>
                     <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
                       <span className="flex items-center gap-1">
                         <FileText className="h-3 w-3" />
@@ -434,10 +408,7 @@ function RecentStatementsSection() {
         <CardContent>
           <div className="space-y-2">
             {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-16 bg-muted rounded-lg animate-pulse"
-              />
+              <div key={i} className="h-16 bg-muted rounded-lg animate-pulse" />
             ))}
           </div>
         </CardContent>
@@ -483,12 +454,10 @@ function RecentStatementsSection() {
                   </div>
                   <div>
                     <p className="font-medium text-sm">
-                      {formatBankName(stmt.account.bank)} -{" "}
-                      {stmt.account.accountType} ****{stmt.account.last4}
+                      {formatBankName(stmt.account.bank)} - {stmt.account.accountType} ****
+                      {stmt.account.last4}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {stmt.statementDate}
-                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{stmt.statementDate}</p>
                   </div>
                 </div>
                 <div className="text-xs text-muted-foreground">
@@ -519,10 +488,7 @@ function BankAccountsSection() {
         <CardContent>
           <div className="space-y-2">
             {[1, 2].map((i) => (
-              <div
-                key={i}
-                className="h-14 bg-muted rounded-lg animate-pulse"
-              />
+              <div key={i} className="h-14 bg-muted rounded-lg animate-pulse" />
             ))}
           </div>
         </CardContent>
@@ -541,9 +507,7 @@ function BankAccountsSection() {
           <div className="text-center py-6 text-muted-foreground">
             <Building2 className="h-8 w-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm">No accounts configured yet</p>
-            <p className="text-xs mt-1">
-              Accounts will appear here after running the CLI
-            </p>
+            <p className="text-xs mt-1">Accounts will appear here after running the CLI</p>
           </div>
         </CardContent>
       </Card>
@@ -570,9 +534,7 @@ function BankAccountsSection() {
                     <AccountIcon className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div>
-                    <p className="font-medium text-sm">
-                      {formatBankName(account.bank)}
-                    </p>
+                    <p className="font-medium text-sm">{formatBankName(account.bank)}</p>
                     <p className="text-xs text-muted-foreground">
                       {account.accountType} ****{account.last4}
                     </p>
@@ -582,11 +544,11 @@ function BankAccountsSection() {
                   variant="outline"
                   className={
                     account.isEnabled
-                      ? "border-green-500/30 bg-green-500/5 text-green-600"
-                      : "border-gray-500/30 bg-gray-500/5 text-gray-600"
+                      ? 'border-green-500/30 bg-green-500/5 text-green-600'
+                      : 'border-gray-500/30 bg-gray-500/5 text-gray-600'
                   }
                 >
-                  {account.isEnabled ? "Enabled" : "Disabled"}
+                  {account.isEnabled ? 'Enabled' : 'Disabled'}
                 </Badge>
               </div>
             );
@@ -616,9 +578,7 @@ function QuickActionsSection() {
               </div>
               <div>
                 <p className="font-medium text-sm">Discord Settings</p>
-                <p className="text-xs text-muted-foreground">
-                  Configure notification webhook
-                </p>
+                <p className="text-xs text-muted-foreground">Configure notification webhook</p>
               </div>
             </div>
             <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
@@ -627,7 +587,8 @@ function QuickActionsSection() {
 
         <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
           <p className="text-sm text-blue-600 dark:text-blue-400">
-            Run <code className="bg-blue-500/20 px-1 rounded">bank-statements</code> in your terminal to download statements automatically.
+            Run <code className="bg-blue-500/20 px-1 rounded">bank-statements</code> in your
+            terminal to download statements automatically.
           </p>
         </div>
       </CardContent>
@@ -645,8 +606,8 @@ function StatementsPage() {
     <Page>
       <AppBreadcrumb
         items={[
-          { label: "Dashboard", href: "/dashboard", icon: Home },
-          { label: "Bank Statements", icon: FileText },
+          { label: 'Dashboard', href: '/dashboard', icon: Home },
+          { label: 'Bank Statements', icon: FileText },
         ]}
       />
 
@@ -661,15 +622,8 @@ function StatementsPage() {
               Track your automated bank statement downloads
             </p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={refresh}
-            disabled={isLoading}
-          >
-            <RefreshCw
-              className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
-            />
+          <Button variant="outline" size="sm" onClick={refresh} disabled={isLoading}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
         </div>

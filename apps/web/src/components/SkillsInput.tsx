@@ -1,8 +1,8 @@
-import { useState, KeyboardEvent } from "react";
-import { X, Plus } from "lucide-react";
-import { Input } from "~/components/ui/input";
-import { Button } from "~/components/ui/button";
-import { Badge } from "~/components/ui/badge";
+import { useState, KeyboardEvent } from 'react';
+import { X, Plus } from 'lucide-react';
+import { Input } from '~/components/ui/input';
+import { Button } from '~/components/ui/button';
+import { Badge } from '~/components/ui/badge';
 
 interface SkillsInputProps {
   skills: string[];
@@ -17,21 +17,21 @@ export function SkillsInput({
   onChange,
   maxSkills = 20,
   disabled = false,
-  placeholder = "Add a skill...",
+  placeholder = 'Add a skill...',
 }: SkillsInputProps) {
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState('');
 
   const addSkill = () => {
     const trimmed = inputValue.trim();
     if (!trimmed) return;
     if (skills.length >= maxSkills) return;
     if (skills.some((s) => s.toLowerCase() === trimmed.toLowerCase())) {
-      setInputValue("");
+      setInputValue('');
       return;
     }
 
     onChange([...skills, trimmed]);
-    setInputValue("");
+    setInputValue('');
   };
 
   const removeSkill = (skillToRemove: string) => {
@@ -39,11 +39,11 @@ export function SkillsInput({
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       e.preventDefault();
       addSkill();
     }
-    if (e.key === "Backspace" && !inputValue && skills.length > 0) {
+    if (e.key === 'Backspace' && !inputValue && skills.length > 0) {
       removeSkill(skills[skills.length - 1]);
     }
   };
@@ -102,7 +102,7 @@ export function SkillsInput({
       {/* Counter */}
       <p className="text-xs text-muted-foreground">
         {skills.length} / {maxSkills} skills
-        {skills.length < maxSkills && " • Press Enter to add"}
+        {skills.length < maxSkills && ' • Press Enter to add'}
       </p>
     </div>
   );

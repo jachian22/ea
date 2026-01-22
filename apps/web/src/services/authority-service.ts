@@ -3,13 +3,13 @@ import {
   findActionTypeByName,
   findAllActionTypes,
   seedBuiltInActionTypes,
-} from "~/data-access/action-types";
+} from '~/data-access/action-types';
 import {
   findAuthoritySettingByUserAndActionType,
   getEffectiveAuthorityLevel,
   initializeUserAuthoritySettings,
   upsertAuthoritySetting,
-} from "~/data-access/authority-settings";
+} from '~/data-access/authority-settings';
 import {
   createActionLog,
   findActionLogById,
@@ -22,7 +22,7 @@ import {
   findPendingApprovals,
   getPendingApprovalCount,
   getActionLogStats,
-} from "~/data-access/action-logs";
+} from '~/data-access/action-logs';
 import type {
   ActionType,
   ActionLog,
@@ -33,7 +33,7 @@ import type {
   ActionLogMetadata,
   AuthorityConditions,
   UserFeedback,
-} from "~/db/schema";
+} from '~/db/schema';
 
 // ============================================================================
 // Types
@@ -79,10 +79,10 @@ export async function initializeAuthorityForUser(userId: string): Promise<{
 }> {
   // Ensure built-in action types exist
   const { created, existing } = await seedBuiltInActionTypes();
-  
+
   // Initialize user authority settings with defaults
   const settings = await initializeUserAuthoritySettings(userId);
-  
+
   return {
     actionTypesSeeded: created,
     settingsCreated: settings.length,
@@ -108,21 +108,23 @@ export async function checkAuthority(
   // Find the action type
   const type = await findActionTypeByName(actionTypeName);
   if (!type) {
-    throw new Error("Unknown action type: " + actionTypeName);
+    throw new Error('Unknown action type: ' + actionTypeName);
   }
 
   // Get effective authority level
-  const { authorityLevel, isUserOverride, conditions } = 
-    await getEffectiveAuthorityLevel(userId, type.id);
+  const { authorityLevel, isUserOverride, conditions } = await getEffectiveAuthorityLevel(
+    userId,
+    type.id
+  );
 
   // If disabled, short-circuit
-  if (authorityLevel === "disabled") {
+  if (authorityLevel === 'disabled') {
     return {
       authorityLevel,
       isUserOverride,
       conditions,
       conditionsMet: false,
-      conditionsFailureReason: "Action type is disabled",
+      conditionsFailureReason: 'Action type is disabled',
     };
   }
 
@@ -166,41 +168,42 @@ function evaluateConditions(
   if (conditions.timeWindow && context.currentTime) {
     const currentHour = context.currentTime.getHours();
     const currentMinute = context.currentTime.getMinutes();
-    const currentTimeStr = String(currentHour).padStart(2, "0") + ":" + String(currentMinute).padStart(2, "0");
-    
+    const currentTimeStr =
+      String(currentHour).padStart(2, '0') + ':' + String(currentMinute).padStart(2, '0');
+
     const startTime = conditions.timeWindow.start;
     const endTime = conditions.timeWindow.end;
-    
+
     if (currentTimeStr < startTime || currentTimeStr > endTime) {
       return {
         met: false,
-        reason: "Outside allowed time window (" + startTime + " - " + endTime + ")",
+        reason: 'Outside allowed time window (' + startTime + ' - ' + endTime + ')',
       };
     }
   }
 
   // Check allowed domains
   if (conditions.allowedDomains && conditions.allowedDomains.length > 0 && context.senderDomain) {
-    const domainAllowed = conditions.allowedDomains.some(
-      (d) => context.senderDomain?.toLowerCase().includes(d.toLowerCase())
+    const domainAllowed = conditions.allowedDomains.some((d) =>
+      context.senderDomain?.toLowerCase().includes(d.toLowerCase())
     );
     if (!domainAllowed) {
       return {
         met: false,
-        reason: "Sender domain not in allowed list",
+        reason: 'Sender domain not in allowed list',
       };
     }
   }
 
   // Check blocked domains
   if (conditions.blockedDomains && conditions.blockedDomains.length > 0 && context.senderDomain) {
-    const domainBlocked = conditions.blockedDomains.some(
-      (d) => context.senderDomain?.toLowerCase().includes(d.toLowerCase())
+    const domainBlocked = conditions.blockedDomains.some((d) =>
+      context.senderDomain?.toLowerCase().includes(d.toLowerCase())
     );
     if (domainBlocked) {
       return {
         met: false,
-        reason: "Sender domain is blocked",
+        reason: 'Sender domain is blocked',
       };
     }
   }
@@ -209,7 +212,7 @@ function evaluateConditions(
   if (conditions.vipOnly && !context.isVip) {
     return {
       met: false,
-      reason: "VIP status required",
+      reason: 'VIP status required',
     };
   }
 
@@ -218,7 +221,12 @@ function evaluateConditions(
     if (context.importanceScore < conditions.minConfidence * 100) {
       return {
         met: false,
-        reason: "Confidence score below threshold (" + context.importanceScore + " < " + (conditions.minConfidence * 100) + ")",
+        reason:
+          'Confidence score below threshold (' +
+          context.importanceScore +
+          ' < ' +
+          conditions.minConfidence * 100 +
+          ')',
       };
     }
   }
@@ -231,19 +239,19 @@ function evaluateConditions(
 
       let rulePassed = false;
       switch (rule.operator) {
-        case "equals":
+        case 'equals':
           rulePassed = fieldValue === rule.value;
           break;
-        case "contains":
+        case 'contains':
           rulePassed = String(fieldValue).includes(String(rule.value));
           break;
-        case "matches":
+        case 'matches':
           rulePassed = new RegExp(String(rule.value)).test(String(fieldValue));
           break;
-        case "gt":
+        case 'gt':
           rulePassed = Number(fieldValue) > Number(rule.value);
           break;
-        case "lt":
+        case 'lt':
           rulePassed = Number(fieldValue) < Number(rule.value);
           break;
       }
@@ -251,7 +259,7 @@ function evaluateConditions(
       if (!rulePassed) {
         return {
           met: false,
-          reason: "Custom rule failed: " + rule.field + " " + rule.operator + " " + rule.value,
+          reason: 'Custom rule failed: ' + rule.field + ' ' + rule.operator + ' ' + rule.value,
         };
       }
     }
@@ -272,10 +280,10 @@ export async function processActionRequest(
   if (!type) {
     return {
       shouldExecute: false,
-      authorityLevel: "disabled",
+      authorityLevel: 'disabled',
       requiresApproval: false,
       actionLog: null,
-      reason: "Unknown action type: " + request.actionTypeName,
+      reason: 'Unknown action type: ' + request.actionTypeName,
     };
   }
 
@@ -285,20 +293,18 @@ export async function processActionRequest(
   });
 
   // If disabled, don't proceed
-  if (authorityCheck.authorityLevel === "disabled") {
+  if (authorityCheck.authorityLevel === 'disabled') {
     return {
       shouldExecute: false,
-      authorityLevel: "disabled",
+      authorityLevel: 'disabled',
       requiresApproval: false,
       actionLog: null,
-      reason: "Action type is disabled for this user",
+      reason: 'Action type is disabled for this user',
     };
   }
 
   // If conditions not met, fall back to ask_first
-  const effectiveLevel = authorityCheck.conditionsMet
-    ? authorityCheck.authorityLevel
-    : "ask_first";
+  const effectiveLevel = authorityCheck.conditionsMet ? authorityCheck.authorityLevel : 'ask_first';
 
   // Determine initial status based on authority level
   let initialStatus: ActionLogStatus;
@@ -306,23 +312,23 @@ export async function processActionRequest(
   let requiresApproval: boolean;
 
   switch (effectiveLevel) {
-    case "full_auto":
-      initialStatus = "approved"; // Will be changed to "executed" after execution
+    case 'full_auto':
+      initialStatus = 'approved'; // Will be changed to "executed" after execution
       shouldExecute = true;
       requiresApproval = false;
       break;
-    case "draft_approve":
-      initialStatus = "pending_approval";
+    case 'draft_approve':
+      initialStatus = 'pending_approval';
       shouldExecute = false;
       requiresApproval = true;
       break;
-    case "ask_first":
-      initialStatus = "pending_approval";
+    case 'ask_first':
+      initialStatus = 'pending_approval';
       shouldExecute = false;
       requiresApproval = true;
       break;
     default:
-      initialStatus = "pending_approval";
+      initialStatus = 'pending_approval';
       shouldExecute = false;
       requiresApproval = true;
   }
@@ -340,7 +346,7 @@ export async function processActionRequest(
     confidenceScore: request.confidenceScore,
     metadata: {
       ...request.metadata,
-      triggeredBy: "auto",
+      triggeredBy: 'auto',
       confidenceFactors: request.metadata?.confidenceFactors,
     },
   });
@@ -351,10 +357,10 @@ export async function processActionRequest(
     requiresApproval,
     actionLog,
     reason: shouldExecute
-      ? "Action approved for automatic execution"
+      ? 'Action approved for automatic execution'
       : requiresApproval
-        ? "Action requires user approval"
-        : "Action cannot be executed",
+        ? 'Action requires user approval'
+        : 'Action cannot be executed',
   };
 }
 
@@ -376,16 +382,16 @@ export async function executeAction(
     return {
       success: false,
       actionLog: null,
-      error: "Action log not found",
+      error: 'Action log not found',
     };
   }
 
   // Check if action is in a state that can be executed
-  if (log.status !== "approved" && log.status !== "pending_approval") {
+  if (log.status !== 'approved' && log.status !== 'pending_approval') {
     return {
       success: false,
       actionLog: log,
-      error: "Action cannot be executed in status: " + log.status,
+      error: 'Action cannot be executed in status: ' + log.status,
     };
   }
 
@@ -400,7 +406,7 @@ export async function executeAction(
         actionLog: updated,
       };
     } else {
-      const updated = await markActionFailed(actionLogId, result.error || "Unknown error");
+      const updated = await markActionFailed(actionLogId, result.error || 'Unknown error');
       return {
         success: false,
         actionLog: updated,
@@ -408,7 +414,7 @@ export async function executeAction(
       };
     }
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     const updated = await markActionFailed(actionLogId, errorMessage);
     return {
       success: false,
@@ -451,7 +457,7 @@ export async function rejectActionManually(
  */
 export async function reverseAction(
   actionLogId: string,
-  reversedBy: "user" | "system",
+  reversedBy: 'user' | 'system',
   reason?: string
 ): Promise<ActionLog | null> {
   return markActionReversed(actionLogId, reversedBy, reason);
@@ -505,7 +511,7 @@ export async function updateUserAuthoritySetting(
 ): Promise<AuthoritySetting> {
   const type = await findActionTypeByName(actionTypeName);
   if (!type) {
-    throw new Error("Unknown action type: " + actionTypeName);
+    throw new Error('Unknown action type: ' + actionTypeName);
   }
 
   return upsertAuthoritySetting(userId, type.id, authorityLevel, conditions);
@@ -514,14 +520,12 @@ export async function updateUserAuthoritySetting(
 /**
  * Disable all automation for a user (emergency stop)
  */
-export async function disableAllAutomation(
-  userId: string
-): Promise<{ updated: number }> {
+export async function disableAllAutomation(userId: string): Promise<{ updated: number }> {
   const allTypes = await findAllActionTypes();
   let updated = 0;
 
   for (const type of allTypes) {
-    await upsertAuthoritySetting(userId, type.id, "disabled");
+    await upsertAuthoritySetting(userId, type.id, 'disabled');
     updated++;
   }
 
@@ -531,9 +535,7 @@ export async function disableAllAutomation(
 /**
  * Enable automation with conservative defaults for a user
  */
-export async function enableConservativeAutomation(
-  userId: string
-): Promise<{ updated: number }> {
+export async function enableConservativeAutomation(userId: string): Promise<{ updated: number }> {
   const allTypes = await findAllActionTypes();
   let updated = 0;
 
@@ -541,17 +543,17 @@ export async function enableConservativeAutomation(
     // Use ask_first for high risk, draft_approve for medium, default for low
     let level: AuthorityLevel;
     switch (type.riskLevel) {
-      case "high":
-        level = "ask_first";
+      case 'high':
+        level = 'ask_first';
         break;
-      case "medium":
-        level = "draft_approve";
+      case 'medium':
+        level = 'draft_approve';
         break;
-      case "low":
+      case 'low':
         level = type.defaultAuthorityLevel;
         break;
       default:
-        level = "ask_first";
+        level = 'ask_first';
     }
 
     await upsertAuthoritySetting(userId, type.id, level);

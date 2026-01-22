@@ -1,17 +1,17 @@
-import { useState } from "react";
-import { ExternalLink, Pencil, Trash2, Image as ImageIcon } from "lucide-react";
+import { useState } from 'react';
+import { ExternalLink, Pencil, Trash2, Image as ImageIcon } from 'lucide-react';
 
 // Constants
 const MAX_VISIBLE_TECHNOLOGIES = 5;
-import { Button } from "~/components/ui/button";
-import { Badge } from "~/components/ui/badge";
+import { Button } from '~/components/ui/button';
+import { Badge } from '~/components/ui/badge';
 import {
   Panel,
   PanelContent,
   PanelDescription,
   PanelHeader,
   PanelTitle,
-} from "~/components/ui/panel";
+} from '~/components/ui/panel';
 import {
   Dialog,
   DialogContent,
@@ -19,10 +19,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "~/components/ui/dialog";
-import { useDeletePortfolioItem } from "~/hooks/usePortfolio";
-import { useImageUrl } from "~/hooks/useStorage";
-import type { PortfolioItem } from "~/db/schema";
+} from '~/components/ui/dialog';
+import { useDeletePortfolioItem } from '~/hooks/usePortfolio';
+import { useImageUrl } from '~/hooks/useStorage';
+import type { PortfolioItem } from '~/db/schema';
 
 interface PortfolioItemCardProps {
   item: PortfolioItem;
@@ -30,14 +30,10 @@ interface PortfolioItemCardProps {
   isOwner?: boolean;
 }
 
-export function PortfolioItemCard({
-  item,
-  onEdit,
-  isOwner = false,
-}: PortfolioItemCardProps) {
+export function PortfolioItemCard({ item, onEdit, isOwner = false }: PortfolioItemCardProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const deleteMutation = useDeletePortfolioItem();
-  const { data: imageData } = useImageUrl(item.imageKey || "");
+  const { data: imageData } = useImageUrl(item.imageKey || '');
   const imageUrl = imageData?.imageUrl;
 
   const handleDelete = () => {
@@ -97,9 +93,7 @@ export function PortfolioItemCard({
 
         <PanelHeader className="pb-2">
           <div className="flex items-start justify-between gap-2">
-            <PanelTitle className="text-lg line-clamp-1">
-              {item.title}
-            </PanelTitle>
+            <PanelTitle className="text-lg line-clamp-1">{item.title}</PanelTitle>
             {item.url && (
               <a
                 href={item.url}
@@ -112,26 +106,22 @@ export function PortfolioItemCard({
             )}
           </div>
           {item.description && (
-            <PanelDescription className="line-clamp-2">
-              {item.description}
-            </PanelDescription>
+            <PanelDescription className="line-clamp-2">{item.description}</PanelDescription>
           )}
         </PanelHeader>
 
         {item.technologies && item.technologies.length > 0 && (
           <PanelContent className="pt-0">
             <div className="flex flex-wrap gap-1.5">
-              {item.technologies
-                .slice(0, MAX_VISIBLE_TECHNOLOGIES)
-                .map((tech) => (
-                  <Badge
-                    key={tech}
-                    variant="secondary"
-                    className="text-xs px-2 py-0.5 bg-primary/10 text-primary border-0"
-                  >
-                    {tech}
-                  </Badge>
-                ))}
+              {item.technologies.slice(0, MAX_VISIBLE_TECHNOLOGIES).map((tech) => (
+                <Badge
+                  key={tech}
+                  variant="secondary"
+                  className="text-xs px-2 py-0.5 bg-primary/10 text-primary border-0"
+                >
+                  {tech}
+                </Badge>
+              ))}
               {item.technologies.length > MAX_VISIBLE_TECHNOLOGIES && (
                 <Badge
                   variant="secondary"
@@ -151,8 +141,7 @@ export function PortfolioItemCard({
           <DialogHeader>
             <DialogTitle>Delete Portfolio Item</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete "{item.title}"? This action cannot
-              be undone.
+              Are you sure you want to delete "{item.title}"? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -168,7 +157,7 @@ export function PortfolioItemCard({
               onClick={handleDelete}
               disabled={deleteMutation.isPending}
             >
-              {deleteMutation.isPending ? "Deleting..." : "Delete"}
+              {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
             </Button>
           </DialogFooter>
         </DialogContent>

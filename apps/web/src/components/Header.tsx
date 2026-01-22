@@ -1,16 +1,9 @@
-import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useSession, signOut } from "~/lib/auth-client";
-import { ModeToggle } from "./mode-toggle";
-import { Button, buttonVariants } from "./ui/button";
-import {
-  LogOut,
-  User,
-  Menu,
-  Settings,
-  Code,
-  LayoutDashboard,
-} from "lucide-react";
-import { UserAvatar } from "./UserAvatar";
+import { Link, useNavigate, useRouterState } from '@tanstack/react-router';
+import { useSession, signOut } from '~/lib/auth-client';
+import { ModeToggle } from './mode-toggle';
+import { Button, buttonVariants } from './ui/button';
+import { LogOut, User, Menu, Settings, Code, LayoutDashboard } from 'lucide-react';
+import { UserAvatar } from './UserAvatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,27 +11,27 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
-import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
-import { useState } from "react";
-import * as React from "react";
-import { cn } from "~/lib/utils";
+} from './ui/dropdown-menu';
+import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
+import { useState } from 'react';
+import * as React from 'react';
+import { cn } from '~/lib/utils';
 
 const dashboardLink = {
-  title: "Dashboard",
-  href: "/dashboard",
+  title: 'Dashboard',
+  href: '/dashboard',
   icon: LayoutDashboard,
 };
 
 const navItems = [
   {
-    title: "Overview",
-    href: "/dashboard",
+    title: 'Overview',
+    href: '/dashboard',
     icon: LayoutDashboard,
   },
   {
-    title: "Settings",
-    href: "/dashboard/settings",
+    title: 'Settings',
+    href: '/dashboard/settings',
     icon: Settings,
   },
 ];
@@ -54,24 +47,24 @@ export function Header() {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate({ to: "/" });
+    navigate({ to: '/' });
   };
 
   const handlePricingClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (currentPath === "/") {
+    if (currentPath === '/') {
       e.preventDefault();
-      const element = document.getElementById("pricing");
+      const element = document.getElementById('pricing');
       if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
+        element.scrollIntoView({ behavior: 'smooth' });
       }
     } else {
       e.preventDefault();
-      await navigate({ to: "/" });
+      await navigate({ to: '/' });
       // Scroll to pricing section after navigation
       setTimeout(() => {
-        const element = document.getElementById("pricing");
+        const element = document.getElementById('pricing');
         if (element) {
-          element.scrollIntoView({ behavior: "smooth" });
+          element.scrollIntoView({ behavior: 'smooth' });
         }
       }, 100);
     }
@@ -96,31 +89,29 @@ export function Header() {
               <Link
                 to={dashboardLink.href}
                 className={`relative flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 group ${
-                  currentPath.startsWith("/dashboard")
-                    ? "text-foreground"
-                    : "text-foreground/70 hover:text-foreground"
+                  currentPath.startsWith('/dashboard')
+                    ? 'text-foreground'
+                    : 'text-foreground/70 hover:text-foreground'
                 }`}
               >
                 <LayoutDashboard
                   className={`h-4 w-4 relative z-10 transition-transform ${
-                    currentPath.startsWith("/dashboard")
-                      ? "scale-110"
-                      : "group-hover:scale-110"
+                    currentPath.startsWith('/dashboard') ? 'scale-110' : 'group-hover:scale-110'
                   }`}
                 />
                 <span className="relative z-10">{dashboardLink.title}</span>
                 <span
                   className={`absolute inset-0 rounded-lg bg-primary/5 transition-opacity duration-200 ${
-                    currentPath.startsWith("/dashboard")
-                      ? "opacity-100"
-                      : "opacity-0 group-hover:opacity-100"
+                    currentPath.startsWith('/dashboard')
+                      ? 'opacity-100'
+                      : 'opacity-0 group-hover:opacity-100'
                   }`}
                 ></span>
                 <span
                   className={`absolute inset-0 rounded-lg bg-gradient-to-r from-primary/10 to-purple-600/10 blur-sm transition-opacity duration-200 ${
-                    currentPath.startsWith("/dashboard")
-                      ? "opacity-100"
-                      : "opacity-0 group-hover:opacity-100"
+                    currentPath.startsWith('/dashboard')
+                      ? 'opacity-100'
+                      : 'opacity-0 group-hover:opacity-100'
                   }`}
                 ></span>
               </Link>
@@ -171,8 +162,8 @@ export function Header() {
                   {navItems.map((item) => {
                     const Icon = item.icon;
                     const isActive =
-                      item.href === "/dashboard"
-                        ? currentPath === "/dashboard"
+                      item.href === '/dashboard'
+                        ? currentPath === '/dashboard'
                         : currentPath.startsWith(item.href);
 
                     return (
@@ -180,18 +171,15 @@ export function Header() {
                         key={item.href}
                         to={item.href}
                         className={cn(
-                          "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
+                          'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200',
                           isActive
-                            ? "bg-primary/20 text-primary border border-primary/20 shadow-[0_0_20px_rgba(var(--primary),0.1)]"
-                            : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                            ? 'bg-primary/20 text-primary border border-primary/20 shadow-[0_0_20px_rgba(var(--primary),0.1)]'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
                         )}
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         <Icon
-                          className={cn(
-                            "h-5 w-5 transition-transform",
-                            isActive && "scale-110"
-                          )}
+                          className={cn('h-5 w-5 transition-transform', isActive && 'scale-110')}
                         />
                         <span>{item.title}</span>
                       </Link>
@@ -213,10 +201,7 @@ export function Header() {
               <>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="relative h-8 w-8 rounded-full"
-                    >
+                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                       <UserAvatar
                         imageKey={user?.image || null}
                         name={user?.name || null}
@@ -228,20 +213,13 @@ export function Header() {
                   <DropdownMenuContent className="w-56" align="end" forceMount>
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">
-                          Account
-                        </p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                          {user?.email}
-                        </p>
+                        <p className="text-sm font-medium leading-none">Account</p>
+                        <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                      <Link
-                        to="/profile/$userId"
-                        params={{ userId: user?.id || "" }}
-                      >
+                      <Link to="/profile/$userId" params={{ userId: user?.id || '' }}>
                         <User className="mr-2 h-4 w-4" />
                         <span>Profile</span>
                       </Link>
@@ -261,13 +239,9 @@ export function Header() {
                 </DropdownMenu>
               </>
             ) : (
-              <Link
-                  className={buttonVariants({ variant: "default" })}
-                  to="/sign-in"
-                  search={{}}
-                >
-                  Sign In
-                </Link>
+              <Link className={buttonVariants({ variant: 'default' })} to="/sign-in" search={{}}>
+                Sign In
+              </Link>
             )}
             <ModeToggle />
           </nav>

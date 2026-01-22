@@ -5,21 +5,21 @@ import {
   Scripts,
   createRootRouteWithContext,
   useRouterState,
-} from "@tanstack/react-router";
-import * as React from "react";
-import type { QueryClient } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import { DefaultCatchBoundary } from "~/components/DefaultCatchBoundary";
-import { NotFound } from "~/components/NotFound";
-import appCss from "~/styles/app.css?url";
-import { seo } from "~/utils/seo";
-import { Header } from "~/components/Header";
-import { ThemeProvider } from "~/components/theme-provider";
-import { Toaster } from "~/components/ui/sonner";
-import NProgress from "nprogress";
-import "nprogress/nprogress.css";
-import { Footer } from "~/components/Footer";
+} from '@tanstack/react-router';
+import * as React from 'react';
+import type { QueryClient } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
+import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary';
+import { NotFound } from '~/components/NotFound';
+import appCss from '~/styles/app.css?url';
+import { seo } from '~/utils/seo';
+import { Header } from '~/components/Header';
+import { ThemeProvider } from '~/components/theme-provider';
+import { Toaster } from '~/components/ui/sonner';
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css';
+import { Footer } from '~/components/Footer';
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
@@ -27,42 +27,44 @@ export const Route = createRootRouteWithContext<{
   head: () => ({
     meta: [
       {
-        charSet: "utf-8",
+        charSet: 'utf-8',
       },
       {
-        name: "viewport",
-        content: "width=device-width, initial-scale=1",
+        name: 'viewport',
+        content: 'width=device-width, initial-scale=1',
       },
       ...seo({
-        title:
-          "Become a Full Stack Engineer | Full Stack Developer Training & Community",
+        title: 'Become a Full Stack Engineer | Full Stack Developer Training & Community',
         description: `Join our online community and learn how to become a full stack engineer. Master frontend and backend development, build real projects, and launch your software engineering career. Average full stack engineer salary: $115k-$150k.`,
         keywords:
-          "full stack engineer, full stack developer, software engineer, web developer, full stack developer training, learn full stack development, full stack engineer salary, how to become a full stack engineer, full stack developer career path, software engineering bootcamp, web development courses",
+          'full stack engineer, full stack developer, software engineer, web developer, full stack developer training, learn full stack development, full stack engineer salary, how to become a full stack engineer, full stack developer career path, software engineering bootcamp, web development courses',
       }),
     ],
     links: [
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" },
-      { rel: "stylesheet", href: appCss },
       {
-        rel: "apple-touch-icon",
-        sizes: "180x180",
-        href: "/apple-touch-icon.png",
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap',
+      },
+      { rel: 'stylesheet', href: appCss },
+      {
+        rel: 'apple-touch-icon',
+        sizes: '180x180',
+        href: '/apple-touch-icon.png',
       },
       {
-        rel: "icon",
-        type: "image/png",
-        sizes: "32x32",
-        href: "/favicon-32x32.png",
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '32x32',
+        href: '/favicon-32x32.png',
       },
       {
-        rel: "icon",
-        type: "image/png",
-        sizes: "16x16",
-        href: "/favicon-16x16.png",
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '16x16',
+        href: '/favicon-16x16.png',
       },
-      { rel: "manifest", href: "/site.webmanifest", color: "#fffff" },
-      { rel: "icon", href: "/favicon.ico" },
+      { rel: 'manifest', href: '/site.webmanifest', color: '#fffff' },
+      { rel: 'icon', href: '/favicon.ico' },
     ],
   }),
   errorComponent: (props) => {
@@ -86,18 +88,18 @@ function RootComponent() {
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   const routerState = useRouterState();
-  const prevPathnameRef = React.useRef("");
+  const prevPathnameRef = React.useRef('');
 
   React.useEffect(() => {
     const currentPathname = routerState.location.pathname;
     const pathnameChanged = prevPathnameRef.current !== currentPathname;
 
-    if (pathnameChanged && routerState.status === "pending") {
+    if (pathnameChanged && routerState.status === 'pending') {
       NProgress.start();
       prevPathnameRef.current = currentPathname;
     }
 
-    if (routerState.status === "idle") {
+    if (routerState.status === 'idle') {
       NProgress.done();
     }
   }, [routerState.status, routerState.location.pathname]);

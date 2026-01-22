@@ -1,18 +1,14 @@
-import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
-import { Page } from "~/components/Page";
-import { AppBreadcrumb } from "~/components/AppBreadcrumb";
-import { assertAuthenticatedFn } from "~/fn/guards";
-import { KnowledgeSearch } from "~/components/KnowledgeSearch";
-import { PersonDetailPanel } from "~/components/PersonDetailPanel";
-import { BackfillCard } from "~/components/BackfillCard";
-import { DomainRulesSettings } from "~/components/DomainRulesSettings";
-import { PrivacySettings } from "~/components/PrivacySettings";
-import {
-  useKnowledgeSummary,
-  usePeopleByDomain,
-  useFollowUpRadar,
-} from "~/hooks/use-knowledge";
+import { useState } from 'react';
+import { createFileRoute } from '@tanstack/react-router';
+import { Page } from '~/components/Page';
+import { AppBreadcrumb } from '~/components/AppBreadcrumb';
+import { assertAuthenticatedFn } from '~/fn/guards';
+import { KnowledgeSearch } from '~/components/KnowledgeSearch';
+import { PersonDetailPanel } from '~/components/PersonDetailPanel';
+import { BackfillCard } from '~/components/BackfillCard';
+import { DomainRulesSettings } from '~/components/DomainRulesSettings';
+import { PrivacySettings } from '~/components/PrivacySettings';
+import { useKnowledgeSummary, usePeopleByDomain, useFollowUpRadar } from '~/hooks/use-knowledge';
 import {
   Home,
   Brain,
@@ -23,22 +19,16 @@ import {
   User,
   Star,
   AlertCircle,
-} from "lucide-react";
-import { Button } from "~/components/ui/button";
-import { Badge } from "~/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { ScrollArea } from "~/components/ui/scroll-area";
-import type { Person, PersonDomain } from "~/db/schema";
-import { formatDistanceToNow } from "date-fns";
+} from 'lucide-react';
+import { Button } from '~/components/ui/button';
+import { Badge } from '~/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
+import { ScrollArea } from '~/components/ui/scroll-area';
+import type { Person, PersonDomain } from '~/db/schema';
+import { formatDistanceToNow } from 'date-fns';
 
-export const Route = createFileRoute("/dashboard/knowledge")({
+export const Route = createFileRoute('/dashboard/knowledge')({
   component: KnowledgePage,
   beforeLoad: async () => {
     await assertAuthenticatedFn();
@@ -46,23 +36,23 @@ export const Route = createFileRoute("/dashboard/knowledge")({
 });
 
 const DOMAIN_COLORS: Record<PersonDomain, string> = {
-  family: "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300",
-  business: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
-  job: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
-  personal: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
-  other: "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300",
+  family: 'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300',
+  business: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+  job: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+  personal: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
+  other: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300',
 };
 
 function KnowledgePage() {
   const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState('overview');
 
   return (
     <Page>
       <AppBreadcrumb
         items={[
-          { label: "Dashboard", href: "/dashboard", icon: Home },
-          { label: "Knowledge", icon: Brain },
+          { label: 'Dashboard', href: '/dashboard', icon: Home },
+          { label: 'Knowledge', icon: Brain },
         ]}
       />
 
@@ -80,7 +70,7 @@ function KnowledgePage() {
             </div>
             <KnowledgeSearch
               onSelectPerson={(person) => setSelectedPersonId(person.id)}
-              onSelectCommitment={() => setActiveTab("overview")}
+              onSelectCommitment={() => setActiveTab('overview')}
             />
           </div>
         </div>
@@ -216,9 +206,7 @@ function KnowledgeSummaryCard() {
         {/* Domain Breakdown */}
         {summary?.people.byDomain && (
           <div className="mt-6">
-            <h4 className="text-sm font-medium text-muted-foreground mb-3">
-              People by Domain
-            </h4>
+            <h4 className="text-sm font-medium text-muted-foreground mb-3">People by Domain</h4>
             <div className="flex flex-wrap gap-2">
               {Object.entries(summary.people.byDomain).map(([domain, count]) => (
                 <Badge
@@ -272,11 +260,7 @@ type RadarResponse = {
   error?: string | null;
 };
 
-function FollowUpRadarCard({
-  onSelectPerson,
-}: {
-  onSelectPerson: (id: string) => void;
-}) {
+function FollowUpRadarCard({ onSelectPerson }: { onSelectPerson: (id: string) => void }) {
   const { data: rawRadarResponse, isLoading } = useFollowUpRadar({
     daysThreshold: 30,
     limit: 10,
@@ -310,18 +294,14 @@ function FollowUpRadarCard({
           <Clock className="h-5 w-5 text-orange-500" />
           Follow-Up Radar
         </CardTitle>
-        <CardDescription>
-          People you haven't contacted in a while
-        </CardDescription>
+        <CardDescription>People you haven't contacted in a while</CardDescription>
       </CardHeader>
       <CardContent>
         {radar.length === 0 ? (
           <div className="text-center py-6 text-muted-foreground">
             <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm">No follow-ups needed</p>
-            <p className="text-xs mt-1">
-              All contacts are up to date
-            </p>
+            <p className="text-xs mt-1">All contacts are up to date</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -336,13 +316,9 @@ function FollowUpRadarCard({
                     <User className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div>
-                    <p className="font-medium text-sm">
-                      {person.name || person.email}
-                    </p>
+                    <p className="font-medium text-sm">{person.name || person.email}</p>
                     <p className="text-xs text-muted-foreground">
-                      {person.domain && (
-                        <span className="capitalize">{person.domain} • </span>
-                      )}
+                      {person.domain && <span className="capitalize">{person.domain} • </span>}
                       {getDaysSinceContact(person.lastContactAt)} days since contact
                     </p>
                   </div>
@@ -366,12 +342,8 @@ type PeopleByDomainResponse = {
   error?: string | null;
 };
 
-function PeopleByDomainCard({
-  onSelectPerson,
-}: {
-  onSelectPerson: (id: string) => void;
-}) {
-  const [selectedDomain, setSelectedDomain] = useState<PersonDomain>("business");
+function PeopleByDomainCard({ onSelectPerson }: { onSelectPerson: (id: string) => void }) {
+  const [selectedDomain, setSelectedDomain] = useState<PersonDomain>('business');
   const { data: rawPeopleResponse, isLoading } = usePeopleByDomain(selectedDomain);
   const peopleResponse = rawPeopleResponse as PeopleByDomainResponse | undefined;
   const people = peopleResponse?.success && peopleResponse.data ? peopleResponse.data : [];
@@ -385,19 +357,17 @@ function PeopleByDomainCard({
       <CardContent className="space-y-4">
         {/* Domain Selector */}
         <div className="flex flex-wrap gap-2">
-          {(["family", "business", "job", "personal", "other"] as PersonDomain[]).map(
-            (domain) => (
-              <Button
-                key={domain}
-                variant={selectedDomain === domain ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedDomain(domain)}
-                className="capitalize"
-              >
-                {domain}
-              </Button>
-            )
-          )}
+          {(['family', 'business', 'job', 'personal', 'other'] as PersonDomain[]).map((domain) => (
+            <Button
+              key={domain}
+              variant={selectedDomain === domain ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSelectedDomain(domain)}
+              className="capitalize"
+            >
+              {domain}
+            </Button>
+          ))}
         </div>
 
         {/* People List */}
@@ -424,9 +394,7 @@ function PeopleByDomainCard({
                       <User className="h-4 w-4 text-muted-foreground" />
                     </div>
                     <div>
-                      <p className="font-medium text-sm">
-                        {person.name || person.email}
-                      </p>
+                      <p className="font-medium text-sm">{person.name || person.email}</p>
                       {person.company && (
                         <p className="text-xs text-muted-foreground">
                           {person.role && `${person.role} at `}
@@ -435,7 +403,7 @@ function PeopleByDomainCard({
                       )}
                       {person.lastContactAt && (
                         <p className="text-xs text-muted-foreground">
-                          Last contact:{" "}
+                          Last contact:{' '}
                           {formatDistanceToNow(new Date(person.lastContactAt), {
                             addSuffix: true,
                           })}

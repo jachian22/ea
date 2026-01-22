@@ -1,6 +1,6 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { authClient } from "~/lib/auth-client";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { authClient } from '~/lib/auth-client';
 import {
   startBackfillJobFn,
   getBackfillJobsFn,
@@ -9,18 +9,18 @@ import {
   pauseBackfillJobFn,
   resumeBackfillJobFn,
   deleteBackfillJobFn,
-} from "~/fn/backfill";
-import type { BackfillSourceType } from "~/db/schema";
+} from '~/fn/backfill';
+import type { BackfillSourceType } from '~/db/schema';
 
 // ============================================================================
 // Query Keys
 // ============================================================================
 
 export const backfillKeys = {
-  all: ["backfill"] as const,
-  jobs: () => [...backfillKeys.all, "jobs"] as const,
-  activeJob: () => [...backfillKeys.all, "active"] as const,
-  job: (id: string) => [...backfillKeys.all, "job", id] as const,
+  all: ['backfill'] as const,
+  jobs: () => [...backfillKeys.all, 'jobs'] as const,
+  activeJob: () => [...backfillKeys.all, 'active'] as const,
+  job: (id: string) => [...backfillKeys.all, 'job', id] as const,
 };
 
 // ============================================================================
@@ -55,7 +55,7 @@ export function useActiveBackfillJob(enabled?: boolean) {
     refetchInterval: (query) => {
       // Auto-refresh while job is running
       const data = query.state.data;
-      if (data?.success && data.data?.status === "running") {
+      if (data?.success && data.data?.status === 'running') {
         return 5000; // 5 seconds
       }
       return false;
@@ -79,7 +79,7 @@ export function useBackfillJob(id: string, enabled?: boolean) {
     refetchInterval: (query) => {
       // Auto-refresh while job is running
       const data = query.state.data;
-      if (data?.success && data.data?.status === "running") {
+      if (data?.success && data.data?.status === 'running') {
         return 5000; // 5 seconds
       }
       return false;
@@ -104,17 +104,17 @@ export function useStartBackfill() {
     }) => startBackfillJobFn({ data }),
     onSuccess: (result) => {
       if (result.success) {
-        toast.success("Backfill job started");
+        toast.success('Backfill job started');
         queryClient.invalidateQueries({ queryKey: backfillKeys.all });
       } else {
-        toast.error("Failed to start backfill", {
+        toast.error('Failed to start backfill', {
           description: result.error,
         });
       }
     },
     onError: (error) => {
-      toast.error("Failed to start backfill", {
-        description: error instanceof Error ? error.message : "Unknown error",
+      toast.error('Failed to start backfill', {
+        description: error instanceof Error ? error.message : 'Unknown error',
       });
     },
   });
@@ -131,17 +131,17 @@ export function usePauseBackfill() {
     mutationFn: (id: string) => pauseBackfillJobFn({ data: { id } }),
     onSuccess: (result) => {
       if (result.success) {
-        toast.success("Backfill job paused");
+        toast.success('Backfill job paused');
         queryClient.invalidateQueries({ queryKey: backfillKeys.all });
       } else {
-        toast.error("Failed to pause backfill", {
+        toast.error('Failed to pause backfill', {
           description: result.error,
         });
       }
     },
     onError: (error) => {
-      toast.error("Failed to pause backfill", {
-        description: error instanceof Error ? error.message : "Unknown error",
+      toast.error('Failed to pause backfill', {
+        description: error instanceof Error ? error.message : 'Unknown error',
       });
     },
   });
@@ -158,17 +158,17 @@ export function useResumeBackfill() {
     mutationFn: (id: string) => resumeBackfillJobFn({ data: { id } }),
     onSuccess: (result) => {
       if (result.success) {
-        toast.success("Backfill job resumed");
+        toast.success('Backfill job resumed');
         queryClient.invalidateQueries({ queryKey: backfillKeys.all });
       } else {
-        toast.error("Failed to resume backfill", {
+        toast.error('Failed to resume backfill', {
           description: result.error,
         });
       }
     },
     onError: (error) => {
-      toast.error("Failed to resume backfill", {
-        description: error instanceof Error ? error.message : "Unknown error",
+      toast.error('Failed to resume backfill', {
+        description: error instanceof Error ? error.message : 'Unknown error',
       });
     },
   });
@@ -185,17 +185,17 @@ export function useDeleteBackfill() {
     mutationFn: (id: string) => deleteBackfillJobFn({ data: { id } }),
     onSuccess: (result) => {
       if (result.success) {
-        toast.success("Backfill job deleted");
+        toast.success('Backfill job deleted');
         queryClient.invalidateQueries({ queryKey: backfillKeys.all });
       } else {
-        toast.error("Failed to delete backfill", {
+        toast.error('Failed to delete backfill', {
           description: result.error,
         });
       }
     },
     onError: (error) => {
-      toast.error("Failed to delete backfill", {
-        description: error instanceof Error ? error.message : "Unknown error",
+      toast.error('Failed to delete backfill', {
+        description: error instanceof Error ? error.message : 'Unknown error',
       });
     },
   });

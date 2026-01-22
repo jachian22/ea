@@ -1,11 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { Video, FileText, Image, File, CheckSquare, Trash2, ExternalLink } from "lucide-react";
-import { Button } from "~/components/ui/button";
-import { moduleContentsQueryOptions } from "~/queries/modules";
-import { useDeleteModuleContent } from "~/hooks/useModules";
-import { ConfirmDeleteDialog } from "~/components/ConfirmDeleteDialog";
-import type { ModuleContent, ModuleContentType } from "~/db/schema";
+import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { Video, FileText, Image, File, CheckSquare, Trash2, ExternalLink } from 'lucide-react';
+import { Button } from '~/components/ui/button';
+import { moduleContentsQueryOptions } from '~/queries/modules';
+import { useDeleteModuleContent } from '~/hooks/useModules';
+import { ConfirmDeleteDialog } from '~/components/ConfirmDeleteDialog';
+import type { ModuleContent, ModuleContentType } from '~/db/schema';
 
 const CONTENT_TYPE_ICONS: Record<ModuleContentType, React.ComponentType<{ className?: string }>> = {
   video: Video,
@@ -16,11 +16,11 @@ const CONTENT_TYPE_ICONS: Record<ModuleContentType, React.ComponentType<{ classN
 };
 
 const CONTENT_TYPE_LABELS: Record<ModuleContentType, string> = {
-  video: "Video",
-  task: "Task",
-  image: "Image",
-  pdf: "PDF",
-  text: "Text",
+  video: 'Video',
+  task: 'Task',
+  image: 'Image',
+  pdf: 'PDF',
+  text: 'Text',
 };
 
 interface ContentItemProps {
@@ -44,16 +44,18 @@ function ContentItem({ content, isAdmin, moduleId }: ContentItemProps) {
 
   const renderContent = () => {
     switch (content.type) {
-      case "video":
+      case 'video':
         if (content.url) {
           // Check if it's a YouTube or Vimeo embed
-          const isYouTube = content.url.includes("youtube.com") || content.url.includes("youtu.be");
-          const isVimeo = content.url.includes("vimeo.com");
+          const isYouTube = content.url.includes('youtube.com') || content.url.includes('youtu.be');
+          const isVimeo = content.url.includes('vimeo.com');
 
           if (isYouTube || isVimeo) {
             let embedUrl = content.url;
             if (isYouTube) {
-              const videoId = content.url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
+              const videoId = content.url.match(
+                /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
+              )?.[1];
               embedUrl = `https://www.youtube.com/embed/${videoId}`;
             } else if (isVimeo) {
               const videoId = content.url.match(/vimeo\.com\/(\d+)/)?.[1];
@@ -73,18 +75,14 @@ function ContentItem({ content, isAdmin, moduleId }: ContentItemProps) {
 
           // Direct video file
           return (
-            <video
-              src={content.url}
-              controls
-              className="w-full rounded-lg max-h-96"
-            >
+            <video src={content.url} controls className="w-full rounded-lg max-h-96">
               Your browser does not support the video tag.
             </video>
           );
         }
         return <p className="text-muted-foreground text-sm">No video available</p>;
 
-      case "image":
+      case 'image':
         if (content.url) {
           return (
             <img
@@ -96,7 +94,7 @@ function ContentItem({ content, isAdmin, moduleId }: ContentItemProps) {
         }
         return <p className="text-muted-foreground text-sm">No image available</p>;
 
-      case "pdf":
+      case 'pdf':
         if (content.url) {
           return (
             <div className="flex items-center gap-4">
@@ -115,8 +113,8 @@ function ContentItem({ content, isAdmin, moduleId }: ContentItemProps) {
         }
         return <p className="text-muted-foreground text-sm">No PDF available</p>;
 
-      case "text":
-      case "task":
+      case 'text':
+      case 'task':
         if (content.content) {
           return (
             <div className="prose prose-sm dark:prose-invert max-w-none">
@@ -166,11 +164,7 @@ function ContentItem({ content, isAdmin, moduleId }: ContentItemProps) {
           <p className="text-sm text-muted-foreground">{content.description}</p>
         )}
 
-        {expanded && (
-          <div className="pt-3 border-t">
-            {renderContent()}
-          </div>
-        )}
+        {expanded && <div className="pt-3 border-t">{renderContent()}</div>}
       </div>
 
       <ConfirmDeleteDialog
@@ -217,8 +211,8 @@ export function ModuleContentList({ moduleId, isAdmin }: ModuleContentListProps)
         <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
         <p className="text-sm text-muted-foreground">
           {isAdmin
-            ? "No content yet. Click the + button to add content."
-            : "No content available in this module."}
+            ? 'No content yet. Click the + button to add content.'
+            : 'No content available in this module.'}
         </p>
       </div>
     );
@@ -227,12 +221,7 @@ export function ModuleContentList({ moduleId, isAdmin }: ModuleContentListProps)
   return (
     <div className="space-y-3 py-4">
       {contents.map((content) => (
-        <ContentItem
-          key={content.id}
-          content={content}
-          isAdmin={isAdmin}
-          moduleId={moduleId}
-        />
+        <ContentItem key={content.id} content={content} isAdmin={isAdmin} moduleId={moduleId} />
       ))}
     </div>
   );

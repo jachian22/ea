@@ -1,61 +1,51 @@
-import { stripe } from "~/lib/stripe";
-import { updateUserSubscription, updateUserPlan } from "~/utils/subscription";
-import { database } from "~/db";
-import { user } from "~/db/schema";
-import { eq } from "drizzle-orm";
-import { privateEnv } from "~/config/privateEnv";
-import type { SubscriptionPlan, SubscriptionStatus } from "~/db/schema";
-import { getPlanByPriceId } from "~/lib/plans";
-import { createFileRoute } from "@tanstack/react-router";
+import { stripe } from '~/lib/stripe';
+import { updateUserSubscription, updateUserPlan } from '~/utils/subscription';
+import { database } from '~/db';
+import { user } from '~/db/schema';
+import { eq } from 'drizzle-orm';
+import { privateEnv } from '~/config/privateEnv';
+import type { SubscriptionPlan, SubscriptionStatus } from '~/db/schema';
+import { getPlanByPriceId } from '~/lib/plans';
+import { createFileRoute } from '@tanstack/react-router';
 
-export const Route = createFileRoute("/api/stripe/webhook")({
+export const Route = createFileRoute('/api/stripe/webhook')({
   server: {
     handlers: {
       POST: async ({ request }) => {
         const body = await request.text();
-        const sig = request.headers.get("stripe-signature");
+        const sig = request.headers.get('stripe-signature');
 
         if (!sig) {
-          return Response.json(
-            { error: "Missing stripe signature" },
-            { status: 400 }
-          );
+          return Response.json({ error: 'Missing stripe signature' }, { status: 400 });
         }
 
         if (!stripe) {
-          return Response.json(
-            { error: "Stripe is not configured" },
-            { status: 500 }
-          );
+          return Response.json({ error: 'Stripe is not configured' }, { status: 500 });
         }
 
         let event: any;
 
         try {
-          event = stripe.webhooks.constructEvent(
-            body,
-            sig,
-            privateEnv.STRIPE_WEBHOOK_SECRET
-          );
+          event = stripe.webhooks.constructEvent(body, sig, privateEnv.STRIPE_WEBHOOK_SECRET);
         } catch (err) {
-          console.error("Webhook signature verification failed:", err);
-          return Response.json({ error: "Invalid signature" }, { status: 400 });
+          console.error('Webhook signature verification failed:', err);
+          return Response.json({ error: 'Invalid signature' }, { status: 400 });
         }
 
-        console.log("Received Stripe webhook:", event.type);
+        console.log('Received Stripe webhook:', event.type);
 
         try {
           switch (event.type) {
-            case "checkout.session.completed":
+            case 'checkout.session.completed':
               await handleCheckoutCompleted(event.data.object);
               break;
 
-            case "customer.subscription.created":
-            case "customer.subscription.updated":
+            case 'customer.subscription.created':
+            case 'customer.subscription.updated':
               await handleSubscriptionChange(event.data.object);
               break;
 
-            case "customer.subscription.deleted":
+            case 'customer.subscription.deleted':
               await handleSubscriptionDeleted(event.data.object);
               break;
 
@@ -65,11 +55,8 @@ export const Route = createFileRoute("/api/stripe/webhook")({
 
           return Response.json({ received: true });
         } catch (error) {
-          console.error("Error processing webhook:", error);
-          return Response.json(
-            { error: "Webhook processing failed" },
-            { status: 500 }
-          );
+          console.error('Error processing webhook:', error);
+          return Response.json({ error: 'Webhook processing failed' }, { status: 500 });
         }
       },
     },
@@ -77,32 +64,29 @@ export const Route = createFileRoute("/api/stripe/webhook")({
 });
 
 async function handleCheckoutCompleted(session: any) {
-  console.log("Handling checkout completed:", session.id);
+  console.log('Handling checkout completed:', session.id);
 
   if (!stripe) {
-    throw new Error("Stripe is not configured");
+    throw new Error('Stripe is not configured');
   }
 
-  const subscription = await stripe.subscriptions.retrieve(
-    session.subscription
-  );
+  const subscription = await stripe.subscriptions.retrieve(session.subscription);
 
-  console.log("Subscription:", subscription);
+  console.log('Subscription:', subscription);
 
   // Use item-level billing period (new Stripe API)
   const subscriptionItem = subscription.items.data[0];
   const periodEnd = subscriptionItem?.current_period_end;
 
   if (!periodEnd || isNaN(periodEnd)) {
-    console.error("Invalid item current_period_end:", periodEnd);
-    throw new Error("Invalid subscription period end date");
+    console.error('Invalid item current_period_end:', periodEnd);
+    throw new Error('Invalid subscription period end date');
   }
 
   await updateUserSubscription(session.metadata.userId, {
     subscriptionId: subscription.id,
     customerId: subscription.customer as string,
-    plan: getPlanByPriceId(subscriptionItem?.price.id)
-      ?.plan as SubscriptionPlan,
+    plan: getPlanByPriceId(subscriptionItem?.price.id)?.plan as SubscriptionPlan,
     status: subscription.status as SubscriptionStatus,
     expiresAt: new Date(periodEnd * 1000),
   });
@@ -111,13 +95,13 @@ async function handleCheckoutCompleted(session: any) {
 }
 
 async function handleSubscriptionChange(subscription: any) {
-  console.log("Handling subscription change:", subscription.id);
+  console.log('Handling subscription change:', subscription.id);
 
   const priceId = subscription.items.data[0]?.price.id;
   const planDetails = getPlanByPriceId(priceId);
 
   if (!planDetails) {
-    console.error("No plan found for price ID:", priceId);
+    console.error('No plan found for price ID:', priceId);
     return;
   }
 
@@ -128,7 +112,7 @@ async function handleSubscriptionChange(subscription: any) {
     .where(eq(user.stripeCustomerId, subscription.customer));
 
   if (!userData) {
-    console.error("No user found for customer:", subscription.customer);
+    console.error('No user found for customer:', subscription.customer);
     return;
   }
 
@@ -145,13 +129,11 @@ async function handleSubscriptionChange(subscription: any) {
     expiresAt,
   });
 
-  console.log(
-    `Updated subscription ${subscription.id} for user ${userData.id}`
-  );
+  console.log(`Updated subscription ${subscription.id} for user ${userData.id}`);
 }
 
 async function handleSubscriptionDeleted(subscription: any) {
-  console.log("Handling subscription deleted:", subscription.id);
+  console.log('Handling subscription deleted:', subscription.id);
 
   const customerId = subscription.customer;
 
@@ -162,24 +144,22 @@ async function handleSubscriptionDeleted(subscription: any) {
     .where(eq(user.stripeCustomerId, customerId));
 
   if (!userData) {
-    console.error("No user found for customer:", customerId);
+    console.error('No user found for customer:', customerId);
     return;
   }
 
   // Reset user to free plan
-  await updateUserPlan(userData.id, "free");
+  await updateUserPlan(userData.id, 'free');
 
   // Update subscription status
   await database
     .update(user)
     .set({
-      subscriptionStatus: "canceled",
+      subscriptionStatus: 'canceled',
       subscriptionExpiresAt: new Date(subscription.canceled_at * 1000),
       updatedAt: new Date(),
     })
     .where(eq(user.id, userData.id));
 
-  console.log(
-    `Reset user ${userData.id} to free plan after subscription deletion`
-  );
+  console.log(`Reset user ${userData.id} to free plan after subscription deletion`);
 }

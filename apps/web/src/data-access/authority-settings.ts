@@ -1,5 +1,5 @@
-import { eq, and, desc } from "drizzle-orm";
-import { database } from "~/db";
+import { eq, and, desc } from 'drizzle-orm';
+import { database } from '~/db';
 import {
   authoritySetting,
   actionType,
@@ -8,7 +8,7 @@ import {
   type UpdateAuthoritySettingData,
   type AuthorityLevel,
   type AuthorityConditions,
-} from "~/db/schema";
+} from '~/db/schema';
 
 /**
  * Create a new authority setting for a user
@@ -16,10 +16,7 @@ import {
 export async function createAuthoritySetting(
   data: CreateAuthoritySettingData
 ): Promise<AuthoritySetting> {
-  const [newSetting] = await database
-    .insert(authoritySetting)
-    .values(data)
-    .returning();
+  const [newSetting] = await database.insert(authoritySetting).values(data).returning();
 
   return newSetting;
 }
@@ -27,9 +24,7 @@ export async function createAuthoritySetting(
 /**
  * Find an authority setting by ID
  */
-export async function findAuthoritySettingById(
-  id: string
-): Promise<AuthoritySetting | null> {
+export async function findAuthoritySettingById(id: string): Promise<AuthoritySetting | null> {
   const [result] = await database
     .select()
     .from(authoritySetting)
@@ -50,10 +45,7 @@ export async function findAuthoritySettingByUserAndActionType(
     .select()
     .from(authoritySetting)
     .where(
-      and(
-        eq(authoritySetting.userId, userId),
-        eq(authoritySetting.actionTypeId, actionTypeId)
-      )
+      and(eq(authoritySetting.userId, userId), eq(authoritySetting.actionTypeId, actionTypeId))
     )
     .limit(1);
 
@@ -63,9 +55,7 @@ export async function findAuthoritySettingByUserAndActionType(
 /**
  * Find all authority settings for a user
  */
-export async function findAuthoritySettingsByUserId(
-  userId: string
-): Promise<AuthoritySetting[]> {
+export async function findAuthoritySettingsByUserId(userId: string): Promise<AuthoritySetting[]> {
   return database
     .select()
     .from(authoritySetting)
@@ -123,10 +113,7 @@ export async function upsertAuthoritySetting(
   authorityLevel: AuthorityLevel,
   conditions?: AuthorityConditions
 ): Promise<AuthoritySetting> {
-  const existing = await findAuthoritySettingByUserAndActionType(
-    userId,
-    actionTypeId
-  );
+  const existing = await findAuthoritySettingByUserAndActionType(userId, actionTypeId);
 
   if (existing) {
     const updated = await updateAuthoritySetting(existing.id, {
@@ -159,9 +146,7 @@ export async function deleteAuthoritySetting(id: string): Promise<boolean> {
 /**
  * Delete all authority settings for a user
  */
-export async function deleteAuthoritySettingsByUserId(
-  userId: string
-): Promise<number> {
+export async function deleteAuthoritySettingsByUserId(userId: string): Promise<number> {
   const deleted = await database
     .delete(authoritySetting)
     .where(eq(authoritySetting.userId, userId))
@@ -183,10 +168,7 @@ export async function getEffectiveAuthorityLevel(
   conditions: AuthorityConditions | null;
 }> {
   // First check for user-specific setting
-  const userSetting = await findAuthoritySettingByUserAndActionType(
-    userId,
-    actionTypeId
-  );
+  const userSetting = await findAuthoritySettingByUserAndActionType(userId, actionTypeId);
 
   if (userSetting) {
     return {
@@ -218,9 +200,7 @@ export async function getEffectiveAuthorityLevel(
  * Initialize default authority settings for a new user
  * Creates settings based on action type defaults
  */
-export async function initializeUserAuthoritySettings(
-  userId: string
-): Promise<AuthoritySetting[]> {
+export async function initializeUserAuthoritySettings(userId: string): Promise<AuthoritySetting[]> {
   const allActionTypes = await database.select().from(actionType);
   const existingSettings = await findAuthoritySettingsByUserId(userId);
   const existingTypeIds = new Set(existingSettings.map((s) => s.actionTypeId));

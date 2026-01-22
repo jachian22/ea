@@ -4,10 +4,10 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "~/components/ui/dialog";
-import { ModuleForm, type ModuleSubmitData } from "~/components/ModuleForm";
-import { useCreateModule, useUpdateModule } from "~/hooks/useModules";
-import type { ClassroomModuleWithUser } from "~/data-access/modules";
+} from '~/components/ui/dialog';
+import { ModuleForm, type ModuleSubmitData } from '~/components/ModuleForm';
+import { useCreateModule, useUpdateModule } from '~/hooks/useModules';
+import type { ClassroomModuleWithUser } from '~/data-access/modules';
 
 interface ModuleDialogProps {
   open: boolean;
@@ -19,25 +19,19 @@ interface ModuleDialogProps {
 function getDefaultValuesForEdit(module: ClassroomModuleWithUser) {
   return {
     title: module.title,
-    description: module.description || "",
+    description: module.description || '',
     isPublished: module.isPublished,
   };
 }
 
-export function ModuleDialog({
-  open,
-  onOpenChange,
-  module,
-}: ModuleDialogProps) {
+export function ModuleDialog({ open, onOpenChange, module }: ModuleDialogProps) {
   const createModuleMutation = useCreateModule();
   const updateModuleMutation = useUpdateModule();
 
   const isEditMode = !!module;
   const mutation = isEditMode ? updateModuleMutation : createModuleMutation;
 
-  const defaultValues = isEditMode
-    ? getDefaultValuesForEdit(module)
-    : undefined;
+  const defaultValues = isEditMode ? getDefaultValuesForEdit(module) : undefined;
 
   const handleSubmit = async (data: ModuleSubmitData) => {
     if (isEditMode) {
@@ -56,19 +50,19 @@ export function ModuleDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{isEditMode ? "Edit Module" : "Create Module"}</DialogTitle>
+          <DialogTitle>{isEditMode ? 'Edit Module' : 'Create Module'}</DialogTitle>
           <DialogDescription>
             {isEditMode
-              ? "Update the module details."
-              : "Add a new module to organize educational content."}
+              ? 'Update the module details.'
+              : 'Add a new module to organize educational content.'}
           </DialogDescription>
         </DialogHeader>
         <ModuleForm
-          key={isEditMode ? module.id : "create"}
+          key={isEditMode ? module.id : 'create'}
           defaultValues={defaultValues}
           onSubmit={handleSubmit}
           isPending={mutation.isPending}
-          submitLabel={isEditMode ? "Save Changes" : "Create Module"}
+          submitLabel={isEditMode ? 'Save Changes' : 'Create Module'}
           onCancel={() => onOpenChange(false)}
           cancelLabel="Cancel"
         />

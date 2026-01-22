@@ -8,15 +8,11 @@
  * - Calendar insights (busy periods, focus time)
  */
 
-import { spawn } from "child_process";
-import type {
-  CalendarEventData,
-  EmailData,
-  EnrichedBriefData,
-} from "~/db/schema";
+import { spawn } from 'child_process';
+import type { CalendarEventData, EmailData, EnrichedBriefData } from '~/db/schema';
 
 // Claude Code CLI path - uses system default
-const CLAUDE_CLI_PATH = process.env.CLAUDE_CODE_PATH || "claude";
+const CLAUDE_CLI_PATH = process.env.CLAUDE_CODE_PATH || 'claude';
 const CLAUDE_TIMEOUT = 120000; // 2 minutes
 
 /**
@@ -53,16 +49,11 @@ function createEnrichmentPrompt(input: EnrichmentInput): string {
     .map(([threadId, threadEmails]) => {
       const latest = threadEmails[0];
       const participants = [
-        ...new Set(
-          threadEmails.flatMap((e) => [
-            e.from.email,
-            ...e.to.map((t) => t.email),
-          ])
-        ),
-      ].join(", ");
+        ...new Set(threadEmails.flatMap((e) => [e.from.email, ...e.to.map((t) => t.email)])),
+      ].join(', ');
       const snippets = threadEmails
         .map((e) => `- ${e.from.name || e.from.email}: "${e.snippet}"`)
-        .join("\n");
+        .join('\n');
       return `**Thread: ${latest.subject}** (${threadEmails.length} messages, threadId: ${threadId})
 Participants: ${participants}
 Importance: ${latest.importance}
@@ -70,31 +61,29 @@ Status: ${latest.actionStatus}
 Messages:
 ${snippets}`;
     })
-    .join("\n\n");
+    .join('\n\n');
 
   // Format calendar events
   const calendarSummary = calendarEvents
     .map((event) => {
-      const time = new Date(event.startTime).toLocaleTimeString("en-US", {
-        hour: "numeric",
-        minute: "2-digit",
+      const time = new Date(event.startTime).toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
       });
-      const attendees =
-        event.attendees?.map((a) => a.name || a.email).join(", ") ||
-        "No attendees";
+      const attendees = event.attendees?.map((a) => a.name || a.email).join(', ') || 'No attendees';
       return `- ${time}: ${event.title} (${attendees})`;
     })
-    .join("\n");
+    .join('\n');
 
   return `You are an executive assistant. Analyze this daily brief data and provide enriched insights.
 
 ## Brief Date: ${briefDate}
 
 ## Calendar Events (${calendarEvents.length} events)
-${calendarSummary || "No calendar events"}
+${calendarSummary || 'No calendar events'}
 
 ## Email Threads (${threads.size} threads, ${emails.length} total emails)
-${emailSummary || "No emails"}
+${emailSummary || 'No emails'}
 
 ---
 
@@ -149,7 +138,7 @@ function parseEnrichmentResponse(response: string): EnrichedBriefData | null {
     // Try to extract JSON from the response (in case there's extra text)
     const jsonMatch = response.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      console.error("[BriefEnrichment] No JSON found in response");
+      console.error('[BriefEnrichment] No JSON found in response');
       return null;
     }
 
@@ -157,7 +146,7 @@ function parseEnrichmentResponse(response: string): EnrichedBriefData | null {
 
     // Validate required fields
     if (!parsed.daySummary || !parsed.conversations) {
-      console.error("[BriefEnrichment] Missing required fields in response");
+      console.error('[BriefEnrichment] Missing required fields in response');
       return null;
     }
 
@@ -168,10 +157,10 @@ function parseEnrichmentResponse(response: string): EnrichedBriefData | null {
         highlights: parsed.conversations.highlights || [],
       },
       calendarInsights: parsed.calendarInsights,
-      enrichedBy: "ea-brief-v1",
+      enrichedBy: 'ea-brief-v1',
     };
   } catch (error) {
-    console.error("[BriefEnrichment] Failed to parse response:", error);
+    console.error('[BriefEnrichment] Failed to parse response:', error);
     return null;
   }
 }
@@ -179,7 +168,9 @@ function parseEnrichmentResponse(response: string): EnrichedBriefData | null {
 /**
  * Executes the Claude Code CLI with a prompt
  */
-async function executeClaudeCLI(prompt: string): Promise<{ success: boolean; content: string; error?: string }> {
+async function executeClaudeCLI(
+  prompt: string
+): Promise<{ success: boolean; content: string; error?: string }> {
   return new Promise((resolve) => {
     // Escape single quotes in the prompt for shell safety
     const escapedPrompt = prompt.replace(/'/g, "'\\''");
@@ -193,33 +184,33 @@ async function executeClaudeCLI(prompt: string): Promise<{ success: boolean; con
       env: {
         ...process.env,
         // Ensure we don't get interactive prompts
-        CI: "true",
+        CI: 'true',
       },
-      stdio: ["ignore", "pipe", "pipe"],
+      stdio: ['ignore', 'pipe', 'pipe'],
       shell: true,
     });
 
-    let stdout = "";
-    let stderr = "";
+    let stdout = '';
+    let stderr = '';
 
-    child.stdout.on("data", (data: Buffer) => {
+    child.stdout.on('data', (data: Buffer) => {
       stdout += data.toString();
     });
 
-    child.stderr.on("data", (data: Buffer) => {
+    child.stderr.on('data', (data: Buffer) => {
       stderr += data.toString();
     });
 
     const timeoutId = setTimeout(() => {
-      child.kill("SIGTERM");
+      child.kill('SIGTERM');
       resolve({
         success: false,
-        content: "",
+        content: '',
         error: `Request timed out after ${CLAUDE_TIMEOUT / 1000} seconds`,
       });
     }, CLAUDE_TIMEOUT);
 
-    child.on("close", (code) => {
+    child.on('close', (code) => {
       clearTimeout(timeoutId);
 
       if (code === 0) {
@@ -236,11 +227,11 @@ async function executeClaudeCLI(prompt: string): Promise<{ success: boolean; con
       }
     });
 
-    child.on("error", (err) => {
+    child.on('error', (err) => {
       clearTimeout(timeoutId);
       resolve({
         success: false,
-        content: "",
+        content: '',
         error: `Failed to spawn Claude CLI: ${err.message}`,
       });
     });
@@ -253,14 +244,12 @@ async function executeClaudeCLI(prompt: string): Promise<{ success: boolean; con
  * @param input The brief data to enrich
  * @returns The enriched data or null if enrichment fails
  */
-export async function enrichBriefData(
-  input: EnrichmentInput
-): Promise<EnrichedBriefData | null> {
+export async function enrichBriefData(input: EnrichmentInput): Promise<EnrichedBriefData | null> {
   const { emails, calendarEvents } = input;
 
   // Skip enrichment if no data to analyze
   if (emails.length === 0 && calendarEvents.length === 0) {
-    console.log("[BriefEnrichment] No data to enrich, skipping");
+    console.log('[BriefEnrichment] No data to enrich, skipping');
     return null;
   }
 
@@ -273,20 +262,20 @@ export async function enrichBriefData(
     const response = await executeClaudeCLI(prompt);
 
     if (!response.success) {
-      console.error("[BriefEnrichment] CLI error:", response.error);
+      console.error('[BriefEnrichment] CLI error:', response.error);
       return null;
     }
 
     const enrichedData = parseEnrichmentResponse(response.content);
     if (!enrichedData) {
-      console.error("[BriefEnrichment] Failed to parse enrichment response");
+      console.error('[BriefEnrichment] Failed to parse enrichment response');
       return null;
     }
 
-    console.log("[BriefEnrichment] Successfully enriched brief");
+    console.log('[BriefEnrichment] Successfully enriched brief');
     return enrichedData;
   } catch (error) {
-    console.error("[BriefEnrichment] Error:", error);
+    console.error('[BriefEnrichment] Error:', error);
     // Don't fail the entire brief generation if enrichment fails
     return null;
   }

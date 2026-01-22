@@ -116,7 +116,10 @@ export class GoogleCalendarService {
   /**
    * Fetches events for today's daily brief.
    */
-  async fetchTodaysEvents(timeZone?: string, retryOptions?: RetryOptions): Promise<CalendarEventData[]> {
+  async fetchTodaysEvents(
+    timeZone?: string,
+    retryOptions?: RetryOptions
+  ): Promise<CalendarEventData[]> {
     return this.fetchEvents({
       timeMin: this.getStartOfDay(),
       timeMax: this.getEndOfDay(),
@@ -165,7 +168,9 @@ export class GoogleCalendarService {
   private extractMeetingLink(event: calendar_v3.Schema$Event): string | undefined {
     // Check for Google Meet or other conference data
     if (event.conferenceData?.entryPoints) {
-      const videoEntry = event.conferenceData.entryPoints.find((entry) => entry.entryPointType === 'video');
+      const videoEntry = event.conferenceData.entryPoints.find(
+        (entry) => entry.entryPointType === 'video'
+      );
       if (videoEntry?.uri) {
         return videoEntry.uri;
       }
@@ -297,7 +302,10 @@ export async function fetchUserCalendarEvents(
   integration: GoogleIntegration,
   options?: FetchEventsOptions
 ): Promise<CalendarEventData[]> {
-  const calendarService = await GoogleCalendarService.fromIntegration(integration, options?.retryOptions);
+  const calendarService = await GoogleCalendarService.fromIntegration(
+    integration,
+    options?.retryOptions
+  );
   return calendarService.fetchEvents(options);
 }
 

@@ -34,6 +34,7 @@ The JobSpec is immutable. You must implement exactly what it specifies.
 For each source, you must produce the following in the output directory:
 
 ### 1. Extractor Code
+
 - Source-specific extraction logic
 - Clear separation of:
   - authentication
@@ -47,6 +48,7 @@ Directory: `extractors/<source_id>/`
 ---
 
 ### 2. Tests
+
 - Smoke tests that exercise the extractor
 - Schema validation tests against `tx_v1`
 - At least one failure-path test
@@ -56,6 +58,7 @@ Directory: `extractors/<source_id>/tests/`
 ---
 
 ### 3. Validation Report
+
 - Results of schema validation
 - Invariant checks (dates, currency, dedupe)
 - Summary of test outcomes
@@ -65,7 +68,9 @@ File: `TEST_REPORT.md`
 ---
 
 ### 4. Runbook
+
 Document:
+
 - How the extractor works
 - How authentication is handled
 - How failures are detected
@@ -77,7 +82,9 @@ File: `RUNBOOK.md`
 ---
 
 ### 5. Risks & Limitations
+
 Explicitly document:
+
 - Known brittleness
 - Authentication fragility
 - Rate limits
@@ -89,6 +96,7 @@ File: `RISKS.md`
 ---
 
 ### 6. Sample Output
+
 - A representative sample of normalized transactions
 - Must validate against `tx_v1.schema.json`
 
@@ -97,6 +105,7 @@ File: `sample_output.jsonl`
 ---
 
 ### 7. Schedule Proposal
+
 - Proposed cron or periodic schedule
 - Must exactly match JobSpec cadence
 
@@ -116,6 +125,7 @@ File: `SCHEDULE.json`
 ## Safety Constraints
 
 You MUST NOT:
+
 - Enable schedules
 - Promote artifacts
 - Modify the JobSpec
@@ -123,6 +133,7 @@ You MUST NOT:
 - Expand network access beyond JobSpec constraints
 
 Browser automation:
+
 - Allowed only if explicitly permitted by JobSpec
 - Must be headless-safe
 - Must document failure modes
@@ -132,12 +143,14 @@ Browser automation:
 ## Validation Requirements
 
 Before declaring success:
+
 - All tests must pass
 - Schema validation must pass
 - Sample output must be produced
 - Failure modes must be documented
 
 If validation fails:
+
 - Fix the issue
 - Rerun validation
 - Update reports
@@ -156,6 +169,7 @@ If validation fails:
 ## Success Criteria
 
 You succeed if:
+
 - A human reviewer can safely promote the extractor
 - The extractor can run repeatedly without manual intervention (given its tier)
 - All risks and limitations are explicit
@@ -165,6 +179,7 @@ You succeed if:
 ## Failure Criteria
 
 You have failed if:
+
 - Any required artifact is missing
 - Validation is skipped
 - Behavior deviates from JobSpec

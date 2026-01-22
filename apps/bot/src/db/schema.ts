@@ -1,12 +1,4 @@
-import {
-  pgTable,
-  text,
-  timestamp,
-  jsonb,
-  date,
-  index,
-  boolean,
-} from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, jsonb, date, index, boolean } from 'drizzle-orm/pg-core';
 
 // User table (minimal for joins)
 export const user = pgTable('user', {

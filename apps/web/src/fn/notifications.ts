@@ -1,17 +1,17 @@
-import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
-import { authenticatedMiddleware } from "./middleware";
+import { createServerFn } from '@tanstack/react-start';
+import { z } from 'zod';
+import { authenticatedMiddleware } from './middleware';
 import {
   findUserNotifications,
   countUnreadNotifications,
   markNotificationAsRead,
   markAllNotificationsAsRead,
   findNotificationById,
-} from "~/data-access/notifications";
+} from '~/data-access/notifications';
 
 // Get user's notifications
 export const getNotificationsFn = createServerFn({
-  method: "GET",
+  method: 'GET',
 })
   .inputValidator(
     z.object({
@@ -26,7 +26,7 @@ export const getNotificationsFn = createServerFn({
 
 // Get recent notifications for dropdown (limited to 3)
 export const getRecentNotificationsFn = createServerFn({
-  method: "GET",
+  method: 'GET',
 })
   .middleware([authenticatedMiddleware])
   .handler(async ({ context }) => {
@@ -35,7 +35,7 @@ export const getRecentNotificationsFn = createServerFn({
 
 // Get unread notifications count
 export const getUnreadCountFn = createServerFn({
-  method: "GET",
+  method: 'GET',
 })
   .middleware([authenticatedMiddleware])
   .handler(async ({ context }) => {
@@ -45,11 +45,11 @@ export const getUnreadCountFn = createServerFn({
 
 // Mark notification as read
 export const markAsReadFn = createServerFn({
-  method: "POST",
+  method: 'POST',
 })
   .inputValidator(
     z.object({
-      notificationId: z.string().min(1, "Notification ID is required"),
+      notificationId: z.string().min(1, 'Notification ID is required'),
     })
   )
   .middleware([authenticatedMiddleware])
@@ -57,22 +57,17 @@ export const markAsReadFn = createServerFn({
     const notification = await findNotificationById(data.notificationId);
 
     if (!notification) {
-      throw new Error("Notification not found");
+      throw new Error('Notification not found');
     }
 
     if (notification.userId !== context.userId) {
-      throw new Error(
-        "Unauthorized: You can only mark your own notifications as read"
-      );
+      throw new Error('Unauthorized: You can only mark your own notifications as read');
     }
 
-    const updated = await markNotificationAsRead(
-      data.notificationId,
-      context.userId
-    );
+    const updated = await markNotificationAsRead(data.notificationId, context.userId);
 
     if (!updated) {
-      throw new Error("Failed to mark notification as read");
+      throw new Error('Failed to mark notification as read');
     }
 
     return updated;
@@ -80,7 +75,7 @@ export const markAsReadFn = createServerFn({
 
 // Mark all notifications as read
 export const markAllAsReadFn = createServerFn({
-  method: "POST",
+  method: 'POST',
 })
   .middleware([authenticatedMiddleware])
   .handler(async ({ context }) => {

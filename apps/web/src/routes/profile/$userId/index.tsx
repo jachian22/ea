@@ -1,15 +1,15 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { Home, ArrowLeft, Calendar, Lock, Edit } from "lucide-react";
-import { Page } from "~/components/Page";
-import { AppBreadcrumb } from "~/components/AppBreadcrumb";
-import { UserAvatar } from "~/components/UserAvatar";
-import { Button } from "~/components/ui/button";
-import { Panel, PanelContent } from "~/components/ui/panel";
-import { publicProfileQueryOptions } from "~/queries/profiles";
-import { authClient } from "~/lib/auth-client";
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { useQuery } from '@tanstack/react-query';
+import { Home, ArrowLeft, Calendar, Lock, Edit } from 'lucide-react';
+import { Page } from '~/components/Page';
+import { AppBreadcrumb } from '~/components/AppBreadcrumb';
+import { UserAvatar } from '~/components/UserAvatar';
+import { Button } from '~/components/ui/button';
+import { Panel, PanelContent } from '~/components/ui/panel';
+import { publicProfileQueryOptions } from '~/queries/profiles';
+import { authClient } from '~/lib/auth-client';
 
-export const Route = createFileRoute("/profile/$userId/")({
+export const Route = createFileRoute('/profile/$userId/')({
   loader: async ({ context: { queryClient }, params: { userId } }) => {
     await queryClient.prefetchQuery(publicProfileQueryOptions(userId));
   },
@@ -19,11 +19,7 @@ export const Route = createFileRoute("/profile/$userId/")({
 function Profile() {
   const { userId } = Route.useParams();
   const { data: session } = authClient.useSession();
-  const {
-    data: profileData,
-    isLoading,
-    error,
-  } = useQuery(publicProfileQueryOptions(userId));
+  const { data: profileData, isLoading, error } = useQuery(publicProfileQueryOptions(userId));
 
   const isOwnProfile = session?.user?.id === userId;
 
@@ -48,9 +44,7 @@ function Profile() {
           <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center">
             <Lock className="h-8 w-8 text-muted-foreground" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground">
-            Profile Not Available
-          </h1>
+          <h1 className="text-2xl font-bold text-foreground">Profile Not Available</h1>
           <p className="text-muted-foreground max-w-md mx-auto">
             This profile doesn't exist or is set to private.
           </p>
@@ -72,9 +66,9 @@ function Profile() {
       <div className="space-y-8 max-w-4xl mx-auto">
         <AppBreadcrumb
           items={[
-            { label: "Home", href: "/", icon: Home },
-            { label: "Dashboard", href: "/dashboard" },
-            { label: user.name || "Profile" },
+            { label: 'Home', href: '/', icon: Home },
+            { label: 'Dashboard', href: '/dashboard' },
+            { label: user.name || 'Profile' },
           ]}
         />
 
@@ -100,16 +94,14 @@ function Profile() {
               {/* Name and basic info */}
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
-                  <h1 className="text-3xl font-bold">
-                    {user.name || "Anonymous"}
-                  </h1>
+                  <h1 className="text-3xl font-bold">{user.name || 'Anonymous'}</h1>
                   <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <Calendar className="h-4 w-4" />
-                      Joined{" "}
-                      {new Date(user.createdAt).toLocaleDateString("en-US", {
-                        month: "long",
-                        year: "numeric",
+                      Joined{' '}
+                      {new Date(user.createdAt).toLocaleDateString('en-US', {
+                        month: 'long',
+                        year: 'numeric',
                       })}
                     </span>
                   </div>
@@ -119,10 +111,7 @@ function Profile() {
                   {/* Edit button - only show if viewing own profile */}
                   {isOwnProfile && (
                     <Button asChild variant="outline">
-                      <Link
-                        to="/dashboard/settings"
-                        className="flex items-center gap-2"
-                      >
+                      <Link to="/dashboard/settings" className="flex items-center gap-2">
                         <Edit className="h-4 w-4" />
                         Edit Profile
                       </Link>
@@ -133,9 +122,7 @@ function Profile() {
 
               {/* Bio */}
               {profile?.bio && (
-                <p className="text-foreground/80 leading-relaxed max-w-2xl">
-                  {profile.bio}
-                </p>
+                <p className="text-foreground/80 leading-relaxed max-w-2xl">{profile.bio}</p>
               )}
             </div>
           </PanelContent>

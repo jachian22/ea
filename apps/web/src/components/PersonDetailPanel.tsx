@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { format, formatDistanceToNow } from "date-fns";
+import { useState } from 'react';
+import { format, formatDistanceToNow } from 'date-fns';
 import {
   User,
   Mail,
@@ -16,21 +16,15 @@ import {
   Loader2,
   ChevronRight,
   ExternalLink,
-} from "lucide-react";
-import { Button } from "~/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
-import { Badge } from "~/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { ScrollArea } from "~/components/ui/scroll-area";
-import { Separator } from "~/components/ui/separator";
-import { usePersonContext } from "~/hooks/use-knowledge";
-import type { PersonDomain, RelationType } from "~/db/schema";
+} from 'lucide-react';
+import { Button } from '~/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
+import { Badge } from '~/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
+import { ScrollArea } from '~/components/ui/scroll-area';
+import { Separator } from '~/components/ui/separator';
+import { usePersonContext } from '~/hooks/use-knowledge';
+import type { PersonDomain, RelationType } from '~/db/schema';
 
 interface PersonDetailPanelProps {
   personId: string;
@@ -38,27 +32,27 @@ interface PersonDetailPanelProps {
 }
 
 const DOMAIN_COLORS: Record<PersonDomain, string> = {
-  family: "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300",
-  business: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
-  job: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
-  personal: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
-  other: "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300",
+  family: 'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300',
+  business: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+  job: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+  personal: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
+  other: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300',
 };
 
 const RELATION_LABELS: Record<RelationType, string> = {
-  spouse: "Spouse",
-  child: "Child",
-  parent: "Parent",
-  sibling: "Sibling",
-  friend: "Friend",
-  client: "Client",
-  vendor: "Vendor",
-  colleague: "Colleague",
-  manager: "Manager",
-  report: "Direct Report",
-  investor: "Investor",
-  partner: "Partner",
-  other: "Other",
+  spouse: 'Spouse',
+  child: 'Child',
+  parent: 'Parent',
+  sibling: 'Sibling',
+  friend: 'Friend',
+  client: 'Client',
+  vendor: 'Vendor',
+  colleague: 'Colleague',
+  manager: 'Manager',
+  report: 'Direct Report',
+  investor: 'Investor',
+  partner: 'Partner',
+  other: 'Other',
 };
 
 export function PersonDetailPanel({ personId, onClose }: PersonDetailPanelProps) {
@@ -115,7 +109,10 @@ export function PersonDetailPanel({ personId, onClose }: PersonDetailPanelProps)
                 )}
                 {!person.role && person.company && <span>{person.company}</span>}
                 {person.domain && (
-                  <Badge className={DOMAIN_COLORS[person.domain as PersonDomain]} variant="secondary">
+                  <Badge
+                    className={DOMAIN_COLORS[person.domain as PersonDomain]}
+                    variant="secondary"
+                  >
                     {person.domain}
                   </Badge>
                 )}
@@ -144,7 +141,7 @@ export function PersonDetailPanel({ personId, onClose }: PersonDetailPanelProps)
             </TabsTrigger>
             <TabsTrigger value="commitments">
               Commitments
-              {(commitmentsYouOwe.length + commitmentsTheyOwe.length) > 0 && (
+              {commitmentsYouOwe.length + commitmentsTheyOwe.length > 0 && (
                 <Badge variant="secondary" className="ml-1 h-5 px-1.5">
                   {commitmentsYouOwe.length + commitmentsTheyOwe.length}
                 </Badge>
@@ -218,14 +215,18 @@ export function PersonDetailPanel({ personId, onClose }: PersonDetailPanelProps)
                 <h4 className="text-sm font-medium text-muted-foreground">Interaction History</h4>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="text-center">
-                    <div className="text-2xl font-bold">{interactionStats?.totalInteractions || 0}</div>
+                    <div className="text-2xl font-bold">
+                      {interactionStats?.totalInteractions || 0}
+                    </div>
                     <div className="text-xs text-muted-foreground">Total</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold">
                       {interactionStats?.lastContactAt
-                        ? formatDistanceToNow(new Date(interactionStats.lastContactAt), { addSuffix: true })
-                        : "Never"}
+                        ? formatDistanceToNow(new Date(interactionStats.lastContactAt), {
+                            addSuffix: true,
+                          })
+                        : 'Never'}
                     </div>
                     <div className="text-xs text-muted-foreground">Last Contact</div>
                   </div>
@@ -233,7 +234,7 @@ export function PersonDetailPanel({ personId, onClose }: PersonDetailPanelProps)
                     <div className="text-2xl font-bold capitalize">
                       {interactionStats?.averageFrequencyDays
                         ? `~${interactionStats.averageFrequencyDays}d`
-                        : "—"}
+                        : '—'}
                     </div>
                     <div className="text-xs text-muted-foreground">Avg. Frequency</div>
                   </div>
@@ -320,11 +321,11 @@ interface DossierCommitment {
 function InteractionCard({ interaction }: { interaction: DossierInteraction }) {
   const getIcon = () => {
     switch (interaction.type) {
-      case "email":
+      case 'email':
         return <Mail className="h-4 w-4" />;
-      case "meeting":
+      case 'meeting':
         return <Calendar className="h-4 w-4" />;
-      case "call":
+      case 'call':
         return <Phone className="h-4 w-4" />;
       default:
         return <MessageSquare className="h-4 w-4" />;
@@ -333,14 +334,14 @@ function InteractionCard({ interaction }: { interaction: DossierInteraction }) {
 
   const getTypeLabel = () => {
     switch (interaction.type) {
-      case "email":
-        return "Email";
-      case "meeting":
-        return "Meeting";
-      case "call":
-        return "Call";
-      case "message":
-        return "Message";
+      case 'email':
+        return 'Email';
+      case 'meeting':
+        return 'Meeting';
+      case 'call':
+        return 'Call';
+      case 'message':
+        return 'Message';
       default:
         return interaction.type;
     }
@@ -354,13 +355,11 @@ function InteractionCard({ interaction }: { interaction: DossierInteraction }) {
           <span className="font-medium">{getTypeLabel()}</span>
         </div>
         <span className="text-xs text-muted-foreground">
-          {format(new Date(interaction.occurredAt), "MMM d, yyyy")}
+          {format(new Date(interaction.occurredAt), 'MMM d, yyyy')}
         </span>
       </div>
       {interaction.summary && (
-        <p className="text-sm text-muted-foreground line-clamp-2">
-          {interaction.summary}
-        </p>
+        <p className="text-sm text-muted-foreground line-clamp-2">{interaction.summary}</p>
       )}
     </div>
   );
@@ -368,27 +367,29 @@ function InteractionCard({ interaction }: { interaction: DossierInteraction }) {
 
 function CommitmentCard({ commitment }: { commitment: DossierCommitment }) {
   const isOverdue =
-    commitment.dueDate && new Date(commitment.dueDate) < new Date() && commitment.status === "pending";
+    commitment.dueDate &&
+    new Date(commitment.dueDate) < new Date() &&
+    commitment.status === 'pending';
 
   return (
     <div
       className={`rounded-md border p-3 space-y-2 ${
-        isOverdue ? "border-red-300 bg-red-50 dark:border-red-800 dark:bg-red-900/20" : ""
+        isOverdue ? 'border-red-300 bg-red-50 dark:border-red-800 dark:bg-red-900/20' : ''
       }`}
     >
       <div className="flex items-start justify-between gap-2">
         <p className="text-sm flex-1">{commitment.description}</p>
         <Badge
-          variant={commitment.status === "completed" ? "default" : "outline"}
-          className={isOverdue ? "bg-red-100 text-red-800 border-red-300" : ""}
+          variant={commitment.status === 'completed' ? 'default' : 'outline'}
+          className={isOverdue ? 'bg-red-100 text-red-800 border-red-300' : ''}
         >
-          {isOverdue ? "Overdue" : commitment.status}
+          {isOverdue ? 'Overdue' : commitment.status}
         </Badge>
       </div>
       {commitment.dueDate && (
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
           <Clock className="h-3 w-3" />
-          Due {format(new Date(commitment.dueDate), "MMM d, yyyy")}
+          Due {format(new Date(commitment.dueDate), 'MMM d, yyyy')}
         </div>
       )}
     </div>

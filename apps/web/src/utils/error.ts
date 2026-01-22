@@ -12,17 +12,21 @@ export function formatValidationErrors(errorMessage: string): string {
   try {
     // Try to parse the error message as JSON array
     const errors: ValidationError[] = JSON.parse(errorMessage);
-    
+
     if (!Array.isArray(errors) || errors.length === 0) {
       return errorMessage;
     }
 
     // Format each error with field name and message
-    const formattedErrors = errors.map(error => {
-      const fieldName = error.path.length > 0 
-        ? error.path.join('.').replace(/([A-Z])/g, ' $1').toLowerCase()
-        : 'field';
-      
+    const formattedErrors = errors.map((error) => {
+      const fieldName =
+        error.path.length > 0
+          ? error.path
+              .join('.')
+              .replace(/([A-Z])/g, ' $1')
+              .toLowerCase()
+          : 'field';
+
       return `${fieldName}: ${error.message}`;
     });
 
@@ -40,14 +44,14 @@ export function getErrorMessage(error: unknown): string {
   if (typeof error === 'string') {
     return formatValidationErrors(error);
   }
-  
+
   if (error instanceof Error) {
     return formatValidationErrors(error.message);
   }
-  
+
   if (error && typeof error === 'object' && 'message' in error) {
     return formatValidationErrors(String(error.message));
   }
-  
+
   return 'An unexpected error occurred. Please try again.';
 }

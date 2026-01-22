@@ -1,19 +1,19 @@
-import { google, type calendar_v3 } from "googleapis";
-import type { Auth } from "googleapis";
-import type { CalendarEventData, GoogleIntegration } from "~/db/schema";
+import { google, type calendar_v3 } from 'googleapis';
+import type { Auth } from 'googleapis';
+import type { CalendarEventData, GoogleIntegration } from '~/db/schema';
 import {
   createAuthenticatedClient,
   GoogleAuthError,
   GoogleAuthErrorCodes,
   isIntegrationValid,
-} from "~/lib/google-client";
+} from '~/lib/google-client';
 import {
   withRetry,
   createGoogleAPIRetryChecker,
   createRetryLogger,
   GoogleAPIErrorCheckers,
   type RetryOptions,
-} from "~/utils/retry";
+} from '~/utils/retry';
 
 /**
  * Configuration options for fetching calendar events
@@ -30,7 +30,7 @@ export interface FetchEventsOptions {
   /** Whether to include single events from recurring series (default: true) */
   singleEvents?: boolean;
   /** Order by start time or updated time (default: startTime) */
-  orderBy?: "startTime" | "updated";
+  orderBy?: 'startTime' | 'updated';
   /** Retry configuration (default: 3 retries with exponential backoff) */
   retryOptions?: RetryOptions;
 }
@@ -44,7 +44,7 @@ const DEFAULT_CALENDAR_RETRY_OPTIONS: RetryOptions = {
   maxDelayMs: 10000,
   backoffMultiplier: 2,
   isRetryable: createGoogleAPIRetryChecker(),
-  onRetry: createRetryLogger("GoogleCalendarService"),
+  onRetry: createRetryLogger('GoogleCalendarService'),
 };
 
 /**
@@ -62,12 +62,8 @@ export class GoogleCalendarService {
   private userEmail: string;
   private retryOptions: RetryOptions;
 
-  constructor(
-    auth: Auth.OAuth2Client,
-    userEmail: string,
-    retryOptions: RetryOptions = {}
-  ) {
-    this.calendar = google.calendar({ version: "v3", auth });
+  constructor(auth: Auth.OAuth2Client, userEmail: string, retryOptions: RetryOptions = {}) {
+    this.calendar = google.calendar({ version: 'v3', auth });
     this.userEmail = userEmail;
     this.retryOptions = { ...DEFAULT_CALENDAR_RETRY_OPTIONS, ...retryOptions };
   }
@@ -86,7 +82,7 @@ export class GoogleCalendarService {
   ): Promise<GoogleCalendarService> {
     if (!isIntegrationValid(integration)) {
       throw new GoogleAuthError(
-        "Google integration is not valid or connected",
+        'Google integration is not valid or connected',
         GoogleAuthErrorCodes.INTEGRATION_DISCONNECTED
       );
     }
@@ -113,7 +109,7 @@ export class GoogleCalendarService {
       timeMax = this.getEndOfDay(),
       timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone,
       singleEvents = true,
-      orderBy = "startTime",
+      orderBy = 'startTime',
       retryOptions,
     } = options;
 
@@ -121,20 +117,17 @@ export class GoogleCalendarService {
     const effectiveRetryOptions = { ...this.retryOptions, ...retryOptions };
 
     try {
-      const response = await withRetry(
-        async () => {
-          return this.calendar.events.list({
-            calendarId: "primary",
-            timeMin: timeMin.toISOString(),
-            timeMax: timeMax.toISOString(),
-            timeZone,
-            singleEvents,
-            orderBy,
-            maxResults,
-          });
-        },
-        effectiveRetryOptions
-      );
+      const response = await withRetry(async () => {
+        return this.calendar.events.list({
+          calendarId: 'primary',
+          timeMin: timeMin.toISOString(),
+          timeMax: timeMax.toISOString(),
+          timeZone,
+          singleEvents,
+          orderBy,
+          maxResults,
+        });
+      }, effectiveRetryOptions);
 
       const events = response.data.items || [];
 
@@ -160,7 +153,7 @@ export class GoogleCalendarService {
       timeMax: this.getEndOfDay(),
       timeZone,
       singleEvents: true,
-      orderBy: "startTime",
+      orderBy: 'startTime',
       retryOptions,
     });
   }
@@ -193,18 +186,12 @@ export class GoogleCalendarService {
    * @param event The raw Google Calendar event
    * @returns Transformed CalendarEventData object
    */
-  private transformToCalendarEventData(
-    event: calendar_v3.Schema$Event
-  ): CalendarEventData {
+  private transformToCalendarEventData(event: calendar_v3.Schema$Event): CalendarEventData {
     const isAllDay = Boolean(event.start?.date && !event.start?.dateTime);
 
     // Handle all-day events (date only) vs timed events (dateTime)
-    const startTime = isAllDay
-      ? event.start?.date || ""
-      : event.start?.dateTime || "";
-    const endTime = isAllDay
-      ? event.end?.date || ""
-      : event.end?.dateTime || "";
+    const startTime = isAllDay ? event.start?.date || '' : event.start?.dateTime || '';
+    const endTime = isAllDay ? event.end?.date || '' : event.end?.dateTime || '';
 
     // Extract meeting link from various sources
     const meetingLink = this.extractMeetingLink(event);
@@ -213,8 +200,8 @@ export class GoogleCalendarService {
     const attendees = this.transformAttendees(event.attendees);
 
     return {
-      id: event.id || "",
-      title: event.summary || "(No Title)",
+      id: event.id || '',
+      title: event.summary || '(No Title)',
       description: event.description || undefined,
       startTime,
       endTime,
@@ -223,7 +210,7 @@ export class GoogleCalendarService {
       attendees: attendees.length > 0 ? attendees : undefined,
       isAllDay,
       // "transparent" = free, "opaque" = busy (default)
-      transparency: (event.transparency as "opaque" | "transparent") || "opaque",
+      transparency: (event.transparency as 'opaque' | 'transparent') || 'opaque',
     };
   }
 
@@ -238,7 +225,7 @@ export class GoogleCalendarService {
     // Check for Google Meet or other conference data
     if (event.conferenceData?.entryPoints) {
       const videoEntry = event.conferenceData.entryPoints.find(
-        (entry) => entry.entryPointType === "video"
+        (entry) => entry.entryPointType === 'video'
       );
       if (videoEntry?.uri) {
         return videoEntry.uri;
@@ -321,12 +308,16 @@ export class GoogleCalendarService {
     }
 
     // Check for specific Google API errors
-    const apiError = error as { code?: number; message?: string; errors?: Array<{ reason?: string }> };
+    const apiError = error as {
+      code?: number;
+      message?: string;
+      errors?: Array<{ reason?: string }>;
+    };
 
     // Authentication failed (401)
     if (apiError.code === 401) {
       return new GoogleAuthError(
-        "Calendar authentication failed. Please reconnect your Google account.",
+        'Calendar authentication failed. Please reconnect your Google account.',
         GoogleAuthErrorCodes.INVALID_CREDENTIALS,
         error
       );
@@ -337,14 +328,14 @@ export class GoogleCalendarService {
       // Check if it's a quota/rate limit issue vs permission issue
       if (GoogleAPIErrorCheckers.isQuotaExceededError(error)) {
         return new GoogleAuthError(
-          "Calendar API quota exceeded. Please try again later.",
+          'Calendar API quota exceeded. Please try again later.',
           GoogleAuthErrorCodes.API_ERROR,
           error
         );
       }
 
       return new GoogleAuthError(
-        "Access to Calendar was denied. Please check your permissions and reconnect your Google account.",
+        'Access to Calendar was denied. Please check your permissions and reconnect your Google account.',
         GoogleAuthErrorCodes.INVALID_CREDENTIALS,
         error
       );
@@ -353,7 +344,7 @@ export class GoogleCalendarService {
     // Not found (404)
     if (apiError.code === 404) {
       return new GoogleAuthError(
-        "Calendar not found. Please check your calendar settings.",
+        'Calendar not found. Please check your calendar settings.',
         GoogleAuthErrorCodes.API_ERROR,
         error
       );
@@ -362,7 +353,7 @@ export class GoogleCalendarService {
     // Rate limited (429)
     if (apiError.code === 429) {
       return new GoogleAuthError(
-        "Calendar API rate limit exceeded. Please try again in a few minutes.",
+        'Calendar API rate limit exceeded. Please try again in a few minutes.',
         GoogleAuthErrorCodes.API_ERROR,
         error
       );
@@ -380,7 +371,7 @@ export class GoogleCalendarService {
     // Network errors
     if (GoogleAPIErrorCheckers.isNetworkError(error)) {
       return new GoogleAuthError(
-        "Network error while connecting to Calendar. Please check your connection and try again.",
+        'Network error while connecting to Calendar. Please check your connection and try again.',
         GoogleAuthErrorCodes.API_ERROR,
         error
       );
@@ -388,7 +379,7 @@ export class GoogleCalendarService {
 
     // Generic API error
     return new GoogleAuthError(
-      `Calendar API error: ${apiError.message || "Unknown error"}`,
+      `Calendar API error: ${apiError.message || 'Unknown error'}`,
       GoogleAuthErrorCodes.API_ERROR,
       error
     );
@@ -437,12 +428,9 @@ export async function fetchEventsForDailyBrief(
   timeZone?: string,
   retryOptions?: RetryOptions
 ): Promise<CalendarEventData[]> {
-  const calendarService = await GoogleCalendarService.fromIntegration(
-    integration,
-    retryOptions
-  );
+  const calendarService = await GoogleCalendarService.fromIntegration(integration, retryOptions);
   return calendarService.fetchTodaysEvents(timeZone, retryOptions);
 }
 
 // Re-export retry utilities for consumers who want to customize retry behavior
-export { type RetryOptions } from "~/utils/retry";
+export { type RetryOptions } from '~/utils/retry';

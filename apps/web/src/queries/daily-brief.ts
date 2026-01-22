@@ -1,10 +1,10 @@
-import { queryOptions } from "@tanstack/react-query";
+import { queryOptions } from '@tanstack/react-query';
 import {
   getLatestBriefFn,
   getTodaysBriefFn,
   getBriefHistoryFn,
   getBriefByDateFn,
-} from "~/fn/daily-brief";
+} from '~/fn/daily-brief';
 
 /**
  * Query options for fetching the latest daily brief.
@@ -12,7 +12,7 @@ import {
  */
 export const latestBriefQueryOptions = () =>
   queryOptions({
-    queryKey: ["daily-brief", "latest"],
+    queryKey: ['daily-brief', 'latest'],
     queryFn: () => getLatestBriefFn(),
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -23,7 +23,7 @@ export const latestBriefQueryOptions = () =>
  */
 export const todaysBriefQueryOptions = () =>
   queryOptions({
-    queryKey: ["daily-brief", "today"],
+    queryKey: ['daily-brief', 'today'],
     queryFn: () => getTodaysBriefFn(),
     staleTime: 1000 * 60 * 2, // 2 minutes - check more frequently for today's brief
   });
@@ -36,7 +36,7 @@ export const todaysBriefQueryOptions = () =>
  */
 export const briefHistoryQueryOptions = (limit?: number) =>
   queryOptions({
-    queryKey: ["daily-brief", "history", { limit }],
+    queryKey: ['daily-brief', 'history', { limit }],
     queryFn: () => getBriefHistoryFn({ data: { limit } }),
     staleTime: 1000 * 60 * 10, // 10 minutes - history changes less frequently
   });
@@ -48,7 +48,7 @@ export const briefHistoryQueryOptions = (limit?: number) =>
  */
 export const briefByDateQueryOptions = (briefDate: string) =>
   queryOptions({
-    queryKey: ["daily-brief", "date", briefDate],
+    queryKey: ['daily-brief', 'date', briefDate],
     queryFn: () => getBriefByDateFn({ data: { briefDate } }),
     staleTime: 1000 * 60 * 30, // 30 minutes - past briefs are immutable
   });

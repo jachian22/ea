@@ -1,5 +1,5 @@
-import { eq, and, desc, or } from "drizzle-orm";
-import { database } from "~/db";
+import { eq, and, desc, or } from 'drizzle-orm';
+import { database } from '~/db';
 import {
   backfillJob,
   type BackfillJob,
@@ -8,7 +8,7 @@ import {
   type BackfillJobStatus,
   type BackfillSourceType,
   type BackfillProgress,
-} from "~/db/schema";
+} from '~/db/schema';
 
 // ============================================================================
 // Backfill Job CRUD
@@ -17,9 +17,7 @@ import {
 /**
  * Create a new backfill job
  */
-export async function createBackfillJob(
-  data: CreateBackfillJobData
-): Promise<BackfillJob> {
+export async function createBackfillJob(data: CreateBackfillJobData): Promise<BackfillJob> {
   const [newJob] = await database
     .insert(backfillJob)
     .values({
@@ -34,14 +32,8 @@ export async function createBackfillJob(
 /**
  * Find backfill job by ID
  */
-export async function findBackfillJobById(
-  id: string
-): Promise<BackfillJob | null> {
-  const [result] = await database
-    .select()
-    .from(backfillJob)
-    .where(eq(backfillJob.id, id))
-    .limit(1);
+export async function findBackfillJobById(id: string): Promise<BackfillJob | null> {
+  const [result] = await database.select().from(backfillJob).where(eq(backfillJob.id, id)).limit(1);
 
   return result || null;
 }
@@ -82,9 +74,7 @@ export async function findBackfillJobsByStatus(
 /**
  * Find the latest backfill job for a user
  */
-export async function findLatestBackfillJob(
-  userId: string
-): Promise<BackfillJob | null> {
+export async function findLatestBackfillJob(userId: string): Promise<BackfillJob | null> {
   const [result] = await database
     .select()
     .from(backfillJob)
@@ -98,16 +88,14 @@ export async function findLatestBackfillJob(
 /**
  * Find active (running or pending) backfill job for a user
  */
-export async function findActiveBackfillJob(
-  userId: string
-): Promise<BackfillJob | null> {
+export async function findActiveBackfillJob(userId: string): Promise<BackfillJob | null> {
   const [result] = await database
     .select()
     .from(backfillJob)
     .where(
       and(
         eq(backfillJob.userId, userId),
-        or(eq(backfillJob.status, "pending"), eq(backfillJob.status, "running"))
+        or(eq(backfillJob.status, 'pending'), eq(backfillJob.status, 'running'))
       )
     )
     .limit(1);
@@ -122,7 +110,7 @@ export async function findPendingBackfillJobs(): Promise<BackfillJob[]> {
   const results = await database
     .select()
     .from(backfillJob)
-    .where(eq(backfillJob.status, "pending"))
+    .where(eq(backfillJob.status, 'pending'))
     .orderBy(backfillJob.createdAt);
 
   return results;
@@ -135,7 +123,7 @@ export async function findRunningBackfillJobs(): Promise<BackfillJob[]> {
   const results = await database
     .select()
     .from(backfillJob)
-    .where(eq(backfillJob.status, "running"))
+    .where(eq(backfillJob.status, 'running'))
     .orderBy(backfillJob.createdAt);
 
   return results;
@@ -161,10 +149,7 @@ export async function updateBackfillJob(
  * Delete a backfill job
  */
 export async function deleteBackfillJob(id: string): Promise<boolean> {
-  const [deleted] = await database
-    .delete(backfillJob)
-    .where(eq(backfillJob.id, id))
-    .returning();
+  const [deleted] = await database.delete(backfillJob).where(eq(backfillJob.id, id)).returning();
 
   return deleted !== undefined;
 }
@@ -176,11 +161,9 @@ export async function deleteBackfillJob(id: string): Promise<boolean> {
 /**
  * Start a backfill job (set to running)
  */
-export async function startBackfillJob(
-  id: string
-): Promise<BackfillJob | null> {
+export async function startBackfillJob(id: string): Promise<BackfillJob | null> {
   return updateBackfillJob(id, {
-    status: "running",
+    status: 'running',
     startedAt: new Date(),
   });
 }
@@ -188,22 +171,18 @@ export async function startBackfillJob(
 /**
  * Pause a backfill job
  */
-export async function pauseBackfillJob(
-  id: string
-): Promise<BackfillJob | null> {
+export async function pauseBackfillJob(id: string): Promise<BackfillJob | null> {
   return updateBackfillJob(id, {
-    status: "paused",
+    status: 'paused',
   });
 }
 
 /**
  * Resume a paused backfill job
  */
-export async function resumeBackfillJob(
-  id: string
-): Promise<BackfillJob | null> {
+export async function resumeBackfillJob(id: string): Promise<BackfillJob | null> {
   return updateBackfillJob(id, {
-    status: "running",
+    status: 'running',
   });
 }
 
@@ -219,7 +198,7 @@ export async function completeBackfillJob(
   }
 ): Promise<BackfillJob | null> {
   return updateBackfillJob(id, {
-    status: "completed",
+    status: 'completed',
     completedAt: new Date(),
     personsCreated: stats?.personsCreated,
     interactionsCreated: stats?.interactionsCreated,
@@ -230,12 +209,9 @@ export async function completeBackfillJob(
 /**
  * Fail a backfill job
  */
-export async function failBackfillJob(
-  id: string,
-  error: string
-): Promise<BackfillJob | null> {
+export async function failBackfillJob(id: string, error: string): Promise<BackfillJob | null> {
   return updateBackfillJob(id, {
-    status: "failed",
+    status: 'failed',
     error,
     completedAt: new Date(),
   });
@@ -281,10 +257,7 @@ export async function incrementBackfillJobProgress(
 /**
  * Set backfill job total count
  */
-export async function setBackfillJobTotal(
-  id: string,
-  total: number
-): Promise<BackfillJob | null> {
+export async function setBackfillJobTotal(id: string, total: number): Promise<BackfillJob | null> {
   const job = await findBackfillJobById(id);
   if (!job) return null;
 
@@ -317,12 +290,10 @@ export async function incrementBackfillStats(
     updates.personsCreated = (job.personsCreated || 0) + stats.personsCreated;
   }
   if (stats.interactionsCreated) {
-    updates.interactionsCreated =
-      (job.interactionsCreated || 0) + stats.interactionsCreated;
+    updates.interactionsCreated = (job.interactionsCreated || 0) + stats.interactionsCreated;
   }
   if (stats.commitmentsDetected) {
-    updates.commitmentsDetected =
-      (job.commitmentsDetected || 0) + stats.commitmentsDetected;
+    updates.commitmentsDetected = (job.commitmentsDetected || 0) + stats.commitmentsDetected;
   }
 
   return updateBackfillJob(id, updates);
@@ -355,7 +326,7 @@ export async function createBackfillJobForUser(
     sourceType,
     startDate,
     endDate,
-    status: "pending",
+    status: 'pending',
     progress: { processed: 0, total: 0 },
   });
 }

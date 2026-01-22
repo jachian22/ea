@@ -1,4 +1,4 @@
-import type { EmailData } from "~/db/schema";
+import type { EmailData } from '~/db/schema';
 
 /**
  * Email analysis result with importance score and categorization
@@ -22,19 +22,19 @@ export interface ImportanceSignal {
 }
 
 export type SignalType =
-  | "gmail_important"
-  | "gmail_starred"
-  | "urgent_keyword"
-  | "action_keyword"
-  | "time_sensitive"
-  | "direct_address"
-  | "reply_expected"
-  | "automated_sender"
-  | "promotional"
-  | "social"
-  | "unread"
-  | "vip_sender"
-  | "meeting_related";
+  | 'gmail_important'
+  | 'gmail_starred'
+  | 'urgent_keyword'
+  | 'action_keyword'
+  | 'time_sensitive'
+  | 'direct_address'
+  | 'reply_expected'
+  | 'automated_sender'
+  | 'promotional'
+  | 'social'
+  | 'unread'
+  | 'vip_sender'
+  | 'meeting_related';
 
 /**
  * Grouped emails by their action status
@@ -68,104 +68,104 @@ export interface EmailAnalysisSummary {
  * Keywords that suggest urgency in subject lines
  */
 const URGENT_KEYWORDS = [
-  "urgent",
-  "asap",
-  "immediately",
-  "critical",
-  "emergency",
-  "time-sensitive",
-  "deadline",
-  "eod",
-  "end of day",
-  "priority",
-  "important",
+  'urgent',
+  'asap',
+  'immediately',
+  'critical',
+  'emergency',
+  'time-sensitive',
+  'deadline',
+  'eod',
+  'end of day',
+  'priority',
+  'important',
 ] as const;
 
 /**
  * Keywords that suggest an action is needed
  */
 const ACTION_KEYWORDS = [
-  "action required",
-  "action needed",
-  "please review",
-  "please respond",
-  "need your",
-  "waiting for",
-  "awaiting your",
-  "follow up",
-  "follow-up",
-  "reminder",
-  "response needed",
-  "approval needed",
-  "sign off",
-  "sign-off",
-  "feedback",
-  "input needed",
+  'action required',
+  'action needed',
+  'please review',
+  'please respond',
+  'need your',
+  'waiting for',
+  'awaiting your',
+  'follow up',
+  'follow-up',
+  'reminder',
+  'response needed',
+  'approval needed',
+  'sign off',
+  'sign-off',
+  'feedback',
+  'input needed',
 ] as const;
 
 /**
  * Keywords that suggest time sensitivity
  */
 const TIME_SENSITIVE_KEYWORDS = [
-  "today",
-  "tomorrow",
-  "this week",
-  "by friday",
-  "by monday",
-  "by end of",
-  "expires",
-  "expiring",
-  "last chance",
-  "final notice",
-  "overdue",
+  'today',
+  'tomorrow',
+  'this week',
+  'by friday',
+  'by monday',
+  'by end of',
+  'expires',
+  'expiring',
+  'last chance',
+  'final notice',
+  'overdue',
 ] as const;
 
 /**
  * Keywords that suggest meeting-related content
  */
 const MEETING_KEYWORDS = [
-  "meeting",
-  "calendar",
-  "invite",
-  "scheduled",
-  "call",
-  "zoom",
-  "teams",
-  "google meet",
-  "agenda",
-  "reschedule",
-  "cancel meeting",
+  'meeting',
+  'calendar',
+  'invite',
+  'scheduled',
+  'call',
+  'zoom',
+  'teams',
+  'google meet',
+  'agenda',
+  'reschedule',
+  'cancel meeting',
 ] as const;
 
 /**
  * Patterns for automated/no-reply senders
  */
 const AUTOMATED_SENDER_PATTERNS = [
-  "noreply",
-  "no-reply",
-  "donotreply",
-  "do-not-reply",
-  "notifications",
-  "notification",
-  "mailer-daemon",
-  "postmaster",
-  "automated",
-  "auto-",
-  "newsletter",
-  "digest",
-  "updates@",
-  "info@",
-  "support@",
-  "help@",
-  "feedback@",
-  "survey@",
-  "marketing@",
-  "promo@",
-  "deals@",
-  "sales@",
-  "billing@",
-  "calendar-notification@google.com",
-  "calendar@google.com",
+  'noreply',
+  'no-reply',
+  'donotreply',
+  'do-not-reply',
+  'notifications',
+  'notification',
+  'mailer-daemon',
+  'postmaster',
+  'automated',
+  'auto-',
+  'newsletter',
+  'digest',
+  'updates@',
+  'info@',
+  'support@',
+  'help@',
+  'feedback@',
+  'survey@',
+  'marketing@',
+  'promo@',
+  'deals@',
+  'sales@',
+  'billing@',
+  'calendar-notification@google.com',
+  'calendar@google.com',
 ] as const;
 
 /**
@@ -304,13 +304,13 @@ export class EmailAnalyzer {
 
     for (const analysis of analyses) {
       switch (analysis.email.actionStatus) {
-        case "needs_response":
+        case 'needs_response':
           grouped.needsResponse.push(analysis);
           break;
-        case "awaiting_reply":
+        case 'awaiting_reply':
           grouped.awaitingReply.push(analysis);
           break;
-        case "fyi":
+        case 'fyi':
           grouped.fyi.push(analysis);
           break;
         default:
@@ -353,25 +353,25 @@ export class EmailAnalyzer {
       }
 
       switch (email.importance) {
-        case "high":
+        case 'high':
           summary.highImportance++;
           break;
-        case "medium":
+        case 'medium':
           summary.mediumImportance++;
           break;
-        case "low":
+        case 'low':
           summary.lowImportance++;
           break;
       }
 
       switch (email.actionStatus) {
-        case "needs_response":
+        case 'needs_response':
           summary.needsResponse++;
           break;
-        case "awaiting_reply":
+        case 'awaiting_reply':
           summary.awaitingReply++;
           break;
-        case "fyi":
+        case 'fyi':
           summary.fyi++;
           break;
       }
@@ -392,37 +392,37 @@ export class EmailAnalyzer {
     const labelSet = new Set(labels.map((l) => l.toUpperCase()));
 
     // Check for Gmail's IMPORTANT label
-    if (labelSet.has("IMPORTANT")) {
+    if (labelSet.has('IMPORTANT')) {
       signals.push({
-        type: "gmail_important",
-        description: "Marked as important by Gmail",
+        type: 'gmail_important',
+        description: 'Marked as important by Gmail',
         weight: SIGNAL_WEIGHTS.gmail_important,
       });
     }
 
     // Check for starred emails
-    if (labelSet.has("STARRED")) {
+    if (labelSet.has('STARRED')) {
       signals.push({
-        type: "gmail_starred",
-        description: "Starred by user",
+        type: 'gmail_starred',
+        description: 'Starred by user',
         weight: SIGNAL_WEIGHTS.gmail_starred,
       });
     }
 
     // Check for promotional category
-    if (labelSet.has("CATEGORY_PROMOTIONS") || labelSet.has("PROMOTIONS")) {
+    if (labelSet.has('CATEGORY_PROMOTIONS') || labelSet.has('PROMOTIONS')) {
       signals.push({
-        type: "promotional",
-        description: "Promotional email",
+        type: 'promotional',
+        description: 'Promotional email',
         weight: SIGNAL_WEIGHTS.promotional,
       });
     }
 
     // Check for social category
-    if (labelSet.has("CATEGORY_SOCIAL") || labelSet.has("SOCIAL")) {
+    if (labelSet.has('CATEGORY_SOCIAL') || labelSet.has('SOCIAL')) {
       signals.push({
-        type: "social",
-        description: "Social notification",
+        type: 'social',
+        description: 'Social notification',
         weight: SIGNAL_WEIGHTS.social,
       });
     }
@@ -435,48 +435,40 @@ export class EmailAnalyzer {
     const textToAnalyze = `${email.subject} ${email.snippet}`.toLowerCase();
 
     // Check for urgent keywords
-    const urgentMatch = URGENT_KEYWORDS.find((keyword) =>
-      textToAnalyze.includes(keyword)
-    );
+    const urgentMatch = URGENT_KEYWORDS.find((keyword) => textToAnalyze.includes(keyword));
     if (urgentMatch) {
       signals.push({
-        type: "urgent_keyword",
+        type: 'urgent_keyword',
         description: `Contains urgent indicator: "${urgentMatch}"`,
         weight: SIGNAL_WEIGHTS.urgent_keyword,
       });
     }
 
     // Check for action keywords
-    const actionMatch = ACTION_KEYWORDS.find((keyword) =>
-      textToAnalyze.includes(keyword)
-    );
+    const actionMatch = ACTION_KEYWORDS.find((keyword) => textToAnalyze.includes(keyword));
     if (actionMatch) {
       signals.push({
-        type: "action_keyword",
+        type: 'action_keyword',
         description: `Contains action request: "${actionMatch}"`,
         weight: SIGNAL_WEIGHTS.action_keyword,
       });
     }
 
     // Check for time-sensitive keywords
-    const timeMatch = TIME_SENSITIVE_KEYWORDS.find((keyword) =>
-      textToAnalyze.includes(keyword)
-    );
+    const timeMatch = TIME_SENSITIVE_KEYWORDS.find((keyword) => textToAnalyze.includes(keyword));
     if (timeMatch) {
       signals.push({
-        type: "time_sensitive",
+        type: 'time_sensitive',
         description: `Time-sensitive: "${timeMatch}"`,
         weight: SIGNAL_WEIGHTS.time_sensitive,
       });
     }
 
     // Check for meeting-related keywords
-    const meetingMatch = MEETING_KEYWORDS.find((keyword) =>
-      textToAnalyze.includes(keyword)
-    );
+    const meetingMatch = MEETING_KEYWORDS.find((keyword) => textToAnalyze.includes(keyword));
     if (meetingMatch) {
       signals.push({
-        type: "meeting_related",
+        type: 'meeting_related',
         description: `Meeting-related: "${meetingMatch}"`,
         weight: SIGNAL_WEIGHTS.meeting_related,
       });
@@ -492,7 +484,7 @@ export class EmailAnalyzer {
     // Check for VIP senders
     if (this.vipSenders.has(senderEmail)) {
       signals.push({
-        type: "vip_sender",
+        type: 'vip_sender',
         description: `VIP sender: ${email.from.name || senderEmail}`,
         weight: SIGNAL_WEIGHTS.vip_sender,
       });
@@ -508,7 +500,7 @@ export class EmailAnalyzer {
     );
     if (automatedMatch) {
       signals.push({
-        type: "automated_sender",
+        type: 'automated_sender',
         description: `Automated sender: ${email.from.email}`,
         weight: SIGNAL_WEIGHTS.automated_sender,
       });
@@ -518,14 +510,11 @@ export class EmailAnalyzer {
   /**
    * Analyzes read status.
    */
-  private analyzeReadStatus(
-    email: EmailData,
-    signals: ImportanceSignal[]
-  ): void {
+  private analyzeReadStatus(email: EmailData, signals: ImportanceSignal[]): void {
     if (!email.isRead) {
       signals.push({
-        type: "unread",
-        description: "Unread email",
+        type: 'unread',
+        description: 'Unread email',
         weight: SIGNAL_WEIGHTS.unread,
       });
     }
@@ -534,27 +523,24 @@ export class EmailAnalyzer {
   /**
    * Analyzes recipients to determine if user is directly addressed.
    */
-  private analyzeRecipients(
-    email: EmailData,
-    signals: ImportanceSignal[]
-  ): void {
+  private analyzeRecipients(email: EmailData, signals: ImportanceSignal[]): void {
     const isDirectlyAddressed = email.to.some(
       (recipient) => recipient.email.toLowerCase() === this.userEmail
     );
 
     if (isDirectlyAddressed) {
       signals.push({
-        type: "direct_address",
-        description: "Directly addressed to you",
+        type: 'direct_address',
+        description: 'Directly addressed to you',
         weight: SIGNAL_WEIGHTS.direct_address,
       });
     }
 
     // Check if this looks like a reply thread (Re: in subject)
-    if (email.subject.toLowerCase().startsWith("re:")) {
+    if (email.subject.toLowerCase().startsWith('re:')) {
       signals.push({
-        type: "reply_expected",
-        description: "Part of a reply thread",
+        type: 'reply_expected',
+        description: 'Part of a reply thread',
         weight: SIGNAL_WEIGHTS.reply_expected,
       });
     }
@@ -604,10 +590,10 @@ export function analyzeEmailsForBrief(
  * @param score The analysis score (0-100)
  * @returns The calculated importance level
  */
-export function scoreToImportance(score: number): "high" | "medium" | "low" {
-  if (score >= 70) return "high";
-  if (score >= 40) return "medium";
-  return "low";
+export function scoreToImportance(score: number): 'high' | 'medium' | 'low' {
+  if (score >= 70) return 'high';
+  if (score >= 40) return 'medium';
+  return 'low';
 }
 
 /**
@@ -622,11 +608,7 @@ export function getTopPriorityEmails(
   limit: number = 5
 ): EmailAnalysis[] {
   return analyses
-    .filter(
-      (a) =>
-        a.email.actionStatus === "needs_response" ||
-        a.email.importance === "high"
-    )
+    .filter((a) => a.email.actionStatus === 'needs_response' || a.email.importance === 'high')
     .sort((a, b) => b.score - a.score)
     .slice(0, limit);
 }
@@ -638,9 +620,7 @@ export function getTopPriorityEmails(
  * @returns True if there are urgent emails
  */
 export function hasUrgentEmails(analyses: EmailAnalysis[]): boolean {
-  return analyses.some(
-    (a) => a.score > 80 && a.email.actionStatus === "needs_response"
-  );
+  return analyses.some((a) => a.score > 80 && a.email.actionStatus === 'needs_response');
 }
 
 /**
@@ -652,11 +632,11 @@ export function hasUrgentEmails(analyses: EmailAnalysis[]): boolean {
 export function formatEmailForBrief(analysis: EmailAnalysis): string {
   const { email, score, signals } = analysis;
   const fromDisplay = email.from.name || email.from.email;
-  const importanceIndicator = score >= 70 ? "!!!" : score >= 40 ? "!!" : "!";
+  const importanceIndicator = score >= 70 ? '!!!' : score >= 40 ? '!!' : '!';
 
   let summary = `${importanceIndicator} From: ${fromDisplay}\n`;
   summary += `   Subject: ${email.subject}\n`;
-  summary += `   ${email.snippet.slice(0, 100)}${email.snippet.length > 100 ? "..." : ""}\n`;
+  summary += `   ${email.snippet.slice(0, 100)}${email.snippet.length > 100 ? '...' : ''}\n`;
 
   // Add key signals
   const keySignals = signals
@@ -665,7 +645,7 @@ export function formatEmailForBrief(analysis: EmailAnalysis): string {
     .slice(0, 2);
 
   if (keySignals.length > 0) {
-    summary += `   Signals: ${keySignals.join(", ")}\n`;
+    summary += `   Signals: ${keySignals.join(', ')}\n`;
   }
 
   return summary;
@@ -678,7 +658,7 @@ export function formatEmailForBrief(analysis: EmailAnalysis): string {
 /**
  * Conversation state based on who sent the last message
  */
-export type ConversationState = "needs_response" | "awaiting_reply" | "resolved";
+export type ConversationState = 'needs_response' | 'awaiting_reply' | 'resolved';
 
 /**
  * Email thread (conversation) grouping
@@ -701,7 +681,7 @@ export interface EmailThread {
   /** The emails in this thread (most recent first) */
   emails: EmailData[];
   /** Highest importance from any email in thread */
-  importance: "high" | "medium" | "low";
+  importance: 'high' | 'medium' | 'low';
 }
 
 /**
@@ -711,10 +691,7 @@ export interface EmailThread {
  * @param userEmail The user's email address (to determine conversation state)
  * @returns Array of email threads sorted by last activity (most recent first)
  */
-export function groupEmailsByThread(
-  emails: EmailData[],
-  userEmail: string
-): EmailThread[] {
+export function groupEmailsByThread(emails: EmailData[], userEmail: string): EmailThread[] {
   const normalizedUserEmail = userEmail.toLowerCase();
 
   // Group emails by threadId
@@ -733,8 +710,7 @@ export function groupEmailsByThread(
   for (const [threadId, threadEmails] of threadMap) {
     // Sort emails by date (most recent first)
     const sortedEmails = [...threadEmails].sort(
-      (a, b) =>
-        new Date(b.receivedAt).getTime() - new Date(a.receivedAt).getTime()
+      (a, b) => new Date(b.receivedAt).getTime() - new Date(a.receivedAt).getTime()
     );
 
     const latestEmail = sortedEmails[0];
@@ -799,24 +775,21 @@ export function groupEmailsByThread(
  * @param userEmail The user's email address (normalized to lowercase)
  * @returns The conversation state
  */
-function determineConversationState(
-  lastEmail: EmailData,
-  userEmail: string
-): ConversationState {
+function determineConversationState(lastEmail: EmailData, userEmail: string): ConversationState {
   const lastSender = lastEmail.from.email.toLowerCase();
 
   // If user sent the last email, they're awaiting a reply
   if (lastSender === userEmail) {
-    return "awaiting_reply";
+    return 'awaiting_reply';
   }
 
   // If it's from an automated sender, it's likely resolved/FYI
   if (isAutomatedSender(lastSender)) {
-    return "resolved";
+    return 'resolved';
   }
 
   // Otherwise, the user needs to respond
-  return "needs_response";
+  return 'needs_response';
 }
 
 /**
@@ -824,18 +797,18 @@ function determineConversationState(
  */
 function isAutomatedSender(email: string): boolean {
   const automatedPatterns = [
-    "noreply",
-    "no-reply",
-    "donotreply",
-    "do-not-reply",
-    "notifications",
-    "notification",
-    "mailer-daemon",
-    "support@",
-    "info@",
-    "news@",
-    "newsletter",
-    "automated",
+    'noreply',
+    'no-reply',
+    'donotreply',
+    'do-not-reply',
+    'notifications',
+    'notification',
+    'mailer-daemon',
+    'support@',
+    'info@',
+    'news@',
+    'newsletter',
+    'automated',
   ];
 
   return automatedPatterns.some((pattern) => email.includes(pattern));
@@ -844,12 +817,10 @@ function isAutomatedSender(email: string): boolean {
 /**
  * Gets the highest importance level from a list of emails.
  */
-function getHighestImportance(
-  emails: EmailData[]
-): "high" | "medium" | "low" {
-  if (emails.some((e) => e.importance === "high")) return "high";
-  if (emails.some((e) => e.importance === "medium")) return "medium";
-  return "low";
+function getHighestImportance(emails: EmailData[]): 'high' | 'medium' | 'low' {
+  if (emails.some((e) => e.importance === 'high')) return 'high';
+  if (emails.some((e) => e.importance === 'medium')) return 'medium';
+  return 'low';
 }
 
 /**
@@ -869,9 +840,9 @@ export interface GroupedThreads {
  */
 export function groupThreadsByState(threads: EmailThread[]): GroupedThreads {
   return {
-    needsResponse: threads.filter((t) => t.state === "needs_response"),
-    awaitingReply: threads.filter((t) => t.state === "awaiting_reply"),
-    resolved: threads.filter((t) => t.state === "resolved"),
+    needsResponse: threads.filter((t) => t.state === 'needs_response'),
+    awaitingReply: threads.filter((t) => t.state === 'awaiting_reply'),
+    resolved: threads.filter((t) => t.state === 'resolved'),
   };
 }
 
@@ -893,17 +864,13 @@ export interface ThreadAnalysisSummary {
  * @param threads Array of email threads
  * @returns Summary statistics
  */
-export function generateThreadSummary(
-  threads: EmailThread[]
-): ThreadAnalysisSummary {
+export function generateThreadSummary(threads: EmailThread[]): ThreadAnalysisSummary {
   return {
     totalThreads: threads.length,
     totalEmails: threads.reduce((sum, t) => sum + t.emailCount, 0),
-    threadsNeedingResponse: threads.filter((t) => t.state === "needs_response")
-      .length,
-    threadsAwaitingReply: threads.filter((t) => t.state === "awaiting_reply")
-      .length,
-    threadsResolved: threads.filter((t) => t.state === "resolved").length,
+    threadsNeedingResponse: threads.filter((t) => t.state === 'needs_response').length,
+    threadsAwaitingReply: threads.filter((t) => t.state === 'awaiting_reply').length,
+    threadsResolved: threads.filter((t) => t.state === 'resolved').length,
     unreadThreads: threads.filter((t) => t.hasUnread).length,
   };
 }

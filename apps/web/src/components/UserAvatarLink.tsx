@@ -1,5 +1,5 @@
-import { Link } from "@tanstack/react-router";
-import { UserAvatar } from "./UserAvatar";
+import { Link } from '@tanstack/react-router';
+import { UserAvatar } from './UserAvatar';
 
 interface UserAvatarLinkProps {
   userId: string;
@@ -7,7 +7,7 @@ interface UserAvatarLinkProps {
   name: string | null;
   email?: string | null;
   className?: string;
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
 export function UserAvatarLink({
@@ -15,8 +15,8 @@ export function UserAvatarLink({
   imageKey,
   name,
   email,
-  className = "",
-  size = "md",
+  className = '',
+  size = 'md',
 }: UserAvatarLinkProps) {
   return (
     <Link

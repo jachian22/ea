@@ -1,5 +1,5 @@
-import { queryOptions } from "@tanstack/react-query";
-import { getGoogleIntegrationStatusFn } from "~/fn/google-auth";
+import { queryOptions } from '@tanstack/react-query';
+import { getGoogleIntegrationStatusFn } from '~/fn/google-auth';
 
 /**
  * Query options for fetching Google integration status.
@@ -8,7 +8,7 @@ import { getGoogleIntegrationStatusFn } from "~/fn/google-auth";
  */
 export const googleIntegrationStatusQueryOptions = () =>
   queryOptions({
-    queryKey: ["google-integration", "status"],
+    queryKey: ['google-integration', 'status'],
     queryFn: () => getGoogleIntegrationStatusFn(),
     staleTime: 1000 * 60 * 5, // 5 minutes - status doesn't change often
   });

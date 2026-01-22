@@ -1,5 +1,5 @@
-import { eq, and, desc, asc, ilike, or, lt, sql, count } from "drizzle-orm";
-import { database } from "~/db";
+import { eq, and, desc, asc, ilike, or, lt, sql, count } from 'drizzle-orm';
+import { database } from '~/db';
 import {
   person,
   interaction,
@@ -9,7 +9,7 @@ import {
   type UpdatePersonData,
   type PersonDomain,
   type CommunicationChannel,
-} from "~/db/schema";
+} from '~/db/schema';
 
 // ============================================================================
 // Person CRUD
@@ -18,9 +18,7 @@ import {
 /**
  * Create a new person
  */
-export async function createPerson(
-  data: CreatePersonData
-): Promise<Person> {
+export async function createPerson(data: CreatePersonData): Promise<Person> {
   const [newPerson] = await database
     .insert(person)
     .values({
@@ -35,14 +33,8 @@ export async function createPerson(
 /**
  * Find person by ID
  */
-export async function findPersonById(
-  id: string
-): Promise<Person | null> {
-  const [result] = await database
-    .select()
-    .from(person)
-    .where(eq(person.id, id))
-    .limit(1);
+export async function findPersonById(id: string): Promise<Person | null> {
+  const [result] = await database.select().from(person).where(eq(person.id, id)).limit(1);
 
   return result || null;
 }
@@ -57,10 +49,12 @@ export async function findPersonByUserIdAndEmail(
   const [result] = await database
     .select()
     .from(person)
-    .where(and(
-      eq(person.userId, userId),
-      ilike(person.email, email) // case-insensitive
-    ))
+    .where(
+      and(
+        eq(person.userId, userId),
+        ilike(person.email, email) // case-insensitive
+      )
+    )
     .limit(1);
 
   return result || null;
@@ -86,7 +80,7 @@ export async function findOrCreatePerson(
     name: data?.name,
     role: data?.role,
     company: data?.company,
-    domain: data?.domain || "business",
+    domain: data?.domain || 'business',
     ...data,
   });
 }
@@ -121,10 +115,7 @@ export async function findPersonsByDomain(
   const results = await database
     .select()
     .from(person)
-    .where(and(
-      eq(person.userId, userId),
-      eq(person.domain, domain)
-    ))
+    .where(and(eq(person.userId, userId), eq(person.domain, domain)))
     .orderBy(desc(person.importanceScore))
     .limit(limit);
 
@@ -144,14 +135,16 @@ export async function searchPersons(
   const results = await database
     .select()
     .from(person)
-    .where(and(
-      eq(person.userId, userId),
-      or(
-        ilike(person.name, searchPattern),
-        ilike(person.email, searchPattern),
-        ilike(person.company, searchPattern)
+    .where(
+      and(
+        eq(person.userId, userId),
+        or(
+          ilike(person.name, searchPattern),
+          ilike(person.email, searchPattern),
+          ilike(person.company, searchPattern)
+        )
       )
-    ))
+    )
     .orderBy(desc(person.importanceScore))
     .limit(limit);
 
@@ -172,10 +165,7 @@ export async function findStaleContacts(
   const results = await database
     .select()
     .from(person)
-    .where(and(
-      eq(person.userId, userId),
-      lt(person.lastContactAt, cutoffDate)
-    ))
+    .where(and(eq(person.userId, userId), lt(person.lastContactAt, cutoffDate)))
     .orderBy(desc(person.importanceScore), asc(person.lastContactAt))
     .limit(limit);
 
@@ -193,10 +183,7 @@ export async function findHighImportancePersons(
   const results = await database
     .select()
     .from(person)
-    .where(and(
-      eq(person.userId, userId),
-      sql`${person.importanceScore} >= ${minScore}`
-    ))
+    .where(and(eq(person.userId, userId), sql`${person.importanceScore} >= ${minScore}`))
     .orderBy(desc(person.importanceScore))
     .limit(limit);
 
@@ -206,10 +193,7 @@ export async function findHighImportancePersons(
 /**
  * Update a person
  */
-export async function updatePerson(
-  id: string,
-  data: UpdatePersonData
-): Promise<Person | null> {
+export async function updatePerson(id: string, data: UpdatePersonData): Promise<Person | null> {
   const [updated] = await database
     .update(person)
     .set({
@@ -251,10 +235,7 @@ export async function updatePersonLastContact(
  * Delete a person
  */
 export async function deletePerson(id: string): Promise<boolean> {
-  const [deleted] = await database
-    .delete(person)
-    .where(eq(person.id, id))
-    .returning();
+  const [deleted] = await database.delete(person).where(eq(person.id, id)).returning();
 
   return deleted !== undefined;
 }
@@ -313,9 +294,7 @@ export type PersonDossier = Person & {
 /**
  * Get full person dossier with related data
  */
-export async function getPersonDossier(
-  personId: string
-): Promise<PersonDossier | null> {
+export async function getPersonDossier(personId: string): Promise<PersonDossier | null> {
   const personData = await findPersonById(personId);
   if (!personData) return null;
 
@@ -343,14 +322,13 @@ export async function getPersonDossier(
       status: commitment.status,
     })
     .from(commitment)
-    .where(and(
-      eq(commitment.personId, personId),
-      eq(commitment.direction, "user_owes"),
-      or(
-        eq(commitment.status, "pending"),
-        eq(commitment.status, "in_progress")
+    .where(
+      and(
+        eq(commitment.personId, personId),
+        eq(commitment.direction, 'user_owes'),
+        or(eq(commitment.status, 'pending'), eq(commitment.status, 'in_progress'))
       )
-    ))
+    )
     .orderBy(asc(commitment.dueDate));
 
   // Get open commitments they owe
@@ -362,14 +340,13 @@ export async function getPersonDossier(
       status: commitment.status,
     })
     .from(commitment)
-    .where(and(
-      eq(commitment.personId, personId),
-      eq(commitment.direction, "they_owe"),
-      or(
-        eq(commitment.status, "pending"),
-        eq(commitment.status, "in_progress")
+    .where(
+      and(
+        eq(commitment.personId, personId),
+        eq(commitment.direction, 'they_owe'),
+        or(eq(commitment.status, 'pending'), eq(commitment.status, 'in_progress'))
       )
-    ))
+    )
     .orderBy(asc(commitment.dueDate));
 
   // Get recently completed commitments
@@ -381,21 +358,19 @@ export async function getPersonDossier(
       completedAt: commitment.completedAt,
     })
     .from(commitment)
-    .where(and(
-      eq(commitment.personId, personId),
-      eq(commitment.status, "completed")
-    ))
+    .where(and(eq(commitment.personId, personId), eq(commitment.status, 'completed')))
     .orderBy(desc(commitment.completedAt))
     .limit(5);
 
   // Calculate interaction stats
-  const averageFrequencyDays = personData.totalInteractions && personData.firstContactAt
-    ? Math.round(
-        (Date.now() - personData.firstContactAt.getTime()) /
-        (1000 * 60 * 60 * 24) /
-        personData.totalInteractions
-      )
-    : null;
+  const averageFrequencyDays =
+    personData.totalInteractions && personData.firstContactAt
+      ? Math.round(
+          (Date.now() - personData.firstContactAt.getTime()) /
+            (1000 * 60 * 60 * 24) /
+            personData.totalInteractions
+        )
+      : null;
 
   return {
     ...personData,
@@ -430,12 +405,12 @@ function calculateImportanceScore(person: Person, newInteractionCount: number): 
   }
 
   // Boost for business contacts
-  if (person.domain === "business" || person.domain === "job") {
+  if (person.domain === 'business' || person.domain === 'job') {
     score = Math.min(100, score + 5);
   }
 
   // Boost for family
-  if (person.domain === "family") {
+  if (person.domain === 'family') {
     score = Math.min(100, score + 10);
   }
 

@@ -1,5 +1,5 @@
-import { eq, and, desc, asc, between, sql, inArray, isNull, ne, or } from "drizzle-orm";
-import { database } from "~/db";
+import { eq, and, desc, asc, between, sql, inArray, isNull, ne, or } from 'drizzle-orm';
+import { database } from '~/db';
 import {
   actionLog,
   actionType,
@@ -11,18 +11,13 @@ import {
   type AuthorityLevel,
   type UserFeedback,
   type ActionLogMetadata,
-} from "~/db/schema";
+} from '~/db/schema';
 
 /**
  * Create a new action log entry
  */
-export async function createActionLog(
-  data: CreateActionLogData
-): Promise<ActionLog> {
-  const [newLog] = await database
-    .insert(actionLog)
-    .values(data)
-    .returning();
+export async function createActionLog(data: CreateActionLogData): Promise<ActionLog> {
+  const [newLog] = await database.insert(actionLog).values(data).returning();
 
   return newLog;
 }
@@ -30,14 +25,8 @@ export async function createActionLog(
 /**
  * Find an action log by ID
  */
-export async function findActionLogById(
-  id: string
-): Promise<ActionLog | null> {
-  const [result] = await database
-    .select()
-    .from(actionLog)
-    .where(eq(actionLog.id, id))
-    .limit(1);
+export async function findActionLogById(id: string): Promise<ActionLog | null> {
+  const [result] = await database.select().from(actionLog).where(eq(actionLog.id, id)).limit(1);
 
   return result || null;
 }
@@ -94,7 +83,7 @@ export async function findPendingApprovals(
   userId: string,
   limit: number = 50
 ): Promise<Array<ActionLog & { actionType: typeof actionType.$inferSelect }>> {
-  return findActionLogsWithActionType(userId, limit, "pending_approval");
+  return findActionLogsWithActionType(userId, limit, 'pending_approval');
 }
 
 /**
@@ -108,12 +97,7 @@ export async function findActionLogsByStatus(
   return database
     .select()
     .from(actionLog)
-    .where(
-      and(
-        eq(actionLog.userId, userId),
-        eq(actionLog.status, status)
-      )
-    )
+    .where(and(eq(actionLog.userId, userId), eq(actionLog.status, status)))
     .orderBy(desc(actionLog.createdAt))
     .limit(limit);
 }
@@ -151,12 +135,7 @@ export async function findActionLogsByDateRange(
   return database
     .select()
     .from(actionLog)
-    .where(
-      and(
-        eq(actionLog.userId, userId),
-        between(actionLog.createdAt, startDate, endDate)
-      )
-    )
+    .where(and(eq(actionLog.userId, userId), between(actionLog.createdAt, startDate, endDate)))
     .orderBy(desc(actionLog.createdAt))
     .limit(limit);
 }
@@ -185,12 +164,12 @@ export async function approveAction(
   metadata?: Partial<ActionLogMetadata>
 ): Promise<ActionLog | null> {
   const existing = await findActionLogById(id);
-  if (!existing || existing.status !== "pending_approval") {
+  if (!existing || existing.status !== 'pending_approval') {
     return null;
   }
 
   return updateActionLog(id, {
-    status: "approved",
+    status: 'approved',
     approvedAt: new Date(),
     metadata: metadata ? { ...existing.metadata, ...metadata } : existing.metadata,
   });
@@ -199,17 +178,14 @@ export async function approveAction(
 /**
  * Reject a pending action
  */
-export async function rejectAction(
-  id: string,
-  reason?: string
-): Promise<ActionLog | null> {
+export async function rejectAction(id: string, reason?: string): Promise<ActionLog | null> {
   const existing = await findActionLogById(id);
-  if (!existing || existing.status !== "pending_approval") {
+  if (!existing || existing.status !== 'pending_approval') {
     return null;
   }
 
   return updateActionLog(id, {
-    status: "rejected",
+    status: 'rejected',
     rejectedAt: new Date(),
     metadata: {
       ...existing.metadata,
@@ -231,7 +207,7 @@ export async function markActionExecuted(
   }
 
   return updateActionLog(id, {
-    status: "executed",
+    status: 'executed',
     executedAt: new Date(),
     metadata: metadata ? { ...existing.metadata, ...metadata } : existing.metadata,
   });
@@ -240,17 +216,14 @@ export async function markActionExecuted(
 /**
  * Mark an action as failed
  */
-export async function markActionFailed(
-  id: string,
-  reason: string
-): Promise<ActionLog | null> {
+export async function markActionFailed(id: string, reason: string): Promise<ActionLog | null> {
   const existing = await findActionLogById(id);
   if (!existing) {
     return null;
   }
 
   return updateActionLog(id, {
-    status: "failed",
+    status: 'failed',
     metadata: {
       ...existing.metadata,
       failureReason: reason,
@@ -263,16 +236,16 @@ export async function markActionFailed(
  */
 export async function markActionReversed(
   id: string,
-  reversedBy: "user" | "system",
+  reversedBy: 'user' | 'system',
   reason?: string
 ): Promise<ActionLog | null> {
   const existing = await findActionLogById(id);
-  if (!existing || existing.status !== "executed") {
+  if (!existing || existing.status !== 'executed') {
     return null;
   }
 
   return updateActionLog(id, {
-    status: "reversed",
+    status: 'reversed',
     metadata: {
       ...existing.metadata,
       reversedAt: new Date().toISOString(),
@@ -386,38 +359,38 @@ export async function getActionLogStats(
 
   for (const log of logs) {
     switch (log.status) {
-      case "pending_approval":
+      case 'pending_approval':
         stats.pending++;
         break;
-      case "approved":
+      case 'approved':
         stats.approved++;
         break;
-      case "rejected":
+      case 'rejected':
         stats.rejected++;
         break;
-      case "executed":
+      case 'executed':
         stats.executed++;
         break;
-      case "failed":
+      case 'failed':
         stats.failed++;
         break;
-      case "reversed":
+      case 'reversed':
         stats.reversed++;
         break;
     }
 
     if (log.userFeedback) {
       switch (log.userFeedback) {
-        case "correct":
+        case 'correct':
           stats.feedbackStats.correct++;
           break;
-        case "should_ask":
+        case 'should_ask':
           stats.feedbackStats.shouldAsk++;
           break;
-        case "should_auto":
+        case 'should_auto':
           stats.feedbackStats.shouldAuto++;
           break;
-        case "wrong":
+        case 'wrong':
           stats.feedbackStats.wrong++;
           break;
       }
@@ -434,12 +407,7 @@ export async function getPendingApprovalCount(userId: string): Promise<number> {
   const result = await database
     .select({ count: sql<number>`count(*)` })
     .from(actionLog)
-    .where(
-      and(
-        eq(actionLog.userId, userId),
-        eq(actionLog.status, "pending_approval")
-      )
-    );
+    .where(and(eq(actionLog.userId, userId), eq(actionLog.status, 'pending_approval')));
 
   return result[0]?.count ?? 0;
 }
@@ -448,10 +416,7 @@ export async function getPendingApprovalCount(userId: string): Promise<number> {
  * Delete an action log
  */
 export async function deleteActionLog(id: string): Promise<boolean> {
-  const [deleted] = await database
-    .delete(actionLog)
-    .where(eq(actionLog.id, id))
-    .returning();
+  const [deleted] = await database.delete(actionLog).where(eq(actionLog.id, id)).returning();
 
   return deleted !== undefined;
 }
@@ -460,10 +425,7 @@ export async function deleteActionLog(id: string): Promise<boolean> {
  * Delete all action logs for a user
  */
 export async function deleteActionLogsByUserId(userId: string): Promise<number> {
-  const deleted = await database
-    .delete(actionLog)
-    .where(eq(actionLog.userId, userId))
-    .returning();
+  const deleted = await database.delete(actionLog).where(eq(actionLog.userId, userId)).returning();
 
   return deleted.length;
 }
@@ -486,9 +448,9 @@ export async function findSimilarPastActions(
         eq(actionLog.actionTypeId, actionTypeId),
         eq(actionLog.targetType, targetType),
         or(
-          eq(actionLog.status, "executed"),
-          eq(actionLog.status, "approved"),
-          eq(actionLog.status, "rejected")
+          eq(actionLog.status, 'executed'),
+          eq(actionLog.status, 'approved'),
+          eq(actionLog.status, 'rejected')
         )
       )
     )
@@ -506,12 +468,7 @@ export async function getActionsWithFeedback(
   return database
     .select()
     .from(actionLog)
-    .where(
-      and(
-        eq(actionLog.userId, userId),
-        sql`${actionLog.userFeedback} IS NOT NULL`
-      )
-    )
+    .where(and(eq(actionLog.userId, userId), sql`${actionLog.userFeedback} IS NOT NULL`))
     .orderBy(desc(actionLog.createdAt))
     .limit(limit);
 }

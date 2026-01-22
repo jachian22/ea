@@ -1,7 +1,7 @@
-import { database } from "~/db";
-import { user } from "~/db/schema";
-import { eq } from "drizzle-orm";
-import type { SubscriptionPlan, SubscriptionStatus } from "~/db/schema";
+import { database } from '~/db';
+import { user } from '~/db/schema';
+import { eq } from 'drizzle-orm';
+import type { SubscriptionPlan, SubscriptionStatus } from '~/db/schema';
 
 interface SubscriptionData {
   subscriptionId: string;
@@ -11,10 +11,7 @@ interface SubscriptionData {
   expiresAt?: Date;
 }
 
-export async function updateUserSubscription(
-  userId: string,
-  subscriptionData: SubscriptionData
-) {
+export async function updateUserSubscription(userId: string, subscriptionData: SubscriptionData) {
   try {
     const [updatedUser] = await database
       .update(user)
@@ -28,11 +25,11 @@ export async function updateUserSubscription(
       })
       .where(eq(user.id, userId))
       .returning();
-    
+
     return updatedUser;
   } catch (error) {
-    console.error("Failed to update user subscription:", error);
-    throw new Error("Failed to update subscription");
+    console.error('Failed to update user subscription:', error);
+    throw new Error('Failed to update subscription');
   }
 }
 
@@ -54,8 +51,8 @@ export async function getUserSubscription(userId: string) {
 
     return userData;
   } catch (error) {
-    console.error("Failed to get user subscription:", error);
-    throw new Error("Failed to fetch subscription data");
+    console.error('Failed to get user subscription:', error);
+    throw new Error('Failed to fetch subscription data');
   }
 }
 
@@ -69,11 +66,11 @@ export async function updateUserPlan(userId: string, plan: SubscriptionPlan) {
       })
       .where(eq(user.id, userId))
       .returning();
-    
+
     return updatedUser;
   } catch (error) {
-    console.error("Failed to update user plan:", error);
-    throw new Error("Failed to update plan");
+    console.error('Failed to update user plan:', error);
+    throw new Error('Failed to update plan');
   }
 }
 
@@ -82,20 +79,17 @@ export function isPlanActive(
   expiresAt: Date | null | undefined
 ): boolean {
   if (!status) return false;
-  
+
   // Check if subscription is in an active state
-  if (status !== "active") return false;
-  
+  if (status !== 'active') return false;
+
   // Check if subscription hasn't expired (if expiry date is set)
   if (expiresAt && new Date() > expiresAt) return false;
-  
+
   return true;
 }
 
-export function hasAccess(
-  userPlan: SubscriptionPlan,
-  requiredPlan: SubscriptionPlan
-): boolean {
+export function hasAccess(userPlan: SubscriptionPlan, requiredPlan: SubscriptionPlan): boolean {
   const planHierarchy: Record<SubscriptionPlan, number> = {
     free: 0,
     basic: 1,
@@ -107,11 +101,11 @@ export function hasAccess(
 
 export function getUploadLimit(plan: SubscriptionPlan): number {
   switch (plan) {
-    case "pro":
+    case 'pro':
       return -1; // Unlimited
-    case "basic":
+    case 'basic':
       return 50;
-    case "free":
+    case 'free':
     default:
       return 5;
   }
@@ -122,15 +116,15 @@ export async function cancelUserSubscription(userId: string) {
     const [updatedUser] = await database
       .update(user)
       .set({
-        subscriptionStatus: "canceled",
+        subscriptionStatus: 'canceled',
         updatedAt: new Date(),
       })
       .where(eq(user.id, userId))
       .returning();
-    
+
     return updatedUser;
   } catch (error) {
-    console.error("Failed to cancel user subscription:", error);
-    throw new Error("Failed to cancel subscription");
+    console.error('Failed to cancel user subscription:', error);
+    throw new Error('Failed to cancel subscription');
   }
 }

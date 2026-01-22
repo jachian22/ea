@@ -1,13 +1,13 @@
-import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
-import { authenticatedMiddleware } from "./middleware";
-import { stripe } from "~/lib/stripe";
-import { getUserSubscription } from "~/utils/subscription";
-import { getPlanByPriceId } from "~/lib/plans";
-import { publicEnv } from "~/config/publicEnv";
+import { createServerFn } from '@tanstack/react-start';
+import { z } from 'zod';
+import { authenticatedMiddleware } from './middleware';
+import { stripe } from '~/lib/stripe';
+import { getUserSubscription } from '~/utils/subscription';
+import { getPlanByPriceId } from '~/lib/plans';
+import { publicEnv } from '~/config/publicEnv';
 
 // Get user's current subscription and plan info
-export const getUserPlanFn = createServerFn({ method: "GET" })
+export const getUserPlanFn = createServerFn({ method: 'GET' })
   .middleware([authenticatedMiddleware])
   .handler(async ({ context }) => {
     const { userId } = context;
@@ -16,13 +16,13 @@ export const getUserPlanFn = createServerFn({ method: "GET" })
       const subscription = await getUserSubscription(userId);
 
       if (!subscription) {
-        throw new Error("User not found");
+        throw new Error('User not found');
       }
 
       return {
         success: true,
         data: {
-          plan: subscription.plan || "free",
+          plan: subscription.plan || 'free',
           subscriptionStatus: subscription.subscriptionStatus,
           subscriptionExpiresAt: subscription.subscriptionExpiresAt,
           stripeCustomerId: subscription.stripeCustomerId,
@@ -34,18 +34,17 @@ export const getUserPlanFn = createServerFn({ method: "GET" })
       return {
         success: false,
         data: null,
-        error:
-          error instanceof Error ? error.message : "Failed to get user plan",
+        error: error instanceof Error ? error.message : 'Failed to get user plan',
       };
     }
   });
 
 // Create checkout session for subscription upgrade
 const createCheckoutSessionSchema = z.object({
-  priceId: z.string().min(1, "Price ID is required"),
+  priceId: z.string().min(1, 'Price ID is required'),
 });
 
-export const createCheckoutSessionFn = createServerFn({ method: "POST" })
+export const createCheckoutSessionFn = createServerFn({ method: 'POST' })
   .middleware([authenticatedMiddleware])
   .inputValidator(createCheckoutSessionSchema)
   .handler(async ({ data, context }) => {
@@ -56,19 +55,19 @@ export const createCheckoutSessionFn = createServerFn({ method: "POST" })
       const subscription = await getUserSubscription(userId);
 
       if (!subscription) {
-        throw new Error("User not found");
+        throw new Error('User not found');
       }
 
       // Check if the plan is valid
       const planDetails = getPlanByPriceId(priceId);
       if (!planDetails) {
-        throw new Error("Invalid price ID");
+        throw new Error('Invalid price ID');
       }
 
       let customerId = subscription.stripeCustomerId;
 
       if (!stripe) {
-        throw new Error("Stripe is not configured");
+        throw new Error('Stripe is not configured');
       }
 
       // Create Stripe customer if one doesn't exist
@@ -86,14 +85,14 @@ export const createCheckoutSessionFn = createServerFn({ method: "POST" })
       // Create checkout session
       const session = await stripe.checkout.sessions.create({
         customer: customerId,
-        payment_method_types: ["card"],
+        payment_method_types: ['card'],
         line_items: [
           {
             price: priceId,
             quantity: 1,
           },
         ],
-        mode: "subscription",
+        mode: 'subscription',
         success_url: `${publicEnv.APP_URL}/settings?success=true`,
         cancel_url: `${publicEnv.APP_URL}/settings?canceled=true`,
         metadata: {
@@ -111,16 +110,13 @@ export const createCheckoutSessionFn = createServerFn({ method: "POST" })
       return {
         success: false,
         data: null,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to create checkout session",
+        error: error instanceof Error ? error.message : 'Failed to create checkout session',
       };
     }
   });
 
 // Create customer portal session for subscription management
-export const createPortalSessionFn = createServerFn({ method: "POST" })
+export const createPortalSessionFn = createServerFn({ method: 'POST' })
   .middleware([authenticatedMiddleware])
   .handler(async ({ context }) => {
     const { userId } = context;
@@ -129,11 +125,11 @@ export const createPortalSessionFn = createServerFn({ method: "POST" })
       const subscription = await getUserSubscription(userId);
 
       if (!subscription || !subscription.stripeCustomerId) {
-        throw new Error("No subscription found");
+        throw new Error('No subscription found');
       }
 
       if (!stripe) {
-        throw new Error("Stripe is not configured");
+        throw new Error('Stripe is not configured');
       }
 
       // Create customer portal session
@@ -151,16 +147,13 @@ export const createPortalSessionFn = createServerFn({ method: "POST" })
       return {
         success: false,
         data: null,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to create portal session",
+        error: error instanceof Error ? error.message : 'Failed to create portal session',
       };
     }
   });
 
 // Cancel subscription (sets to cancel at period end)
-export const cancelSubscriptionFn = createServerFn({ method: "POST" })
+export const cancelSubscriptionFn = createServerFn({ method: 'POST' })
   .middleware([authenticatedMiddleware])
   .handler(async ({ context }) => {
     const { userId } = context;
@@ -169,20 +162,17 @@ export const cancelSubscriptionFn = createServerFn({ method: "POST" })
       const subscription = await getUserSubscription(userId);
 
       if (!subscription || !subscription.subscriptionId) {
-        throw new Error("No active subscription found");
+        throw new Error('No active subscription found');
       }
 
       if (!stripe) {
-        throw new Error("Stripe is not configured");
+        throw new Error('Stripe is not configured');
       }
 
       // Cancel subscription at period end
-      const canceledSubscription = await stripe.subscriptions.update(
-        subscription.subscriptionId,
-        {
-          cancel_at_period_end: true,
-        }
-      );
+      const canceledSubscription = await stripe.subscriptions.update(subscription.subscriptionId, {
+        cancel_at_period_end: true,
+      });
 
       return {
         success: true,
@@ -196,10 +186,7 @@ export const cancelSubscriptionFn = createServerFn({ method: "POST" })
       return {
         success: false,
         data: null,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to cancel subscription",
+        error: error instanceof Error ? error.message : 'Failed to cancel subscription',
       };
     }
   });

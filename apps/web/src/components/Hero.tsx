@@ -1,7 +1,7 @@
-import { Button } from "~/components/ui/button";
-import { Link } from "@tanstack/react-router";
-import { Rocket, Play } from "lucide-react";
-import { FadeIn } from "~/components/ui/fade-in";
+import { Button } from '~/components/ui/button';
+import { Link } from '@tanstack/react-router';
+import { Rocket, Play } from 'lucide-react';
+import { FadeIn } from '~/components/ui/fade-in';
 
 export function Hero() {
   return (
@@ -24,25 +24,25 @@ export function Hero() {
             <FadeIn delay={100}>
               <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-foreground mb-6 leading-[1.1]">
                 Transform Your Career: <br />
-                Become a{" "}
-                <span className="text-gradient-primary">
-                  Full Stack Engineer
-                </span>
+                Become a <span className="text-gradient-primary">Full Stack Engineer</span>
               </h1>
             </FadeIn>
             <FadeIn delay={200}>
               <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground mb-10 font-light leading-relaxed">
-                Master frontend and backend development, build real-world
-                projects, and launch your software engineering career. Join
-                thousands learning full stack development in our supportive
-                community.
+                Master frontend and backend development, build real-world projects, and launch your
+                software engineering career. Join thousands learning full stack development in our
+                supportive community.
               </p>
             </FadeIn>
           </div>
 
           <FadeIn delay={300}>
             <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-              <Button size="lg" className="w-full sm:w-auto h-14 px-8 rounded-full bg-gradient-to-r from-primary to-purple-600 text-white font-bold hover:shadow-[0_0_40px_-10px_rgba(var(--primary),0.5)] transition-all transform hover:-translate-y-1 text-base" asChild>
+              <Button
+                size="lg"
+                className="w-full sm:w-auto h-14 px-8 rounded-full bg-gradient-to-r from-primary to-purple-600 text-white font-bold hover:shadow-[0_0_40px_-10px_rgba(var(--primary),0.5)] transition-all transform hover:-translate-y-1 text-base"
+                asChild
+              >
                 <Link to="/sign-in" search={{}}>
                   <Rocket className="mr-2 h-4 w-4" />
                   Start for Free

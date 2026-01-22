@@ -1,9 +1,9 @@
-import { useState, useCallback, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useDropzone } from "react-dropzone";
-import { Upload, Loader2, X, Image as ImageIcon } from "lucide-react";
+import { useState, useCallback, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useDropzone } from 'react-dropzone';
+import { Upload, Loader2, X, Image as ImageIcon } from 'lucide-react';
 
 // Constants
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
@@ -12,16 +12,16 @@ const MAX_TITLE_LENGTH = 100;
 const MAX_DESCRIPTION_LENGTH = 1000;
 const MAX_TECHNOLOGY_LENGTH = 50;
 const MAX_TECHNOLOGIES = 10;
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import { Textarea } from "~/components/ui/textarea";
+import { Button } from '~/components/ui/button';
+import { Input } from '~/components/ui/input';
+import { Textarea } from '~/components/ui/textarea';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "~/components/ui/dialog";
+} from '~/components/ui/dialog';
 import {
   Form,
   FormControl,
@@ -30,19 +30,19 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "~/components/ui/form";
-import { SkillsInput } from "~/components/SkillsInput";
-import { useCreatePortfolioItem, useUpdatePortfolioItem } from "~/hooks/usePortfolio";
-import { useImageUrl } from "~/hooks/useStorage";
-import { uploadImageWithPresignedUrl } from "~/utils/storage/helpers";
-import { toast } from "sonner";
-import { authClient } from "~/lib/auth-client";
-import type { PortfolioItem } from "~/db/schema";
+} from '~/components/ui/form';
+import { SkillsInput } from '~/components/SkillsInput';
+import { useCreatePortfolioItem, useUpdatePortfolioItem } from '~/hooks/usePortfolio';
+import { useImageUrl } from '~/hooks/useStorage';
+import { uploadImageWithPresignedUrl } from '~/utils/storage/helpers';
+import { toast } from 'sonner';
+import { authClient } from '~/lib/auth-client';
+import type { PortfolioItem } from '~/db/schema';
 
 const portfolioItemSchema = z.object({
-  title: z.string().min(1, "Title is required").max(MAX_TITLE_LENGTH),
+  title: z.string().min(1, 'Title is required').max(MAX_TITLE_LENGTH),
   description: z.string().max(MAX_DESCRIPTION_LENGTH).optional().nullable(),
-  url: z.string().url("Invalid URL").optional().nullable().or(z.literal("")),
+  url: z.string().url('Invalid URL').optional().nullable().or(z.literal('')),
   technologies: z.array(z.string().max(MAX_TECHNOLOGY_LENGTH)).max(MAX_TECHNOLOGIES).optional(),
 });
 
@@ -54,11 +54,7 @@ interface PortfolioItemFormProps {
   editItem?: PortfolioItem | null;
 }
 
-export function PortfolioItemForm({
-  open,
-  onOpenChange,
-  editItem,
-}: PortfolioItemFormProps) {
+export function PortfolioItemForm({ open, onOpenChange, editItem }: PortfolioItemFormProps) {
   const { data: session } = authClient.useSession();
   const [imageKey, setImageKey] = useState<string | null>(editItem?.imageKey || null);
   const [isUploading, setIsUploading] = useState(false);
@@ -66,7 +62,7 @@ export function PortfolioItemForm({
 
   const createMutation = useCreatePortfolioItem();
   const updateMutation = useUpdatePortfolioItem();
-  const { data: imageData } = useImageUrl(imageKey || "");
+  const { data: imageData } = useImageUrl(imageKey || '');
   const existingImageUrl = imageData?.imageUrl;
 
   const isEditing = !!editItem;
@@ -75,9 +71,9 @@ export function PortfolioItemForm({
   const form = useForm<PortfolioItemFormData>({
     resolver: zodResolver(portfolioItemSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      url: "",
+      title: '',
+      description: '',
+      url: '',
       technologies: [],
     },
   });
@@ -88,17 +84,17 @@ export function PortfolioItemForm({
       if (editItem) {
         form.reset({
           title: editItem.title,
-          description: editItem.description || "",
-          url: editItem.url || "",
+          description: editItem.description || '',
+          url: editItem.url || '',
           technologies: editItem.technologies || [],
         });
         setImageKey(editItem.imageKey);
         setPreviewUrl(null);
       } else {
         form.reset({
-          title: "",
-          description: "",
-          url: "",
+          title: '',
+          description: '',
+          url: '',
           technologies: [],
         });
         setImageKey(null);
@@ -112,8 +108,8 @@ export function PortfolioItemForm({
       const file = acceptedFiles[0];
       if (!file) return;
 
-      if (!file.type.startsWith("image/")) {
-        toast.error("Please upload an image file");
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please upload an image file');
         return;
       }
 
@@ -134,18 +130,18 @@ export function PortfolioItemForm({
       try {
         const userId = session?.user?.id;
         if (!userId) {
-          throw new Error("User not authenticated");
+          throw new Error('User not authenticated');
         }
 
-        const fileExtension = file.name.split(".").pop() || "";
+        const fileExtension = file.name.split('.').pop() || '';
         const newImageKey = `portfolio/${userId}/${Date.now()}.${fileExtension}`;
 
         await uploadImageWithPresignedUrl(newImageKey, file);
         setImageKey(newImageKey);
-        toast.success("Image uploaded successfully");
+        toast.success('Image uploaded successfully');
       } catch (error) {
-        console.error("Image upload error:", error);
-        toast.error("Failed to upload image");
+        console.error('Image upload error:', error);
+        toast.error('Failed to upload image');
         setPreviewUrl(null);
       } finally {
         setIsUploading(false);
@@ -157,7 +153,7 @@ export function PortfolioItemForm({
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      "image/*": [".jpeg", ".jpg", ".png", ".gif", ".webp"],
+      'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp'],
     },
     maxFiles: 1,
     disabled: isUploading || isPending,
@@ -207,12 +203,10 @@ export function PortfolioItemForm({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
-            {isEditing ? "Edit Portfolio Item" : "Add Portfolio Item"}
-          </DialogTitle>
+          <DialogTitle>{isEditing ? 'Edit Portfolio Item' : 'Add Portfolio Item'}</DialogTitle>
           <DialogDescription>
             {isEditing
-              ? "Update your project details below."
+              ? 'Update your project details below.'
               : "Showcase a project you've built or are working on."}
           </DialogDescription>
         </DialogHeader>
@@ -247,8 +241,8 @@ export function PortfolioItemForm({
                     border-2 border-dashed rounded-lg aspect-video
                     flex flex-col items-center justify-center cursor-pointer
                     transition-colors
-                    ${isDragActive ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}
-                    ${isUploading ? "cursor-not-allowed opacity-60" : ""}
+                    ${isDragActive ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}
+                    ${isUploading ? 'cursor-not-allowed opacity-60' : ''}
                   `}
                 >
                   <input {...getInputProps()} />
@@ -267,9 +261,7 @@ export function PortfolioItemForm({
                       ) : (
                         <>
                           <ImageIcon className="h-8 w-8" />
-                          <span className="text-sm">
-                            Drag & drop or click to upload
-                          </span>
+                          <span className="text-sm">Drag & drop or click to upload</span>
                           <span className="text-xs">PNG, JPG, GIF up to {MAX_IMAGE_SIZE_MB}MB</span>
                         </>
                       )}
@@ -287,11 +279,7 @@ export function PortfolioItemForm({
                 <FormItem>
                   <FormLabel>Title *</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="My Awesome Project"
-                      disabled={isPending}
-                    />
+                    <Input {...field} placeholder="My Awesome Project" disabled={isPending} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -308,14 +296,14 @@ export function PortfolioItemForm({
                   <FormControl>
                     <Textarea
                       {...field}
-                      value={field.value || ""}
+                      value={field.value || ''}
                       placeholder="Describe your project, what it does, and what you learned..."
                       className="min-h-[100px] resize-none"
                       disabled={isPending}
                     />
                   </FormControl>
                   <FormDescription>
-                    {(field.value?.length || 0)} / {MAX_DESCRIPTION_LENGTH} characters
+                    {field.value?.length || 0} / {MAX_DESCRIPTION_LENGTH} characters
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -332,14 +320,12 @@ export function PortfolioItemForm({
                   <FormControl>
                     <Input
                       {...field}
-                      value={field.value || ""}
+                      value={field.value || ''}
                       placeholder="https://myproject.com or https://github.com/user/repo"
                       disabled={isPending}
                     />
                   </FormControl>
-                  <FormDescription>
-                    Link to the live project or repository
-                  </FormDescription>
+                  <FormDescription>Link to the live project or repository</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -380,12 +366,12 @@ export function PortfolioItemForm({
                 {isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    {isEditing ? "Saving..." : "Creating..."}
+                    {isEditing ? 'Saving...' : 'Creating...'}
                   </>
                 ) : isEditing ? (
-                  "Save Changes"
+                  'Save Changes'
                 ) : (
-                  "Add Project"
+                  'Add Project'
                 )}
               </Button>
             </div>

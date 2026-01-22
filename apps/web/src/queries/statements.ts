@@ -1,11 +1,11 @@
-import { queryOptions } from "@tanstack/react-query";
+import { queryOptions } from '@tanstack/react-query';
 import {
   getStatementRunsFn,
   getLatestStatementRunFn,
   getStatementsFn,
   getBankAccountsFn,
   getStatementStatsFn,
-} from "~/fn/statements";
+} from '~/fn/statements';
 
 /**
  * Query options for fetching statement run history.
@@ -15,7 +15,7 @@ import {
  */
 export const statementRunsQueryOptions = (limit?: number) =>
   queryOptions({
-    queryKey: ["statement-runs", { limit }],
+    queryKey: ['statement-runs', { limit }],
     queryFn: () => getStatementRunsFn({ data: { limit } }),
     staleTime: 1000 * 60 * 2, // 2 minutes
   });
@@ -26,7 +26,7 @@ export const statementRunsQueryOptions = (limit?: number) =>
  */
 export const latestStatementRunQueryOptions = () =>
   queryOptions({
-    queryKey: ["statement-runs", "latest"],
+    queryKey: ['statement-runs', 'latest'],
     queryFn: () => getLatestStatementRunFn(),
     staleTime: 1000 * 60 * 1, // 1 minute - check frequently for running status
   });
@@ -39,7 +39,7 @@ export const latestStatementRunQueryOptions = () =>
  */
 export const statementsQueryOptions = (limit?: number) =>
   queryOptions({
-    queryKey: ["statements", { limit }],
+    queryKey: ['statements', { limit }],
     queryFn: () => getStatementsFn({ data: { limit } }),
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -50,7 +50,7 @@ export const statementsQueryOptions = (limit?: number) =>
  */
 export const bankAccountsQueryOptions = () =>
   queryOptions({
-    queryKey: ["bank-accounts"],
+    queryKey: ['bank-accounts'],
     queryFn: () => getBankAccountsFn(),
     staleTime: 1000 * 60 * 10, // 10 minutes - accounts change infrequently
   });
@@ -61,7 +61,7 @@ export const bankAccountsQueryOptions = () =>
  */
 export const statementStatsQueryOptions = () =>
   queryOptions({
-    queryKey: ["statement-stats"],
+    queryKey: ['statement-stats'],
     queryFn: () => getStatementStatsFn(),
     staleTime: 1000 * 60 * 5, // 5 minutes
   });

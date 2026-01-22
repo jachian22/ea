@@ -1,17 +1,17 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import {
   createCheckoutSessionFn,
   createPortalSessionFn,
   cancelSubscriptionFn,
-} from "~/fn/subscriptions";
-import { getUserPlanQuery } from "~/queries/subscription";
-import { authClient } from "~/lib/auth-client";
+} from '~/fn/subscriptions';
+import { getUserPlanQuery } from '~/queries/subscription';
+import { authClient } from '~/lib/auth-client';
 
 // Hook to get user's current subscription plan
 export function useUserPlan() {
   const { data: session } = authClient.useSession();
-  
+
   return useQuery({
     ...getUserPlanQuery(),
     enabled: !!session?.user, // Only run query if user is authenticated
@@ -26,11 +26,11 @@ export function useCreateCheckoutSession() {
       if (result.success && result.data?.sessionUrl) {
         window.location.href = result.data.sessionUrl;
       } else {
-        toast.error(result.error || "Failed to create checkout session");
+        toast.error(result.error || 'Failed to create checkout session');
       }
     },
     onError: () => {
-      toast.error("Failed to start checkout process");
+      toast.error('Failed to start checkout process');
     },
   });
 }
@@ -41,13 +41,13 @@ export function useCreatePortalSession() {
     mutationFn: createPortalSessionFn,
     onSuccess: (result) => {
       if (result.success && result.data?.sessionUrl) {
-        window.open(result.data.sessionUrl, "_blank");
+        window.open(result.data.sessionUrl, '_blank');
       } else {
-        toast.error(result.error || "Failed to open billing portal");
+        toast.error(result.error || 'Failed to open billing portal');
       }
     },
     onError: () => {
-      toast.error("Failed to open billing portal");
+      toast.error('Failed to open billing portal');
     },
   });
 }
@@ -58,16 +58,14 @@ export function useCancelSubscription() {
     mutationFn: cancelSubscriptionFn,
     onSuccess: (result) => {
       if (result.success) {
-        toast.success(
-          "Subscription will be canceled at the end of the billing period"
-        );
+        toast.success('Subscription will be canceled at the end of the billing period');
         window.location.reload();
       } else {
-        toast.error(result.error || "Failed to cancel subscription");
+        toast.error(result.error || 'Failed to cancel subscription');
       }
     },
     onError: () => {
-      toast.error("Failed to cancel subscription");
+      toast.error('Failed to cancel subscription');
     },
   });
 }

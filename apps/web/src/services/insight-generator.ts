@@ -16,38 +16,38 @@ import {
   findStaleContacts,
   findHighImportancePersons,
   type PersonDossier,
-} from "~/data-access/persons";
+} from '~/data-access/persons';
 import {
   findOverdueCommitments,
   findCommitmentsDueToday,
   findUpcomingCommitments,
   type CommitmentWithPerson,
-} from "~/data-access/commitments";
-import { findTodaysMeetingBriefings } from "~/data-access/meeting-briefings";
-import type { Person, Commitment, MeetingBriefing } from "~/db/schema";
+} from '~/data-access/commitments';
+import { findTodaysMeetingBriefings } from '~/data-access/meeting-briefings';
+import type { Person, Commitment, MeetingBriefing } from '~/db/schema';
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export type InsightType =
-  | "stale_contact"
-  | "commitment_overdue_you_owe"
-  | "commitment_overdue_they_owe"
-  | "commitment_due_today"
-  | "commitment_due_soon"
-  | "meeting_prep_needed"
-  | "follow_up_opportunity"
-  | "vip_no_recent_contact";
+  | 'stale_contact'
+  | 'commitment_overdue_you_owe'
+  | 'commitment_overdue_they_owe'
+  | 'commitment_due_today'
+  | 'commitment_due_soon'
+  | 'meeting_prep_needed'
+  | 'follow_up_opportunity'
+  | 'vip_no_recent_contact';
 
-export type InsightUrgency = "low" | "medium" | "high" | "critical";
+export type InsightUrgency = 'low' | 'medium' | 'high' | 'critical';
 
 export interface Insight {
   type: InsightType;
   urgency: InsightUrgency;
   title: string;
   description: string;
-  entityType: "person" | "commitment" | "meeting";
+  entityType: 'person' | 'commitment' | 'meeting';
   entityId: string;
   relatedPerson?: {
     id: string;
@@ -114,63 +114,63 @@ export async function generateInsights(
 
   // Process overdue commitments (critical/high urgency)
   for (const commitment of overdueCommitments) {
-    const isYouOwe = commitment.direction === "user_owes";
+    const isYouOwe = commitment.direction === 'user_owes';
     const daysOverdue = commitment.dueDate
       ? Math.floor((Date.now() - commitment.dueDate.getTime()) / (1000 * 60 * 60 * 24))
       : 0;
 
     insights.push({
-      type: isYouOwe ? "commitment_overdue_you_owe" : "commitment_overdue_they_owe",
-      urgency: daysOverdue > 7 ? "critical" : "high",
+      type: isYouOwe ? 'commitment_overdue_you_owe' : 'commitment_overdue_they_owe',
+      urgency: daysOverdue > 7 ? 'critical' : 'high',
       title: isYouOwe
         ? `Overdue: You owe ${getPersonName(commitment)}`
         : `Overdue: ${getPersonName(commitment)} owes you`,
       description: commitment.description,
-      entityType: "commitment",
+      entityType: 'commitment',
       entityId: commitment.id,
       relatedPerson: getPersonInfo(commitment),
       actionSuggestion: isYouOwe
-        ? "Complete this commitment or communicate about the delay"
-        : "Follow up to check on status",
+        ? 'Complete this commitment or communicate about the delay'
+        : 'Follow up to check on status',
       metadata: { daysOverdue },
     });
   }
 
   // Process commitments due today (high urgency)
   for (const commitment of dueTodayCommitments) {
-    const isYouOwe = commitment.direction === "user_owes";
+    const isYouOwe = commitment.direction === 'user_owes';
 
     insights.push({
-      type: "commitment_due_today",
-      urgency: "high",
-      title: `Due today: ${commitment.description.substring(0, 50)}${commitment.description.length > 50 ? "..." : ""}`,
+      type: 'commitment_due_today',
+      urgency: 'high',
+      title: `Due today: ${commitment.description.substring(0, 50)}${commitment.description.length > 50 ? '...' : ''}`,
       description: isYouOwe
         ? `You need to complete this for ${getPersonName(commitment)}`
         : `${getPersonName(commitment)} should deliver this today`,
-      entityType: "commitment",
+      entityType: 'commitment',
       entityId: commitment.id,
       relatedPerson: getPersonInfo(commitment),
       actionSuggestion: isYouOwe
-        ? "Prioritize completing this today"
-        : "Check if they need a reminder",
+        ? 'Prioritize completing this today'
+        : 'Check if they need a reminder',
     });
   }
 
   // Process upcoming commitments (medium urgency)
   for (const commitment of upcomingCommitments.slice(0, 10)) {
-    const isYouOwe = commitment.direction === "user_owes";
+    const isYouOwe = commitment.direction === 'user_owes';
     const daysUntilDue = commitment.dueDate
       ? Math.ceil((commitment.dueDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
       : 0;
 
     insights.push({
-      type: "commitment_due_soon",
-      urgency: daysUntilDue <= 2 ? "high" : "medium",
-      title: `Due in ${daysUntilDue} day${daysUntilDue !== 1 ? "s" : ""}: ${commitment.description.substring(0, 40)}...`,
+      type: 'commitment_due_soon',
+      urgency: daysUntilDue <= 2 ? 'high' : 'medium',
+      title: `Due in ${daysUntilDue} day${daysUntilDue !== 1 ? 's' : ''}: ${commitment.description.substring(0, 40)}...`,
       description: isYouOwe
         ? `You promised this to ${getPersonName(commitment)}`
         : `${getPersonName(commitment)} promised this to you`,
-      entityType: "commitment",
+      entityType: 'commitment',
       entityId: commitment.id,
       relatedPerson: getPersonInfo(commitment),
       metadata: { daysUntilDue },
@@ -187,20 +187,20 @@ export async function generateInsights(
       const isVip = (person.importanceScore || 0) >= 70;
 
       insights.push({
-        type: isVip ? "vip_no_recent_contact" : "stale_contact",
-        urgency: isVip ? "medium" : "low",
+        type: isVip ? 'vip_no_recent_contact' : 'stale_contact',
+        urgency: isVip ? 'medium' : 'low',
         title: `No contact in ${daysSinceContact} days: ${person.name || person.email}`,
         description: person.company
-          ? `${person.role || "Contact"} at ${person.company}`
-          : person.domain || "Contact",
-        entityType: "person",
+          ? `${person.role || 'Contact'} at ${person.company}`
+          : person.domain || 'Contact',
+        entityType: 'person',
         entityId: person.id,
         relatedPerson: {
           id: person.id,
           name: person.name,
           email: person.email,
         },
-        actionSuggestion: "Consider reaching out to maintain the relationship",
+        actionSuggestion: 'Consider reaching out to maintain the relationship',
         metadata: { daysSinceContact, importanceScore: person.importanceScore },
       });
     }
@@ -208,15 +208,15 @@ export async function generateInsights(
 
   // Process meetings needing prep (medium urgency)
   for (const meeting of todayMeetings) {
-    if (meeting.status === "pending" || meeting.status === "generating") {
+    if (meeting.status === 'pending' || meeting.status === 'generating') {
       insights.push({
-        type: "meeting_prep_needed",
-        urgency: "medium",
+        type: 'meeting_prep_needed',
+        urgency: 'medium',
         title: `Meeting prep: ${meeting.meetingTitle}`,
-        description: `Briefing ${meeting.status === "generating" ? "being generated" : "not yet generated"}`,
-        entityType: "meeting",
+        description: `Briefing ${meeting.status === 'generating' ? 'being generated' : 'not yet generated'}`,
+        entityType: 'meeting',
         entityId: meeting.id,
-        actionSuggestion: "Review meeting briefing before the meeting",
+        actionSuggestion: 'Review meeting briefing before the meeting',
         metadata: {
           meetingTime: meeting.meetingStartTime?.toISOString(),
           attendeeCount: meeting.attendees?.length || 0,
@@ -239,10 +239,10 @@ export async function generateInsights(
 
   // Calculate summary
   const byUrgency = {
-    critical: limitedInsights.filter((i) => i.urgency === "critical").length,
-    high: limitedInsights.filter((i) => i.urgency === "high").length,
-    medium: limitedInsights.filter((i) => i.urgency === "medium").length,
-    low: limitedInsights.filter((i) => i.urgency === "low").length,
+    critical: limitedInsights.filter((i) => i.urgency === 'critical').length,
+    high: limitedInsights.filter((i) => i.urgency === 'high').length,
+    medium: limitedInsights.filter((i) => i.urgency === 'medium').length,
+    low: limitedInsights.filter((i) => i.urgency === 'low').length,
   };
 
   return {
@@ -266,17 +266,21 @@ export async function generateUrgentSummary(userId: string): Promise<{
   const [overdueCommitments, dueTodayCommitments, todayMeetings]: [
     Commitment[],
     Commitment[],
-    MeetingBriefing[]
+    MeetingBriefing[],
   ] = await Promise.all([
     findOverdueCommitments(userId),
     findCommitmentsDueToday(userId),
     findTodaysMeetingBriefings(userId),
   ]);
 
-  const overdueYouOwe = overdueCommitments.filter((c: Commitment) => c.direction === "user_owes").length;
-  const overdueTheyOwe = overdueCommitments.filter((c: Commitment) => c.direction === "they_owe").length;
+  const overdueYouOwe = overdueCommitments.filter(
+    (c: Commitment) => c.direction === 'user_owes'
+  ).length;
+  const overdueTheyOwe = overdueCommitments.filter(
+    (c: Commitment) => c.direction === 'they_owe'
+  ).length;
   const meetingsNeedingPrep = todayMeetings.filter(
-    (m: MeetingBriefing) => m.status === "pending" || m.status === "generating"
+    (m: MeetingBriefing) => m.status === 'pending' || m.status === 'generating'
   ).length;
 
   // Generate critical insights only
@@ -288,13 +292,13 @@ export async function generateUrgentSummary(userId: string): Promise<{
       ? Math.floor((Date.now() - commitment.dueDate.getTime()) / (1000 * 60 * 60 * 24))
       : 0;
 
-    if (daysOverdue > 7 && commitment.direction === "user_owes") {
+    if (daysOverdue > 7 && commitment.direction === 'user_owes') {
       criticalInsights.push({
-        type: "commitment_overdue_you_owe",
-        urgency: "critical",
+        type: 'commitment_overdue_you_owe',
+        urgency: 'critical',
         title: `OVERDUE ${daysOverdue}d: ${commitment.description.substring(0, 40)}...`,
         description: `You owe this to ${getPersonName(commitment)}`,
-        entityType: "commitment",
+        entityType: 'commitment',
         entityId: commitment.id,
         relatedPerson: getPersonInfo(commitment),
       });
@@ -317,24 +321,28 @@ export async function generateUrgentSummary(userId: string): Promise<{
 type CommitmentLike = Commitment | CommitmentWithPerson;
 
 function getPersonName(commitment: CommitmentLike): string {
-  if ("person" in commitment && commitment.person) {
+  if ('person' in commitment && commitment.person) {
     const person = commitment.person as { name?: string | null; email?: string | null };
     if (person.name) return person.name;
     if (person.email) return person.email;
   }
-  return "someone";
+  return 'someone';
 }
 
 function getPersonInfo(
   commitment: CommitmentLike
 ): { id: string; name: string | null; email: string } | undefined {
-  if ("person" in commitment && commitment.person) {
-    const person = commitment.person as { id?: string; name?: string | null; email?: string | null };
+  if ('person' in commitment && commitment.person) {
+    const person = commitment.person as {
+      id?: string;
+      name?: string | null;
+      email?: string | null;
+    };
     if (person.id) {
       return {
         id: person.id,
         name: person.name || null,
-        email: person.email || "",
+        email: person.email || '',
       };
     }
   }

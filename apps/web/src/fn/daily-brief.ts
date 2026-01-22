@@ -1,18 +1,15 @@
-import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
-import { authenticatedMiddleware } from "./middleware";
-import {
-  generateDailyBrief,
-  type BriefGenerationOptions,
-} from "~/services/brief-generator";
+import { createServerFn } from '@tanstack/react-start';
+import { z } from 'zod';
+import { authenticatedMiddleware } from './middleware';
+import { generateDailyBrief, type BriefGenerationOptions } from '~/services/brief-generator';
 import {
   findLatestDailyBrief,
   findDailyBriefsByUserId,
   findDailyBriefByUserAndDate,
   getTodayDateString,
-} from "~/data-access/daily-briefs";
-import { findGoogleIntegrationByUserId } from "~/data-access/google-integration";
-import { isIntegrationValid } from "~/lib/google-client";
+} from '~/data-access/daily-briefs';
+import { findGoogleIntegrationByUserId } from '~/data-access/google-integration';
+import { isIntegrationValid } from '~/lib/google-client';
 
 /**
  * Manually triggers brief generation for the authenticated user.
@@ -28,7 +25,7 @@ import { isIntegrationValid } from "~/lib/google-client";
  * @param timeZone Optional timezone override (defaults to server timezone)
  * @returns The generation result with the brief or error details
  */
-export const generateBriefFn = createServerFn({ method: "POST" })
+export const generateBriefFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z
       .object({
@@ -49,7 +46,7 @@ export const generateBriefFn = createServerFn({ method: "POST" })
           success: false,
           data: null,
           error:
-            "Google account is not connected. Please connect your Google account to generate briefs.",
+            'Google account is not connected. Please connect your Google account to generate briefs.',
         };
       }
 
@@ -72,7 +69,7 @@ export const generateBriefFn = createServerFn({ method: "POST" })
                 errorMessage: result.brief.errorMessage,
               }
             : null,
-          error: result.error?.message || "Failed to generate brief",
+          error: result.error?.message || 'Failed to generate brief',
         };
       }
 
@@ -90,12 +87,11 @@ export const generateBriefFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to generate brief:", error);
+      console.error('Failed to generate brief:', error);
       return {
         success: false,
         data: null,
-        error:
-          error instanceof Error ? error.message : "Failed to generate brief",
+        error: error instanceof Error ? error.message : 'Failed to generate brief',
       };
     }
   });
@@ -108,7 +104,7 @@ export const generateBriefFn = createServerFn({ method: "POST" })
  *
  * @returns The latest brief or null if none exists
  */
-export const getLatestBriefFn = createServerFn({ method: "GET" })
+export const getLatestBriefFn = createServerFn({ method: 'GET' })
   .middleware([authenticatedMiddleware])
   .handler(async ({ context }) => {
     const { userId } = context;
@@ -147,14 +143,11 @@ export const getLatestBriefFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get latest brief:", error);
+      console.error('Failed to get latest brief:', error);
       return {
         success: false,
         data: null,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to get latest brief",
+        error: error instanceof Error ? error.message : 'Failed to get latest brief',
       };
     }
   });
@@ -167,7 +160,7 @@ export const getLatestBriefFn = createServerFn({ method: "GET" })
  *
  * @returns Today's brief or null if not generated yet
  */
-export const getTodaysBriefFn = createServerFn({ method: "GET" })
+export const getTodaysBriefFn = createServerFn({ method: 'GET' })
   .middleware([authenticatedMiddleware])
   .handler(async ({ context }) => {
     const { userId } = context;
@@ -211,10 +204,7 @@ export const getTodaysBriefFn = createServerFn({ method: "GET" })
       return {
         success: false,
         data: null,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to get today's brief",
+        error: error instanceof Error ? error.message : "Failed to get today's brief",
       };
     }
   });
@@ -228,7 +218,7 @@ export const getTodaysBriefFn = createServerFn({ method: "GET" })
  * @param limit Maximum number of briefs to return (default: 30)
  * @returns Array of past briefs (most recent first)
  */
-export const getBriefHistoryFn = createServerFn({ method: "GET" })
+export const getBriefHistoryFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z
       .object({
@@ -259,14 +249,11 @@ export const getBriefHistoryFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get brief history:", error);
+      console.error('Failed to get brief history:', error);
       return {
         success: false,
         data: null,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to get brief history",
+        error: error instanceof Error ? error.message : 'Failed to get brief history',
       };
     }
   });
@@ -277,12 +264,10 @@ export const getBriefHistoryFn = createServerFn({ method: "GET" })
  * @param briefDate The date of the brief in YYYY-MM-DD format
  * @returns The brief for the specified date or null if not found
  */
-export const getBriefByDateFn = createServerFn({ method: "GET" })
+export const getBriefByDateFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z.object({
-      briefDate: z
-        .string()
-        .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format"),
+      briefDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
     })
   )
   .middleware([authenticatedMiddleware])
@@ -323,14 +308,11 @@ export const getBriefByDateFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get brief by date:", error);
+      console.error('Failed to get brief by date:', error);
       return {
         success: false,
         data: null,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to get brief by date",
+        error: error instanceof Error ? error.message : 'Failed to get brief by date',
       };
     }
   });

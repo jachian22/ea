@@ -1,12 +1,12 @@
-import { eq } from "drizzle-orm";
-import { database } from "~/db";
+import { eq } from 'drizzle-orm';
+import { database } from '~/db';
 import {
   privacySettings,
   type PrivacySettings,
   type CreatePrivacySettingsData,
   type UpdatePrivacySettingsData,
   type PersonDomain,
-} from "~/db/schema";
+} from '~/db/schema';
 
 // ============================================================================
 // Privacy Settings CRUD
@@ -18,10 +18,7 @@ import {
 export async function createPrivacySettings(
   data: CreatePrivacySettingsData
 ): Promise<PrivacySettings> {
-  const [newSettings] = await database
-    .insert(privacySettings)
-    .values(data)
-    .returning();
+  const [newSettings] = await database.insert(privacySettings).values(data).returning();
 
   return newSettings;
 }
@@ -29,9 +26,7 @@ export async function createPrivacySettings(
 /**
  * Find privacy settings by ID
  */
-export async function findPrivacySettingsById(
-  id: string
-): Promise<PrivacySettings | null> {
+export async function findPrivacySettingsById(id: string): Promise<PrivacySettings | null> {
   const [result] = await database
     .select()
     .from(privacySettings)
@@ -44,9 +39,7 @@ export async function findPrivacySettingsById(
 /**
  * Find privacy settings by user ID
  */
-export async function findPrivacySettingsByUserId(
-  userId: string
-): Promise<PrivacySettings | null> {
+export async function findPrivacySettingsByUserId(userId: string): Promise<PrivacySettings | null> {
   const [result] = await database
     .select()
     .from(privacySettings)
@@ -59,9 +52,7 @@ export async function findPrivacySettingsByUserId(
 /**
  * Find or create privacy settings for a user (with defaults)
  */
-export async function findOrCreatePrivacySettings(
-  userId: string
-): Promise<PrivacySettings> {
+export async function findOrCreatePrivacySettings(userId: string): Promise<PrivacySettings> {
   const existing = await findPrivacySettingsByUserId(userId);
   if (existing) {
     return existing;
@@ -121,7 +112,7 @@ export async function updatePrivacySettingsByUserId(
  */
 export async function upsertPrivacySettings(
   userId: string,
-  data: Omit<UpdatePrivacySettingsData, "id" | "userId">
+  data: Omit<UpdatePrivacySettingsData, 'id' | 'userId'>
 ): Promise<PrivacySettings> {
   const existing = await findPrivacySettingsByUserId(userId);
 
@@ -259,9 +250,7 @@ export async function removeExcludedEmailDomain(
 
   const normalizedDomain = emailDomain.toLowerCase();
   const currentDomains = settings.excludedEmailDomains || [];
-  const filteredDomains = currentDomains.filter(
-    (d) => d.toLowerCase() !== normalizedDomain
-  );
+  const filteredDomains = currentDomains.filter((d) => d.toLowerCase() !== normalizedDomain);
 
   return updatePrivacySettings(settings.id, {
     excludedEmailDomains: filteredDomains,

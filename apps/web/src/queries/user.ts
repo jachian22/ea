@@ -1,14 +1,14 @@
-import { queryOptions } from "@tanstack/react-query";
-import { getImageUrlFn } from "~/fn/storage";
+import { queryOptions } from '@tanstack/react-query';
+import { getImageUrlFn } from '~/fn/storage';
 
 export const getUserAvatarQuery = (imageKey: string | null) =>
   queryOptions({
-    queryKey: ["avatar-url", imageKey],
+    queryKey: ['avatar-url', imageKey],
     queryFn: async (): Promise<{ imageUrl: string | null }> => {
       if (!imageKey) {
         return { imageUrl: null };
       }
-      
+
       try {
         const result = await getImageUrlFn({
           data: { imageKey },

@@ -1,9 +1,6 @@
-import { google, type gmail_v1, type calendar_v3 } from "googleapis";
-import type { GoogleIntegration } from "~/db/schema";
-import {
-  createAuthenticatedClient,
-  isIntegrationValid,
-} from "~/lib/google-client";
+import { google, type gmail_v1, type calendar_v3 } from 'googleapis';
+import type { GoogleIntegration } from '~/db/schema';
+import { createAuthenticatedClient, isIntegrationValid } from '~/lib/google-client';
 import {
   createIngestionEvent,
   findDuplicateIngestionEvent,
@@ -11,13 +8,10 @@ import {
   markIngestionEventCompleted,
   markIngestionEventFailed,
   markIngestionEventDuplicate,
-} from "~/data-access/ingestion-events";
-import {
-  findPersonByUserIdAndEmail,
-  createPerson,
-} from "~/data-access/persons";
-import { createInteractionAndUpdatePerson } from "~/data-access/interactions";
-import { findGoogleIntegrationByUserId } from "~/data-access/google-integration";
+} from '~/data-access/ingestion-events';
+import { findPersonByUserIdAndEmail, createPerson } from '~/data-access/persons';
+import { createInteractionAndUpdatePerson } from '~/data-access/interactions';
+import { findGoogleIntegrationByUserId } from '~/data-access/google-integration';
 
 // ============================================================================
 // Webhook Ingestion Service
@@ -53,7 +47,7 @@ export interface CalendarPushNotification {
   resourceUri: string;
   channelId: string;
   channelExpiration?: string;
-  resourceState: "sync" | "exists" | "not_exists";
+  resourceState: 'sync' | 'exists' | 'not_exists';
   changed?: string; // Comma-separated list of changed fields
 }
 
@@ -85,8 +79,8 @@ export class WebhookIngestionService {
   ) {
     this.userId = userId;
     this.integration = integration;
-    this.gmail = google.gmail({ version: "v1", auth });
-    this.calendar = google.calendar({ version: "v3", auth });
+    this.gmail = google.gmail({ version: 'v1', auth });
+    this.calendar = google.calendar({ version: 'v3', auth });
   }
 
   /**
@@ -110,14 +104,14 @@ export class WebhookIngestionService {
     notification: GmailPushNotification
   ): Promise<WebhookProcessingResult> {
     // Decode the notification data
-    const decodedData = Buffer.from(notification.message.data, "base64").toString();
+    const decodedData = Buffer.from(notification.message.data, 'base64').toString();
     const data: GmailNotificationData = JSON.parse(decodedData);
 
     // Create ingestion event
     const ingestionEvent = await createIngestionEvent({
       userId: this.userId,
-      source: "gmail_webhook",
-      eventType: "new_email",
+      source: 'gmail_webhook',
+      eventType: 'new_email',
       externalId: data.historyId,
       payload: {
         emailAddress: data.emailAddress,
@@ -130,7 +124,7 @@ export class WebhookIngestionService {
     // Check for duplicate
     const duplicate = await findDuplicateIngestionEvent(
       this.userId,
-      "gmail_webhook",
+      'gmail_webhook',
       data.historyId
     );
 
@@ -161,7 +155,7 @@ export class WebhookIngestionService {
         ...result,
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       await markIngestionEventFailed(ingestionEvent.id, errorMessage);
 
       return {
@@ -178,9 +172,7 @@ export class WebhookIngestionService {
   /**
    * Process Gmail history to extract new messages
    */
-  private async processGmailHistory(
-    historyId: string
-  ): Promise<{
+  private async processGmailHistory(historyId: string): Promise<{
     personsCreated: number;
     interactionsCreated: number;
     commitmentsDetected: number;
@@ -194,9 +186,9 @@ export class WebhookIngestionService {
     try {
       // Get history since the last known historyId
       const historyResponse = await this.gmail.users.history.list({
-        userId: "me",
+        userId: 'me',
         startHistoryId: historyId,
-        historyTypes: ["messageAdded"],
+        historyTypes: ['messageAdded'],
       });
 
       const history = historyResponse.data.history || [];
@@ -210,19 +202,17 @@ export class WebhookIngestionService {
 
           // Fetch the message details
           const messageResponse = await this.gmail.users.messages.get({
-            userId: "me",
+            userId: 'me',
             id: messageAdded.message.id,
-            format: "metadata",
-            metadataHeaders: ["From", "To", "Subject", "Date"],
+            format: 'metadata',
+            metadataHeaders: ['From', 'To', 'Subject', 'Date'],
           });
 
           const message = messageResponse.data;
           const headers = message.payload?.headers || [];
 
           // Extract sender info
-          const fromHeader = headers.find(
-            (h) => h.name?.toLowerCase() === "from"
-          )?.value;
+          const fromHeader = headers.find((h) => h.name?.toLowerCase() === 'from')?.value;
 
           if (!fromHeader) continue;
 
@@ -242,7 +232,7 @@ export class WebhookIngestionService {
               userId: this.userId,
               email,
               name,
-              domain: "business",
+              domain: 'business',
             });
             results.personsCreated++;
           }
@@ -251,13 +241,14 @@ export class WebhookIngestionService {
           await createInteractionAndUpdatePerson({
             userId: this.userId,
             personId: person.id,
-            type: "email",
-            channel: "email",
-            direction: "inbound",
-            subject: headers.find((h) => h.name?.toLowerCase() === "subject")?.value || "(No Subject)",
-            summary: message.snippet || "",
-            sourceType: "email",
-            sourceId: message.id || "",
+            type: 'email',
+            channel: 'email',
+            direction: 'inbound',
+            subject:
+              headers.find((h) => h.name?.toLowerCase() === 'subject')?.value || '(No Subject)',
+            summary: message.snippet || '',
+            sourceType: 'email',
+            sourceId: message.id || '',
             occurredAt: message.internalDate
               ? new Date(parseInt(message.internalDate))
               : new Date(),
@@ -290,8 +281,8 @@ export class WebhookIngestionService {
     // Create ingestion event
     const ingestionEvent = await createIngestionEvent({
       userId: this.userId,
-      source: "calendar_webhook",
-      eventType: notification.resourceState === "exists" ? "calendar_update" : "calendar_event",
+      source: 'calendar_webhook',
+      eventType: notification.resourceState === 'exists' ? 'calendar_update' : 'calendar_event',
       externalId: notification.resourceId,
       payload: {
         resourceId: notification.resourceId,
@@ -303,7 +294,7 @@ export class WebhookIngestionService {
     });
 
     // Skip sync messages (just acknowledging the watch setup)
-    if (notification.resourceState === "sync") {
+    if (notification.resourceState === 'sync') {
       await markIngestionEventCompleted(ingestionEvent.id, {
         personsCreated: 0,
         interactionsCreated: 0,
@@ -335,7 +326,7 @@ export class WebhookIngestionService {
         ...result,
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       await markIngestionEventFailed(ingestionEvent.id, errorMessage);
 
       return {
@@ -352,9 +343,7 @@ export class WebhookIngestionService {
   /**
    * Process calendar changes to extract attendee information
    */
-  private async processCalendarChanges(
-    notification: CalendarPushNotification
-  ): Promise<{
+  private async processCalendarChanges(notification: CalendarPushNotification): Promise<{
     personsCreated: number;
     interactionsCreated: number;
     commitmentsDetected: number;
@@ -371,7 +360,7 @@ export class WebhookIngestionService {
       const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
 
       const eventsResponse = await this.calendar.events.list({
-        calendarId: "primary",
+        calendarId: 'primary',
         updatedMin: oneHourAgo.toISOString(),
         singleEvents: true,
         maxResults: 50,
@@ -397,7 +386,7 @@ export class WebhookIngestionService {
               userId: this.userId,
               email,
               name: attendee.displayName,
-              domain: "business",
+              domain: 'business',
             });
             results.personsCreated++;
           }
@@ -407,13 +396,13 @@ export class WebhookIngestionService {
             await createInteractionAndUpdatePerson({
               userId: this.userId,
               personId: person.id,
-              type: "meeting",
-              channel: "meeting",
-              direction: event.organizer?.self ? "outbound" : "inbound",
-              subject: event.summary || "(No Title)",
-              summary: event.description || "",
-              sourceType: "calendar",
-              sourceId: event.id || "",
+              type: 'meeting',
+              channel: 'meeting',
+              direction: event.organizer?.self ? 'outbound' : 'inbound',
+              subject: event.summary || '(No Title)',
+              summary: event.description || '',
+              sourceType: 'calendar',
+              sourceId: event.id || '',
               occurredAt: new Date(event.start.dateTime || event.start.date || Date.now()),
             });
             results.interactionsCreated++;
@@ -421,7 +410,7 @@ export class WebhookIngestionService {
         }
       }
     } catch (error) {
-      console.error("Error processing calendar changes:", error);
+      console.error('Error processing calendar changes:', error);
       throw error;
     }
 
@@ -449,24 +438,24 @@ export async function setupGmailWatch(
   }
 
   const authClient = await createAuthenticatedClient(integration);
-  const gmail = google.gmail({ version: "v1", auth: authClient });
+  const gmail = google.gmail({ version: 'v1', auth: authClient });
 
   try {
     const response = await gmail.users.watch({
-      userId: "me",
+      userId: 'me',
       requestBody: {
         topicName,
-        labelIds: ["INBOX"],
-        labelFilterBehavior: "include",
+        labelIds: ['INBOX'],
+        labelFilterBehavior: 'include',
       },
     });
 
     return {
-      historyId: response.data.historyId || "",
-      expiration: response.data.expiration || "",
+      historyId: response.data.historyId || '',
+      expiration: response.data.expiration || '',
     };
   } catch (error) {
-    console.error("Failed to setup Gmail watch:", error);
+    console.error('Failed to setup Gmail watch:', error);
     return null;
   }
 }
@@ -474,21 +463,19 @@ export async function setupGmailWatch(
 /**
  * Stop Gmail push notifications for a user
  */
-export async function stopGmailWatch(
-  integration: GoogleIntegration
-): Promise<boolean> {
+export async function stopGmailWatch(integration: GoogleIntegration): Promise<boolean> {
   if (!isIntegrationValid(integration)) {
     return false;
   }
 
   const authClient = await createAuthenticatedClient(integration);
-  const gmail = google.gmail({ version: "v1", auth: authClient });
+  const gmail = google.gmail({ version: 'v1', auth: authClient });
 
   try {
-    await gmail.users.stop({ userId: "me" });
+    await gmail.users.stop({ userId: 'me' });
     return true;
   } catch (error) {
-    console.error("Failed to stop Gmail watch:", error);
+    console.error('Failed to stop Gmail watch:', error);
     return false;
   }
 }
@@ -510,28 +497,28 @@ export async function setupCalendarWatch(
   }
 
   const authClient = await createAuthenticatedClient(integration);
-  const calendar = google.calendar({ version: "v3", auth: authClient });
+  const calendar = google.calendar({ version: 'v3', auth: authClient });
 
   try {
     const response = await calendar.events.watch({
-      calendarId: "primary",
+      calendarId: 'primary',
       requestBody: {
         id: channelId,
-        type: "web_hook",
+        type: 'web_hook',
         address: webhookUrl,
         params: {
-          ttl: "604800", // 7 days in seconds
+          ttl: '604800', // 7 days in seconds
         },
       },
     });
 
     return {
       channelId: response.data.id || channelId,
-      resourceId: response.data.resourceId || "",
-      expiration: response.data.expiration || "",
+      resourceId: response.data.resourceId || '',
+      expiration: response.data.expiration || '',
     };
   } catch (error) {
-    console.error("Failed to setup Calendar watch:", error);
+    console.error('Failed to setup Calendar watch:', error);
     return null;
   }
 }
@@ -549,7 +536,7 @@ export async function stopCalendarWatch(
   }
 
   const authClient = await createAuthenticatedClient(integration);
-  const calendar = google.calendar({ version: "v3", auth: authClient });
+  const calendar = google.calendar({ version: 'v3', auth: authClient });
 
   try {
     await calendar.channels.stop({
@@ -560,7 +547,7 @@ export async function stopCalendarWatch(
     });
     return true;
   } catch (error) {
-    console.error("Failed to stop Calendar watch:", error);
+    console.error('Failed to stop Calendar watch:', error);
     return false;
   }
 }

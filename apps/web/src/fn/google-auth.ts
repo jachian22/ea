@@ -1,15 +1,11 @@
-import { createServerFn } from "@tanstack/react-start";
-import { authenticatedMiddleware } from "./middleware";
-import {
-  getGoogleAuthUrl,
-  GOOGLE_SCOPES,
-  createOAuth2Client,
-} from "~/lib/google-client";
+import { createServerFn } from '@tanstack/react-start';
+import { authenticatedMiddleware } from './middleware';
+import { getGoogleAuthUrl, GOOGLE_SCOPES, createOAuth2Client } from '~/lib/google-client';
 import {
   findGoogleIntegrationByUserId,
   deleteGoogleIntegrationByUserId,
-} from "~/data-access/google-integration";
-import crypto from "crypto";
+} from '~/data-access/google-integration';
+import crypto from 'crypto';
 
 /**
  * Initiates the Google OAuth flow by generating an authorization URL.
@@ -20,7 +16,7 @@ import crypto from "crypto";
  *
  * @returns The authorization URL to redirect the user to Google's consent screen
  */
-export const initiateGoogleAuthFn = createServerFn({ method: "POST" })
+export const initiateGoogleAuthFn = createServerFn({ method: 'POST' })
   .middleware([authenticatedMiddleware])
   .handler(async ({ context }) => {
     const { userId } = context;
@@ -31,8 +27,8 @@ export const initiateGoogleAuthFn = createServerFn({ method: "POST" })
       // This allows us to:
       // 1. Verify the callback is for a legitimate request (nonce)
       // 2. Associate the tokens with the correct user (userId)
-      const nonce = crypto.randomBytes(16).toString("hex");
-      const state = Buffer.from(`${userId}|${nonce}`).toString("base64url");
+      const nonce = crypto.randomBytes(16).toString('hex');
+      const state = Buffer.from(`${userId}|${nonce}`).toString('base64url');
 
       // Generate the Google OAuth authorization URL
       const authUrl = getGoogleAuthUrl(state);
@@ -46,14 +42,11 @@ export const initiateGoogleAuthFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to initiate Google OAuth flow:", error);
+      console.error('Failed to initiate Google OAuth flow:', error);
       return {
         success: false,
         data: null,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to initiate Google authentication",
+        error: error instanceof Error ? error.message : 'Failed to initiate Google authentication',
       };
     }
   });
@@ -65,12 +58,10 @@ export const initiateGoogleAuthFn = createServerFn({ method: "POST" })
  * @param state The base64url-encoded state parameter from the callback
  * @returns The parsed userId and nonce, or null if invalid
  */
-export function parseOAuthState(
-  state: string
-): { userId: string; nonce: string } | null {
+export function parseOAuthState(state: string): { userId: string; nonce: string } | null {
   try {
-    const decoded = Buffer.from(state, "base64url").toString("utf-8");
-    const [userId, nonce] = decoded.split("|");
+    const decoded = Buffer.from(state, 'base64url').toString('utf-8');
+    const [userId, nonce] = decoded.split('|');
 
     if (!userId || !nonce) {
       return null;
@@ -95,7 +86,7 @@ export function parseOAuthState(
  *
  * @returns Success/failure status of the disconnect operation
  */
-export const disconnectGoogleIntegrationFn = createServerFn({ method: "POST" })
+export const disconnectGoogleIntegrationFn = createServerFn({ method: 'POST' })
   .middleware([authenticatedMiddleware])
   .handler(async ({ context }) => {
     const { userId } = context;
@@ -108,7 +99,7 @@ export const disconnectGoogleIntegrationFn = createServerFn({ method: "POST" })
         return {
           success: false,
           data: null,
-          error: "No Google integration found for this user",
+          error: 'No Google integration found for this user',
         };
       }
 
@@ -120,10 +111,7 @@ export const disconnectGoogleIntegrationFn = createServerFn({ method: "POST" })
         await oauth2Client.revokeToken(integration.accessToken);
       } catch (revokeError) {
         // Log but don't fail - the token might already be invalid/expired
-        console.warn(
-          "Failed to revoke Google token (may already be invalid):",
-          revokeError
-        );
+        console.warn('Failed to revoke Google token (may already be invalid):', revokeError);
       }
 
       // Delete the integration record from the database
@@ -133,26 +121,23 @@ export const disconnectGoogleIntegrationFn = createServerFn({ method: "POST" })
         return {
           success: false,
           data: null,
-          error: "Failed to delete Google integration record",
+          error: 'Failed to delete Google integration record',
         };
       }
 
       return {
         success: true,
         data: {
-          message: "Google integration disconnected successfully",
+          message: 'Google integration disconnected successfully',
         },
         error: null,
       };
     } catch (error) {
-      console.error("Failed to disconnect Google integration:", error);
+      console.error('Failed to disconnect Google integration:', error);
       return {
         success: false,
         data: null,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to disconnect Google integration",
+        error: error instanceof Error ? error.message : 'Failed to disconnect Google integration',
       };
     }
   });
@@ -189,7 +174,7 @@ export type GoogleIntegrationStatus = {
  *
  * @returns The Google integration status for the authenticated user
  */
-export const getGoogleIntegrationStatusFn = createServerFn({ method: "GET" })
+export const getGoogleIntegrationStatusFn = createServerFn({ method: 'GET' })
   .middleware([authenticatedMiddleware])
   .handler(async ({ context }) => {
     const { userId } = context;
@@ -224,8 +209,7 @@ export const getGoogleIntegrationStatusFn = createServerFn({ method: "GET" })
       // 1. The token is expired AND there's no refresh token (shouldn't happen but safety check)
       // 2. The integration is marked as disconnected (user revoked access externally)
       const needsReauthorization =
-        !integration.isConnected ||
-        (isTokenExpired && !integration.refreshToken);
+        !integration.isConnected || (isTokenExpired && !integration.refreshToken);
 
       return {
         success: true,
@@ -241,14 +225,11 @@ export const getGoogleIntegrationStatusFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get Google integration status:", error);
+      console.error('Failed to get Google integration status:', error);
       return {
         success: false,
         data: null,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to get Google integration status",
+        error: error instanceof Error ? error.message : 'Failed to get Google integration status',
       };
     }
   });

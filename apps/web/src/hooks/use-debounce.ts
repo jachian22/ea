@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
 /**
  * Hook to debounce a value - useful for search inputs

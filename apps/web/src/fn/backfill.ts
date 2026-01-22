@@ -1,23 +1,23 @@
-import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
-import { authenticatedMiddleware } from "./middleware";
+import { createServerFn } from '@tanstack/react-start';
+import { z } from 'zod';
+import { authenticatedMiddleware } from './middleware';
 import {
   findBackfillJobsByUserId,
   findBackfillJobById,
   findActiveBackfillJob,
   pauseBackfillJob,
   deleteBackfillJob,
-} from "~/data-access/backfill-jobs";
-import { startBackfill, runBackfillJob } from "~/services/backfill-service";
+} from '~/data-access/backfill-jobs';
+import { startBackfill, runBackfillJob } from '~/services/backfill-service';
 
 // ============================================================================
 // Start Backfill Job
 // ============================================================================
 
-export const startBackfillJobFn = createServerFn({ method: "POST" })
+export const startBackfillJobFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
-      sourceType: z.enum(["gmail", "calendar", "all"]),
+      sourceType: z.enum(['gmail', 'calendar', 'all']),
       startDate: z.string(), // ISO date string
       endDate: z.string(), // ISO date string
       saveCommitments: z.boolean().optional().default(true),
@@ -60,11 +60,11 @@ export const startBackfillJobFn = createServerFn({ method: "POST" })
         error: result.error || null,
       };
     } catch (error) {
-      console.error("Failed to start backfill:", error);
+      console.error('Failed to start backfill:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to start backfill",
+        error: error instanceof Error ? error.message : 'Failed to start backfill',
       };
     }
   });
@@ -73,7 +73,7 @@ export const startBackfillJobFn = createServerFn({ method: "POST" })
 // Get Backfill Jobs
 // ============================================================================
 
-export const getBackfillJobsFn = createServerFn({ method: "GET" })
+export const getBackfillJobsFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z
       .object({
@@ -95,11 +95,11 @@ export const getBackfillJobsFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get backfill jobs:", error);
+      console.error('Failed to get backfill jobs:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to get backfill jobs",
+        error: error instanceof Error ? error.message : 'Failed to get backfill jobs',
       };
     }
   });
@@ -108,7 +108,7 @@ export const getBackfillJobsFn = createServerFn({ method: "GET" })
 // Get Active Backfill Job
 // ============================================================================
 
-export const getActiveBackfillJobFn = createServerFn({ method: "GET" })
+export const getActiveBackfillJobFn = createServerFn({ method: 'GET' })
   .middleware([authenticatedMiddleware])
   .handler(async ({ context }) => {
     const { userId } = context;
@@ -122,11 +122,11 @@ export const getActiveBackfillJobFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get active backfill job:", error);
+      console.error('Failed to get active backfill job:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to get active backfill job",
+        error: error instanceof Error ? error.message : 'Failed to get active backfill job',
       };
     }
   });
@@ -135,7 +135,7 @@ export const getActiveBackfillJobFn = createServerFn({ method: "GET" })
 // Get Backfill Job by ID
 // ============================================================================
 
-export const getBackfillJobByIdFn = createServerFn({ method: "GET" })
+export const getBackfillJobByIdFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z.object({
       id: z.string(),
@@ -152,7 +152,7 @@ export const getBackfillJobByIdFn = createServerFn({ method: "GET" })
         return {
           success: false,
           data: null,
-          error: "Backfill job not found",
+          error: 'Backfill job not found',
         };
       }
 
@@ -162,11 +162,11 @@ export const getBackfillJobByIdFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get backfill job:", error);
+      console.error('Failed to get backfill job:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to get backfill job",
+        error: error instanceof Error ? error.message : 'Failed to get backfill job',
       };
     }
   });
@@ -175,7 +175,7 @@ export const getBackfillJobByIdFn = createServerFn({ method: "GET" })
 // Pause Backfill Job
 // ============================================================================
 
-export const pauseBackfillJobFn = createServerFn({ method: "POST" })
+export const pauseBackfillJobFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       id: z.string(),
@@ -192,15 +192,15 @@ export const pauseBackfillJobFn = createServerFn({ method: "POST" })
         return {
           success: false,
           data: null,
-          error: "Backfill job not found",
+          error: 'Backfill job not found',
         };
       }
 
-      if (job.status !== "running") {
+      if (job.status !== 'running') {
         return {
           success: false,
           data: null,
-          error: "Can only pause running jobs",
+          error: 'Can only pause running jobs',
         };
       }
 
@@ -212,11 +212,11 @@ export const pauseBackfillJobFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to pause backfill job:", error);
+      console.error('Failed to pause backfill job:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to pause backfill job",
+        error: error instanceof Error ? error.message : 'Failed to pause backfill job',
       };
     }
   });
@@ -225,7 +225,7 @@ export const pauseBackfillJobFn = createServerFn({ method: "POST" })
 // Resume Backfill Job
 // ============================================================================
 
-export const resumeBackfillJobFn = createServerFn({ method: "POST" })
+export const resumeBackfillJobFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       id: z.string(),
@@ -242,15 +242,15 @@ export const resumeBackfillJobFn = createServerFn({ method: "POST" })
         return {
           success: false,
           data: null,
-          error: "Backfill job not found",
+          error: 'Backfill job not found',
         };
       }
 
-      if (job.status !== "paused") {
+      if (job.status !== 'paused') {
         return {
           success: false,
           data: null,
-          error: "Can only resume paused jobs",
+          error: 'Can only resume paused jobs',
         };
       }
 
@@ -263,11 +263,11 @@ export const resumeBackfillJobFn = createServerFn({ method: "POST" })
         error: result.error || null,
       };
     } catch (error) {
-      console.error("Failed to resume backfill job:", error);
+      console.error('Failed to resume backfill job:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to resume backfill job",
+        error: error instanceof Error ? error.message : 'Failed to resume backfill job',
       };
     }
   });
@@ -276,7 +276,7 @@ export const resumeBackfillJobFn = createServerFn({ method: "POST" })
 // Delete Backfill Job
 // ============================================================================
 
-export const deleteBackfillJobFn = createServerFn({ method: "POST" })
+export const deleteBackfillJobFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       id: z.string(),
@@ -292,14 +292,14 @@ export const deleteBackfillJobFn = createServerFn({ method: "POST" })
       if (!job || job.userId !== userId) {
         return {
           success: false,
-          error: "Backfill job not found",
+          error: 'Backfill job not found',
         };
       }
 
-      if (job.status === "running") {
+      if (job.status === 'running') {
         return {
           success: false,
-          error: "Cannot delete running jobs. Pause it first.",
+          error: 'Cannot delete running jobs. Pause it first.',
         };
       }
 
@@ -310,10 +310,10 @@ export const deleteBackfillJobFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to delete backfill job:", error);
+      console.error('Failed to delete backfill job:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Failed to delete backfill job",
+        error: error instanceof Error ? error.message : 'Failed to delete backfill job',
       };
     }
   });

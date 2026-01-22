@@ -1,13 +1,13 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   statementRunsQueryOptions,
   latestStatementRunQueryOptions,
   statementsQueryOptions,
   bankAccountsQueryOptions,
   statementStatsQueryOptions,
-} from "~/queries/statements";
-import { authClient } from "~/lib/auth-client";
-import type { BanksProcessedData, StatementRunStatus } from "~/db/schema";
+} from '~/queries/statements';
+import { authClient } from '~/lib/auth-client';
+import type { BanksProcessedData, StatementRunStatus } from '~/db/schema';
 
 /**
  * Statement run data returned from queries
@@ -180,9 +180,7 @@ export function useStatementsDashboard() {
     ? latestRunQuery.data.data
     : null;
 
-  const runs: StatementRunData[] = runsQuery.data?.success
-    ? runsQuery.data.data || []
-    : [];
+  const runs: StatementRunData[] = runsQuery.data?.success ? runsQuery.data.data || [] : [];
 
   const statements: StatementData[] = statementsQuery.data?.success
     ? statementsQuery.data.data || []
@@ -192,44 +190,42 @@ export function useStatementsDashboard() {
     ? accountsQuery.data.data || []
     : [];
 
-  const stats: StatementStatsData | null = statsQuery.data?.success
-    ? statsQuery.data.data
-    : null;
+  const stats: StatementStatsData | null = statsQuery.data?.success ? statsQuery.data.data : null;
 
   // Helper to get status display info
   const getStatusInfo = (status: StatementRunStatus | null) => {
     switch (status) {
-      case "running":
-        return { label: "Running", color: "blue" as const, icon: "loader" };
-      case "completed":
-        return { label: "Completed", color: "green" as const, icon: "check" };
-      case "failed":
-        return { label: "Failed", color: "red" as const, icon: "x" };
-      case "mfa_required":
-        return { label: "MFA Required", color: "yellow" as const, icon: "key" };
+      case 'running':
+        return { label: 'Running', color: 'blue' as const, icon: 'loader' };
+      case 'completed':
+        return { label: 'Completed', color: 'green' as const, icon: 'check' };
+      case 'failed':
+        return { label: 'Failed', color: 'red' as const, icon: 'x' };
+      case 'mfa_required':
+        return { label: 'MFA Required', color: 'yellow' as const, icon: 'key' };
       default:
-        return { label: "Unknown", color: "gray" as const, icon: "help" };
+        return { label: 'Unknown', color: 'gray' as const, icon: 'help' };
     }
   };
 
   // Helper to format bank names
   const formatBankName = (bank: string) => {
     const names: Record<string, string> = {
-      chase: "Chase",
-      bofa: "Bank of America",
-      "wells-fargo": "Wells Fargo",
-      "capital-one": "Capital One",
-      amex: "American Express",
+      chase: 'Chase',
+      bofa: 'Bank of America',
+      'wells-fargo': 'Wells Fargo',
+      'capital-one': 'Capital One',
+      amex: 'American Express',
     };
     return names[bank] || bank;
   };
 
   // Refresh function to invalidate all statement queries
   const refresh = () => {
-    queryClient.invalidateQueries({ queryKey: ["statement-runs"] });
-    queryClient.invalidateQueries({ queryKey: ["statements"] });
-    queryClient.invalidateQueries({ queryKey: ["bank-accounts"] });
-    queryClient.invalidateQueries({ queryKey: ["statement-stats"] });
+    queryClient.invalidateQueries({ queryKey: ['statement-runs'] });
+    queryClient.invalidateQueries({ queryKey: ['statements'] });
+    queryClient.invalidateQueries({ queryKey: ['bank-accounts'] });
+    queryClient.invalidateQueries({ queryKey: ['statement-stats'] });
   };
 
   return {
@@ -244,7 +240,7 @@ export function useStatementsDashboard() {
     hasRuns: runs.length > 0,
     hasStatements: statements.length > 0,
     hasAccounts: accounts.length > 0,
-    isRunning: latestRun?.status === "running",
+    isRunning: latestRun?.status === 'running',
 
     // Query states
     isLoading:

@@ -1,12 +1,12 @@
-import { eq, and, desc, gte, lte, lt, isNull } from "drizzle-orm";
-import { database } from "~/db";
+import { eq, and, desc, gte, lte, lt, isNull } from 'drizzle-orm';
+import { database } from '~/db';
 import {
   meetingBriefing,
   type MeetingBriefing,
   type CreateMeetingBriefingData,
   type UpdateMeetingBriefingData,
   type MeetingBriefingStatus,
-} from "~/db/schema";
+} from '~/db/schema';
 
 // ============================================================================
 // Meeting Briefing CRUD
@@ -18,10 +18,7 @@ import {
 export async function createMeetingBriefing(
   data: CreateMeetingBriefingData
 ): Promise<MeetingBriefing> {
-  const [newBriefing] = await database
-    .insert(meetingBriefing)
-    .values(data)
-    .returning();
+  const [newBriefing] = await database.insert(meetingBriefing).values(data).returning();
 
   return newBriefing;
 }
@@ -29,9 +26,7 @@ export async function createMeetingBriefing(
 /**
  * Find meeting briefing by ID
  */
-export async function findMeetingBriefingById(
-  id: string
-): Promise<MeetingBriefing | null> {
+export async function findMeetingBriefingById(id: string): Promise<MeetingBriefing | null> {
   const [result] = await database
     .select()
     .from(meetingBriefing)
@@ -51,10 +46,9 @@ export async function findMeetingBriefingByEventId(
   const [result] = await database
     .select()
     .from(meetingBriefing)
-    .where(and(
-      eq(meetingBriefing.userId, userId),
-      eq(meetingBriefing.calendarEventId, calendarEventId)
-    ))
+    .where(
+      and(eq(meetingBriefing.userId, userId), eq(meetingBriefing.calendarEventId, calendarEventId))
+    )
     .limit(1);
 
   return result || null;
@@ -108,11 +102,13 @@ export async function findUpcomingMeetingBriefings(
   const results = await database
     .select()
     .from(meetingBriefing)
-    .where(and(
-      eq(meetingBriefing.userId, userId),
-      gte(meetingBriefing.meetingStartTime, now),
-      lte(meetingBriefing.meetingStartTime, future)
-    ))
+    .where(
+      and(
+        eq(meetingBriefing.userId, userId),
+        gte(meetingBriefing.meetingStartTime, now),
+        lte(meetingBriefing.meetingStartTime, future)
+      )
+    )
     .orderBy(meetingBriefing.meetingStartTime);
 
   return results;
@@ -131,11 +127,13 @@ export async function findMeetingsNeedingBriefings(
   const results = await database
     .select()
     .from(meetingBriefing)
-    .where(and(
-      eq(meetingBriefing.status, "pending"),
-      gte(meetingBriefing.meetingStartTime, now),
-      lte(meetingBriefing.meetingStartTime, targetTime)
-    ))
+    .where(
+      and(
+        eq(meetingBriefing.status, 'pending'),
+        gte(meetingBriefing.meetingStartTime, now),
+        lte(meetingBriefing.meetingStartTime, targetTime)
+      )
+    )
     .orderBy(meetingBriefing.meetingStartTime);
 
   return results;
@@ -154,12 +152,14 @@ export async function findBriefingsNeedingNotification(
   const results = await database
     .select()
     .from(meetingBriefing)
-    .where(and(
-      eq(meetingBriefing.status, "completed"),
-      isNull(meetingBriefing.notificationSentAt),
-      gte(meetingBriefing.meetingStartTime, now),
-      lte(meetingBriefing.meetingStartTime, targetTime)
-    ))
+    .where(
+      and(
+        eq(meetingBriefing.status, 'completed'),
+        isNull(meetingBriefing.notificationSentAt),
+        gte(meetingBriefing.meetingStartTime, now),
+        lte(meetingBriefing.meetingStartTime, targetTime)
+      )
+    )
     .orderBy(meetingBriefing.meetingStartTime);
 
   return results;
@@ -168,9 +168,7 @@ export async function findBriefingsNeedingNotification(
 /**
  * Find today's meeting briefings for a user
  */
-export async function findTodaysMeetingBriefings(
-  userId: string
-): Promise<MeetingBriefing[]> {
+export async function findTodaysMeetingBriefings(userId: string): Promise<MeetingBriefing[]> {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const tomorrow = new Date(today);
@@ -179,11 +177,13 @@ export async function findTodaysMeetingBriefings(
   const results = await database
     .select()
     .from(meetingBriefing)
-    .where(and(
-      eq(meetingBriefing.userId, userId),
-      gte(meetingBriefing.meetingStartTime, today),
-      lt(meetingBriefing.meetingStartTime, tomorrow)
-    ))
+    .where(
+      and(
+        eq(meetingBriefing.userId, userId),
+        gte(meetingBriefing.meetingStartTime, today),
+        lt(meetingBriefing.meetingStartTime, tomorrow)
+      )
+    )
     .orderBy(meetingBriefing.meetingStartTime);
 
   return results;
@@ -218,10 +218,10 @@ export async function updateMeetingBriefingStatus(
 ): Promise<MeetingBriefing | null> {
   const updateData: UpdateMeetingBriefingData = {
     status,
-    errorMessage: status === "failed" ? errorMessage : null,
+    errorMessage: status === 'failed' ? errorMessage : null,
   };
 
-  if (status === "completed") {
+  if (status === 'completed') {
     updateData.generatedAt = new Date();
   }
 
@@ -231,9 +231,7 @@ export async function updateMeetingBriefingStatus(
 /**
  * Mark briefing notification as sent
  */
-export async function markBriefingNotificationSent(
-  id: string
-): Promise<MeetingBriefing | null> {
+export async function markBriefingNotificationSent(id: string): Promise<MeetingBriefing | null> {
   return updateMeetingBriefing(id, {
     notificationSentAt: new Date(),
   });
@@ -254,16 +252,10 @@ export async function deleteMeetingBriefing(id: string): Promise<boolean> {
 /**
  * Delete old meeting briefings (cleanup)
  */
-export async function deleteOldMeetingBriefings(
-  userId: string,
-  olderThan: Date
-): Promise<number> {
+export async function deleteOldMeetingBriefings(userId: string, olderThan: Date): Promise<number> {
   const deleted = await database
     .delete(meetingBriefing)
-    .where(and(
-      eq(meetingBriefing.userId, userId),
-      lt(meetingBriefing.meetingStartTime, olderThan)
-    ))
+    .where(and(eq(meetingBriefing.userId, userId), lt(meetingBriefing.meetingStartTime, olderThan)))
     .returning();
 
   return deleted.length;
@@ -279,7 +271,7 @@ export async function deleteOldMeetingBriefings(
 export async function upsertMeetingBriefing(
   userId: string,
   calendarEventId: string,
-  data: Omit<CreateMeetingBriefingData, "userId" | "calendarEventId">
+  data: Omit<CreateMeetingBriefingData, 'userId' | 'calendarEventId'>
 ): Promise<MeetingBriefing> {
   const existing = await findMeetingBriefingByEventId(userId, calendarEventId);
 
@@ -326,7 +318,7 @@ export async function createMeetingBriefingsForEvents(
       meetingEndTime: event.meetingEndTime,
       meetingLocation: event.meetingLocation,
       meetingLink: event.meetingLink,
-      status: "pending",
+      status: 'pending',
     });
 
     results.push(briefing);

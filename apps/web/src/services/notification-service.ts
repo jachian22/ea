@@ -5,14 +5,14 @@ import {
   getDefaultUrgencyForType,
   isWithinQuietHours,
   updateNotificationDeliveryStatus,
-} from "~/data-access/notifications";
+} from '~/data-access/notifications';
 import type {
   CreateNotificationData,
   Notification,
   NotificationType,
   NotificationChannel,
   NotificationPreferences,
-} from "~/db/schema";
+} from '~/db/schema';
 
 // ============================================================================
 // Notification Service
@@ -50,7 +50,7 @@ export class NotificationService {
     title: string,
     body: string,
     options: {
-      relatedType?: "commitment" | "meeting" | "person" | "brief";
+      relatedType?: 'commitment' | 'meeting' | 'person' | 'brief';
       relatedId?: string;
       metadata?: Record<string, unknown>;
       scheduleFor?: Date;
@@ -79,7 +79,7 @@ export class NotificationService {
     if (!options.scheduleFor && this.preferences && isWithinQuietHours(this.preferences)) {
       // During quiet hours, only allow high urgency notifications
       const urgency = getDefaultUrgencyForType(type);
-      if (urgency !== "high") {
+      if (urgency !== 'high') {
         console.log(`Notification suppressed during quiet hours`);
         // Could queue for later instead of suppressing
         return null;
@@ -155,7 +155,7 @@ export class NotificationService {
         console.error(`Failed to deliver notification via ${channel}:`, error);
         await updateNotificationDeliveryStatus(notification.id, channel, {
           sent: false,
-          error: error instanceof Error ? error.message : "Unknown error",
+          error: error instanceof Error ? error.message : 'Unknown error',
         });
       }
     }
@@ -169,16 +169,16 @@ export class NotificationService {
     channel: NotificationChannel
   ): Promise<void> {
     switch (channel) {
-      case "in_app":
+      case 'in_app':
         // In-app notifications are just stored in the database
         // UI will fetch them via polling or websocket
         break;
 
-      case "push":
+      case 'push':
         await this.sendPushNotification(notification);
         break;
 
-      case "email":
+      case 'email':
         await this.sendEmailNotification(notification);
         break;
 
@@ -219,7 +219,7 @@ export async function sendNotification(
   title: string,
   body: string,
   options?: {
-    relatedType?: "commitment" | "meeting" | "person" | "brief";
+    relatedType?: 'commitment' | 'meeting' | 'person' | 'brief';
     relatedId?: string;
     metadata?: Record<string, unknown>;
     scheduleFor?: Date;
@@ -239,19 +239,19 @@ export async function sendMeetingBriefingNotification(
   meetingTitle: string,
   meetingTime: Date
 ): Promise<Notification | null> {
-  const timeStr = meetingTime.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
+  const timeStr = meetingTime.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
     hour12: true,
   });
 
   return sendNotification(
     userId,
-    "meeting_briefing_ready",
+    'meeting_briefing_ready',
     `Briefing ready: ${meetingTitle}`,
     `Your meeting briefing for "${meetingTitle}" at ${timeStr} is ready. Review attendee info and talking points before your meeting.`,
     {
-      relatedType: "meeting",
+      relatedType: 'meeting',
       relatedId: briefingId,
     }
   );
@@ -266,15 +266,15 @@ export async function sendCommitmentDueTodayNotification(
   description: string,
   personName?: string
 ): Promise<Notification | null> {
-  const toWhom = personName ? ` to ${personName}` : "";
+  const toWhom = personName ? ` to ${personName}` : '';
 
   return sendNotification(
     userId,
-    "commitment_due_today",
-    "Commitment due today",
+    'commitment_due_today',
+    'Commitment due today',
     `Reminder: "${description}"${toWhom} is due today.`,
     {
-      relatedType: "commitment",
+      relatedType: 'commitment',
       relatedId: commitmentId,
     }
   );
@@ -290,15 +290,15 @@ export async function sendCommitmentOverdueNotification(
   daysOverdue: number,
   personName?: string
 ): Promise<Notification | null> {
-  const toWhom = personName ? ` to ${personName}` : "";
+  const toWhom = personName ? ` to ${personName}` : '';
 
   return sendNotification(
     userId,
-    "commitment_overdue",
+    'commitment_overdue',
     `Overdue: ${description}`,
-    `Your commitment "${description}"${toWhom} is ${daysOverdue} ${daysOverdue === 1 ? "day" : "days"} overdue. Consider following up or marking as complete.`,
+    `Your commitment "${description}"${toWhom} is ${daysOverdue} ${daysOverdue === 1 ? 'day' : 'days'} overdue. Consider following up or marking as complete.`,
     {
-      relatedType: "commitment",
+      relatedType: 'commitment',
       relatedId: commitmentId,
     }
   );
@@ -315,7 +315,7 @@ export async function sendHighImportanceEmailNotification(
 ): Promise<Notification | null> {
   return sendNotification(
     userId,
-    "high_importance_email",
+    'high_importance_email',
     `Important email from ${fromName}`,
     `"${subject}" - This email was flagged as high importance and may need your attention.`,
     {
@@ -334,15 +334,15 @@ export async function sendFollowUpReminderNotification(
   daysSinceContact: number,
   suggestedAction?: string
 ): Promise<Notification | null> {
-  const suggestion = suggestedAction || "Consider sending a quick check-in.";
+  const suggestion = suggestedAction || 'Consider sending a quick check-in.';
 
   return sendNotification(
     userId,
-    "follow_up_reminder",
+    'follow_up_reminder',
     `Follow up with ${personName}`,
     `You haven't been in touch with ${personName} for ${daysSinceContact} days. ${suggestion}`,
     {
-      relatedType: "person",
+      relatedType: 'person',
       relatedId: personId,
     }
   );
@@ -358,13 +358,13 @@ export async function sendWeeklyRelationshipReviewNotification(
 ): Promise<Notification | null> {
   const updatesText =
     importantUpdates.length > 0
-      ? `\n\nHighlights:\n${importantUpdates.map((u) => `• ${u}`).join("\n")}`
-      : "";
+      ? `\n\nHighlights:\n${importantUpdates.map((u) => `• ${u}`).join('\n')}`
+      : '';
 
   return sendNotification(
     userId,
-    "weekly_relationship_review",
-    "Weekly Relationship Review",
+    'weekly_relationship_review',
+    'Weekly Relationship Review',
     `You have ${staleContactsCount} contacts you haven't reached out to recently.${updatesText}`,
     {}
   );
@@ -400,17 +400,11 @@ export async function sendDailyDigestNotification(
 
   const body =
     parts.length > 0
-      ? `Today's overview: ${parts.join(", ")}.`
-      : "Your schedule looks clear today!";
+      ? `Today's overview: ${parts.join(', ')}.`
+      : 'Your schedule looks clear today!';
 
-  return sendNotification(
-    userId,
-    "daily_digest",
-    "Your Daily Briefing",
-    body,
-    {
-      relatedType: "brief",
-      relatedId: briefId,
-    }
-  );
+  return sendNotification(userId, 'daily_digest', 'Your Daily Briefing', body, {
+    relatedType: 'brief',
+    relatedId: briefId,
+  });
 }

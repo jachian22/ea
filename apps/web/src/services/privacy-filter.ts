@@ -8,15 +8,9 @@
 import {
   findPrivacySettingsByUserId,
   findOrCreatePrivacySettings,
-} from "~/data-access/privacy-settings";
-import { findPersonById } from "~/data-access/persons";
-import type {
-  Person,
-  Commitment,
-  Interaction,
-  PrivacySettings,
-  PersonDomain,
-} from "~/db/schema";
+} from '~/data-access/privacy-settings';
+import { findPersonById } from '~/data-access/persons';
+import type { Person, Commitment, Interaction, PrivacySettings, PersonDomain } from '~/db/schema';
 
 // ============================================================================
 // Types
@@ -86,7 +80,7 @@ export class PrivacyFilter {
    * Check if an email domain is excluded
    */
   isEmailDomainExcluded(email: string): boolean {
-    const emailDomain = email.split("@")[1]?.toLowerCase();
+    const emailDomain = email.split('@')[1]?.toLowerCase();
     if (!emailDomain) return false;
 
     return (this.settings.excludedEmailDomains || []).some(
@@ -102,7 +96,7 @@ export class PrivacyFilter {
     if (!this.settings.allowCloudAI) {
       return {
         allowed: false,
-        reason: "Cloud AI is disabled in privacy settings",
+        reason: 'Cloud AI is disabled in privacy settings',
       };
     }
 
@@ -118,7 +112,7 @@ export class PrivacyFilter {
     if (entity.personId && this.isPersonExcluded(entity.personId)) {
       return {
         allowed: false,
-        reason: "Person is in exclusion list",
+        reason: 'Person is in exclusion list',
       };
     }
 
@@ -155,11 +149,11 @@ export class PrivacyFilter {
 
     for (const pattern of patterns) {
       try {
-        const regex = new RegExp(pattern, "gi");
+        const regex = new RegExp(pattern, 'gi');
         const matches = redacted.match(regex);
         if (matches) {
           redactionsApplied += matches.length;
-          redacted = redacted.replace(regex, "[REDACTED]");
+          redacted = redacted.replace(regex, '[REDACTED]');
         }
       } catch (e) {
         // Invalid regex pattern, skip it
@@ -206,18 +200,14 @@ export class PrivacyFilter {
   /**
    * Filter commitments for cloud
    */
-  async filterCommitmentsForCloud(
-    commitments: Commitment[]
-  ): Promise<Commitment[]> {
+  async filterCommitmentsForCloud(commitments: Commitment[]): Promise<Commitment[]> {
     return this.filterForCloud(commitments);
   }
 
   /**
    * Filter interactions for cloud
    */
-  async filterInteractionsForCloud(
-    interactions: Interaction[]
-  ): Promise<Interaction[]> {
+  async filterInteractionsForCloud(interactions: Interaction[]): Promise<Interaction[]> {
     return this.filterForCloud(interactions);
   }
 
@@ -248,9 +238,7 @@ export class PrivacyFilter {
   /**
    * Get person's domain (with caching)
    */
-  private async getPersonDomain(
-    personId: string
-  ): Promise<PersonDomain | null> {
+  private async getPersonDomain(personId: string): Promise<PersonDomain | null> {
     if (this.cachedPersonDomains.has(personId)) {
       return this.cachedPersonDomains.get(personId) || null;
     }
@@ -305,10 +293,7 @@ export async function filterEntitiesForCloud<T extends FilterableEntity>(
 /**
  * Sanitize text for a user
  */
-export async function sanitizeTextForUser(
-  userId: string,
-  text: string
-): Promise<RedactionResult> {
+export async function sanitizeTextForUser(userId: string, text: string): Promise<RedactionResult> {
   const filter = await PrivacyFilter.forUser(userId);
   return filter.sanitize(text);
 }
@@ -327,35 +312,35 @@ export function getCommonRedactionPatterns(): Array<{
 }> {
   return [
     {
-      pattern: "\\b\\d{3}-\\d{2}-\\d{4}\\b",
-      description: "Social Security Numbers (XXX-XX-XXXX)",
-      category: "PII",
+      pattern: '\\b\\d{3}-\\d{2}-\\d{4}\\b',
+      description: 'Social Security Numbers (XXX-XX-XXXX)',
+      category: 'PII',
     },
     {
-      pattern: "\\b\\d{4}[- ]?\\d{4}[- ]?\\d{4}[- ]?\\d{4}\\b",
-      description: "Credit Card Numbers",
-      category: "Financial",
+      pattern: '\\b\\d{4}[- ]?\\d{4}[- ]?\\d{4}[- ]?\\d{4}\\b',
+      description: 'Credit Card Numbers',
+      category: 'Financial',
     },
     {
-      pattern: "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b",
-      description: "Email Addresses",
-      category: "Contact",
+      pattern: '\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b',
+      description: 'Email Addresses',
+      category: 'Contact',
     },
     {
-      pattern: "\\b\\d{10}\\b|\\b\\d{3}[-.]?\\d{3}[-.]?\\d{4}\\b",
-      description: "Phone Numbers",
-      category: "Contact",
+      pattern: '\\b\\d{10}\\b|\\b\\d{3}[-.]?\\d{3}[-.]?\\d{4}\\b',
+      description: 'Phone Numbers',
+      category: 'Contact',
     },
     {
       pattern:
-        "\\$\\s?\\d{1,3}(,\\d{3})*(\\.\\d{2})?|\\d{1,3}(,\\d{3})*(\\.\\d{2})?\\s?(USD|dollars?)",
-      description: "Dollar Amounts",
-      category: "Financial",
+        '\\$\\s?\\d{1,3}(,\\d{3})*(\\.\\d{2})?|\\d{1,3}(,\\d{3})*(\\.\\d{2})?\\s?(USD|dollars?)',
+      description: 'Dollar Amounts',
+      category: 'Financial',
     },
     {
-      pattern: "\\b[A-Z]{2}\\d{6,9}\\b",
-      description: "Passport Numbers",
-      category: "PII",
+      pattern: '\\b[A-Z]{2}\\d{6,9}\\b',
+      description: 'Passport Numbers',
+      category: 'PII',
     },
   ];
 }

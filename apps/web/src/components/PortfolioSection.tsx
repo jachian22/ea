@@ -1,17 +1,17 @@
-import { useState } from "react";
-import { Plus, Briefcase, Loader2 } from "lucide-react";
-import { Button } from "~/components/ui/button";
+import { useState } from 'react';
+import { Plus, Briefcase, Loader2 } from 'lucide-react';
+import { Button } from '~/components/ui/button';
 import {
   Panel,
   PanelContent,
   PanelDescription,
   PanelHeader,
   PanelTitle,
-} from "~/components/ui/panel";
-import { PortfolioItemCard } from "~/components/PortfolioItemCard";
-import { PortfolioItemForm } from "~/components/PortfolioItemForm";
-import { useMyPortfolio } from "~/hooks/usePortfolio";
-import type { PortfolioItem } from "~/db/schema";
+} from '~/components/ui/panel';
+import { PortfolioItemCard } from '~/components/PortfolioItemCard';
+import { PortfolioItemForm } from '~/components/PortfolioItemForm';
+import { useMyPortfolio } from '~/hooks/usePortfolio';
+import type { PortfolioItem } from '~/db/schema';
 
 export function PortfolioSection() {
   const [formOpen, setFormOpen] = useState(false);
@@ -42,9 +42,7 @@ export function PortfolioSection() {
               </div>
               <div>
                 <PanelTitle className="text-lg">Portfolio</PanelTitle>
-                <PanelDescription>
-                  Showcase projects you've built
-                </PanelDescription>
+                <PanelDescription>Showcase projects you've built</PanelDescription>
               </div>
             </div>
             <Button onClick={() => setFormOpen(true)} size="sm">
@@ -62,12 +60,7 @@ export function PortfolioSection() {
           ) : portfolioItems && portfolioItems.length > 0 ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {portfolioItems.map((item) => (
-                <PortfolioItemCard
-                  key={item.id}
-                  item={item}
-                  onEdit={handleEdit}
-                  isOwner={true}
-                />
+                <PortfolioItemCard key={item.id} item={item} onEdit={handleEdit} isOwner={true} />
               ))}
             </div>
           ) : (
@@ -86,11 +79,7 @@ export function PortfolioSection() {
         </PanelContent>
       </Panel>
 
-      <PortfolioItemForm
-        open={formOpen}
-        onOpenChange={handleOpenChange}
-        editItem={editItem}
-      />
+      <PortfolioItemForm open={formOpen} onOpenChange={handleOpenChange} editItem={editItem} />
     </>
   );
 }

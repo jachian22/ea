@@ -5,11 +5,11 @@ import type {
   DailyBrief,
   Commitment,
   Person,
-} from "~/db/schema";
-import { fetchEmailsForDailyBrief } from "~/services/gmail";
-import { fetchEventsForDailyBrief } from "~/services/google-calendar";
-import { fetchWeatherForUser, formatWeatherForBrief, type WeatherData } from "~/services/weather";
-import { getUserProfile } from "~/data-access/profiles";
+} from '~/db/schema';
+import { fetchEmailsForDailyBrief } from '~/services/gmail';
+import { fetchEventsForDailyBrief } from '~/services/google-calendar';
+import { fetchWeatherForUser, formatWeatherForBrief, type WeatherData } from '~/services/weather';
+import { getUserProfile } from '~/data-access/profiles';
 import {
   analyzeEmailsForBrief,
   type GroupedEmails,
@@ -23,29 +23,29 @@ import {
   type EmailThread,
   type GroupedThreads,
   type ThreadAnalysisSummary,
-} from "~/utils/email-analyzer";
+} from '~/utils/email-analyzer';
 import {
   findGoogleIntegrationByUserId,
   updateGoogleIntegrationLastSynced,
-} from "~/data-access/google-integration";
+} from '~/data-access/google-integration';
 import {
   upsertDailyBrief,
   updateDailyBriefStatus,
   getTodayDateString,
-} from "~/data-access/daily-briefs";
+} from '~/data-access/daily-briefs';
 import {
   GoogleAuthError,
   GoogleAuthErrorCodes,
   isIntegrationValid,
   markIntegrationDisconnected,
-} from "~/lib/google-client";
+} from '~/lib/google-client';
 import {
   findCommitmentsDueToday,
   findOverdueCommitments,
   findUpcomingCommitments,
-} from "~/data-access/commitments";
-import { findStaleContacts } from "~/data-access/persons";
-import { enrichBriefData } from "~/services/brief-enrichment";
+} from '~/data-access/commitments';
+import { findStaleContacts } from '~/data-access/persons';
+import { enrichBriefData } from '~/services/brief-enrichment';
 
 /**
  * Configuration options for brief generation
@@ -191,8 +191,8 @@ export interface BriefContent {
  * Action item for the brief
  */
 export interface ActionItem {
-  type: "email" | "meeting" | "followup";
-  priority: "high" | "medium" | "low";
+  type: 'email' | 'meeting' | 'followup';
+  priority: 'high' | 'medium' | 'low';
   description: string;
   source: string;
 }
@@ -247,8 +247,8 @@ export class BriefGeneratorService {
 
       if (!isIntegrationValid(this.integration)) {
         return this.createErrorResult(
-          "INTEGRATION_NOT_CONNECTED",
-          "Google account is not connected. Please connect your Google account to generate briefs.",
+          'INTEGRATION_NOT_CONNECTED',
+          'Google account is not connected. Please connect your Google account to generate briefs.',
           false
         );
       }
@@ -256,7 +256,7 @@ export class BriefGeneratorService {
       // Step 2: Create or update brief record with "generating" status
       let brief = await upsertDailyBrief(this.userId, briefDate, {
         id: crypto.randomUUID(),
-        status: "generating",
+        status: 'generating',
       });
 
       // Step 3: Fetch data with retries
@@ -290,7 +290,7 @@ export class BriefGeneratorService {
             }
           : null,
         briefContent: markdownContent,
-        status: "completed",
+        status: 'completed',
         totalEvents: String(briefData.calendarEvents.length),
         totalEmails: String(briefData.emails.length),
         emailsNeedingResponse: String(briefData.emailAnalysis.summary.needsResponse),
@@ -319,7 +319,7 @@ export class BriefGeneratorService {
         }
       } catch (enrichError) {
         // Log but don't fail - enrichment is optional
-        console.warn("[BriefGenerator] Enrichment failed:", enrichError);
+        console.warn('[BriefGenerator] Enrichment failed:', enrichError);
       }
 
       return {
@@ -339,7 +339,7 @@ export class BriefGeneratorService {
           // Update brief status to failed
           const failedBrief = await upsertDailyBrief(this.userId, briefDate, {
             id: crypto.randomUUID(),
-            status: "failed",
+            status: 'failed',
             errorMessage: error.message,
           });
 
@@ -357,7 +357,7 @@ export class BriefGeneratorService {
         // API errors might be retryable
         const failedBrief = await upsertDailyBrief(this.userId, briefDate, {
           id: crypto.randomUUID(),
-          status: "failed",
+          status: 'failed',
           errorMessage: error.message,
         });
 
@@ -373,21 +373,15 @@ export class BriefGeneratorService {
       }
 
       // Unknown error
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error occurred";
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
 
       const failedBrief = await upsertDailyBrief(this.userId, briefDate, {
         id: crypto.randomUUID(),
-        status: "failed",
+        status: 'failed',
         errorMessage,
       });
 
-      return this.createErrorResult(
-        "GENERATION_FAILED",
-        errorMessage,
-        true,
-        failedBrief
-      );
+      return this.createErrorResult('GENERATION_FAILED', errorMessage, true, failedBrief);
     }
   }
 
@@ -398,21 +392,26 @@ export class BriefGeneratorService {
   private async fetchBriefData(): Promise<BriefData> {
     if (!this.integration) {
       throw new GoogleAuthError(
-        "Google integration not initialized",
+        'Google integration not initialized',
         GoogleAuthErrorCodes.INTEGRATION_NOT_FOUND
       );
     }
 
     // Fetch calendar, email, knowledge graph, and weather data in parallel
-    const [calendarEvents, emails, commitmentsDueToday, overdueCommitments, upcomingCommitments, followUpRadar, userProfile] = await Promise.all([
+    const [
+      calendarEvents,
+      emails,
+      commitmentsDueToday,
+      overdueCommitments,
+      upcomingCommitments,
+      followUpRadar,
+      userProfile,
+    ] = await Promise.all([
       this.fetchWithRetry(
         () => fetchEventsForDailyBrief(this.integration!, this.options.timeZone),
-        "calendar"
+        'calendar'
       ),
-      this.fetchWithRetry(
-        () => fetchEmailsForDailyBrief(this.integration!),
-        "email"
-      ),
+      this.fetchWithRetry(() => fetchEmailsForDailyBrief(this.integration!), 'email'),
       // Knowledge graph data - these don't need retry logic as they're local DB queries
       findCommitmentsDueToday(this.userId).catch(() => []),
       findOverdueCommitments(this.userId).catch(() => []),
@@ -426,10 +425,7 @@ export class BriefGeneratorService {
     const weather = await fetchWeatherForUser(userProfile?.location);
 
     // Analyze emails
-    const emailAnalysis = analyzeEmailsForBrief(
-      emails,
-      this.integration.googleEmail
-    );
+    const emailAnalysis = analyzeEmailsForBrief(emails, this.integration.googleEmail);
 
     // Get top priority emails
     const topPriorityEmails = getTopPriorityEmails(
@@ -467,10 +463,7 @@ export class BriefGeneratorService {
   /**
    * Fetches data with retry logic for transient failures.
    */
-  private async fetchWithRetry<T>(
-    fetchFn: () => Promise<T>,
-    dataType: string
-  ): Promise<T> {
+  private async fetchWithRetry<T>(fetchFn: () => Promise<T>, dataType: string): Promise<T> {
     let lastError: Error | undefined;
 
     for (let attempt = 1; attempt <= this.options.maxRetries; attempt++) {
@@ -526,7 +519,7 @@ export class BriefGeneratorService {
     } = data;
 
     // Filter out "free" events (self-notes/reminders marked as transparent)
-    const busyEvents = calendarEvents.filter((e) => e.transparency !== "transparent");
+    const busyEvents = calendarEvents.filter((e) => e.transparency !== 'transparent');
 
     // Generate greeting based on time of day
     const greeting = this.getGreeting();
@@ -560,7 +553,7 @@ export class BriefGeneratorService {
         emailsNeedingResponse: emailAnalysis.summary.needsResponse,
         hasUrgentItems:
           hasUrgentEmails ||
-          actionItems.some((a) => a.priority === "high") ||
+          actionItems.some((a) => a.priority === 'high') ||
           overdueCommitments.length > 0,
         overdueCommitments: overdueCommitments.length,
         commitmentsDueToday: commitmentsDueToday.length,
@@ -570,7 +563,7 @@ export class BriefGeneratorService {
         isEmpty: busyEvents.length === 0,
         message:
           busyEvents.length === 0
-            ? "No meetings scheduled for today. Great time for focused work!"
+            ? 'No meetings scheduled for today. Great time for focused work!'
             : undefined,
       },
       emails: {
@@ -581,7 +574,7 @@ export class BriefGeneratorService {
         isEmpty: emailAnalysis.summary.total === 0,
         message:
           emailAnalysis.summary.total === 0
-            ? "No new emails in the past 24 hours. Inbox zero!"
+            ? 'No new emails in the past 24 hours. Inbox zero!'
             : undefined,
       },
       conversations: {
@@ -616,10 +609,10 @@ export class BriefGeneratorService {
 
     // Add action items from overdue commitments (highest priority)
     for (const commitment of data.overdueCommitments.slice(0, 3)) {
-      const personName = commitment.person?.name || commitment.person?.email || "someone";
+      const personName = commitment.person?.name || commitment.person?.email || 'someone';
       actionItems.push({
-        type: "followup",
-        priority: "high",
+        type: 'followup',
+        priority: 'high',
         description: `Overdue: "${commitment.description}" to ${personName}`,
         source: `Commitment ID: ${commitment.id}`,
       });
@@ -627,10 +620,10 @@ export class BriefGeneratorService {
 
     // Add action items from commitments due today
     for (const commitment of data.commitmentsDueToday.slice(0, 3)) {
-      const personName = commitment.person?.name || commitment.person?.email || "someone";
+      const personName = commitment.person?.name || commitment.person?.email || 'someone';
       actionItems.push({
-        type: "followup",
-        priority: commitment.priority === "high" ? "high" : "medium",
+        type: 'followup',
+        priority: commitment.priority === 'high' ? 'high' : 'medium',
         description: `Due today: "${commitment.description}" to ${personName}`,
         source: `Commitment ID: ${commitment.id}`,
       });
@@ -638,10 +631,10 @@ export class BriefGeneratorService {
 
     // Add action items from high priority emails
     for (const analysis of data.topPriorityEmails) {
-      if (analysis.email.actionStatus === "needs_response") {
+      if (analysis.email.actionStatus === 'needs_response') {
         actionItems.push({
-          type: "email",
-          priority: analysis.score >= 70 ? "high" : "medium",
+          type: 'email',
+          priority: analysis.score >= 70 ? 'high' : 'medium',
           description: `Respond to "${analysis.email.subject}" from ${analysis.email.from.name || analysis.email.from.email}`,
           source: `Email ID: ${analysis.email.id}`,
         });
@@ -657,10 +650,10 @@ export class BriefGeneratorService {
 
       if (eventStart >= now && eventStart <= twoHoursLater && !event.isAllDay) {
         actionItems.push({
-          type: "meeting",
-          priority: "high",
+          type: 'meeting',
+          priority: 'high',
           description: `Upcoming: "${event.title}" at ${this.formatTime(event.startTime)}`,
-          source: event.meetingLink || event.location || "No location specified",
+          source: event.meetingLink || event.location || 'No location specified',
         });
       }
     }
@@ -681,22 +674,22 @@ export class BriefGeneratorService {
     // Header
     sections.push(`# ${content.greeting}`);
     sections.push(`**${content.date}**`);
-    sections.push("");
+    sections.push('');
 
     // Weather Section (if available)
     if (content.weather) {
-      sections.push("## Weather");
-      sections.push("");
+      sections.push('## Weather');
+      sections.push('');
       const { weather } = content;
       const feelsLikePart =
         weather.feelsLike && Math.abs(weather.feelsLike - weather.temperature) >= 3
           ? ` (feels like ${weather.feelsLike}°F)`
-          : "";
+          : '';
       sections.push(
         `**${weather.temperature}°F${feelsLikePart}** - ${weather.condition.toLowerCase()}`
       );
       sections.push(`*${weather.locationName}*`);
-      sections.push("");
+      sections.push('');
       // Additional weather details
       const details: string[] = [];
       if (weather.humidity !== undefined) {
@@ -712,59 +705,57 @@ export class BriefGeneratorService {
         details.push(`Precipitation: ${weather.precipitationProbability}%`);
       }
       if (details.length > 0) {
-        sections.push(details.join(" | "));
-        sections.push("");
+        sections.push(details.join(' | '));
+        sections.push('');
       }
       // Dress recommendation
       sections.push(`**Recommendation:** ${weather.recommendation}`);
-      sections.push("");
+      sections.push('');
     }
 
     // Summary
-    sections.push("## Today at a Glance");
-    sections.push("");
+    sections.push('## Today at a Glance');
+    sections.push('');
 
     if (content.summary.hasUrgentItems) {
-      sections.push("**Attention needed on urgent items below**");
-      sections.push("");
+      sections.push('**Attention needed on urgent items below**');
+      sections.push('');
     }
 
     sections.push(`- **Meetings:** ${content.summary.totalMeetings}`);
     sections.push(`- **Emails:** ${content.summary.totalEmails}`);
-    sections.push(
-      `- **Emails needing response:** ${content.summary.emailsNeedingResponse}`
-    );
+    sections.push(`- **Emails needing response:** ${content.summary.emailsNeedingResponse}`);
     if (content.summary.overdueCommitments > 0) {
       sections.push(`- **Overdue commitments:** ${content.summary.overdueCommitments}`);
     }
     if (content.summary.commitmentsDueToday > 0) {
       sections.push(`- **Commitments due today:** ${content.summary.commitmentsDueToday}`);
     }
-    sections.push("");
+    sections.push('');
 
     // Action Items (if any)
     if (content.actionItems.length > 0) {
-      sections.push("## Action Items");
-      sections.push("");
+      sections.push('## Action Items');
+      sections.push('');
 
       for (const item of content.actionItems) {
         const priorityIcon =
-          item.priority === "high" ? "!!!" : item.priority === "medium" ? "!!" : "!";
+          item.priority === 'high' ? '!!!' : item.priority === 'medium' ? '!!' : '!';
         sections.push(`- ${priorityIcon} ${item.description}`);
       }
-      sections.push("");
+      sections.push('');
     }
 
     // Calendar Section
-    sections.push("## Calendar");
-    sections.push("");
+    sections.push('## Calendar');
+    sections.push('');
 
     if (content.calendar.isEmpty) {
-      sections.push(content.calendar.message || "No events today.");
+      sections.push(content.calendar.message || 'No events today.');
     } else {
       for (const event of content.calendar.events) {
         const time = event.isAllDay
-          ? "All Day"
+          ? 'All Day'
           : `${this.formatTime(event.startTime)} - ${this.formatTime(event.endTime)}`;
 
         sections.push(`### ${event.title}`);
@@ -782,113 +773,120 @@ export class BriefGeneratorService {
           const attendeeList = event.attendees
             .slice(0, 5)
             .map((a) => a.name || a.email)
-            .join(", ");
-          const moreCount = event.attendees.length > 5 ? ` +${event.attendees.length - 5} more` : "";
+            .join(', ');
+          const moreCount =
+            event.attendees.length > 5 ? ` +${event.attendees.length - 5} more` : '';
           sections.push(`**Attendees:** ${attendeeList}${moreCount}`);
         }
 
-        sections.push("");
+        sections.push('');
       }
     }
 
     // Email Section
-    sections.push("## Email Summary");
-    sections.push("");
+    sections.push('## Email Summary');
+    sections.push('');
 
     if (content.emails.isEmpty) {
-      sections.push(content.emails.message || "No new emails.");
+      sections.push(content.emails.message || 'No new emails.');
     } else {
       // Top Priority / Needs Response
       if (content.emails.needsResponse.length > 0) {
-        sections.push("### Needs Response");
-        sections.push("");
+        sections.push('### Needs Response');
+        sections.push('');
 
         for (const analysis of content.emails.needsResponse.slice(0, 5)) {
           const { email } = analysis;
           const from = email.from.name || email.from.email;
-          const importance = analysis.score >= 70 ? "!!!" : "!!";
+          const importance = analysis.score >= 70 ? '!!!' : '!!';
           sections.push(`- ${importance} **${email.subject}** from ${from}`);
-          sections.push(`  > ${email.snippet.slice(0, 100)}${email.snippet.length > 100 ? "..." : ""}`);
+          sections.push(
+            `  > ${email.snippet.slice(0, 100)}${email.snippet.length > 100 ? '...' : ''}`
+          );
         }
-        sections.push("");
+        sections.push('');
       }
 
       // Awaiting Reply
       if (content.emails.awaitingReply.length > 0) {
-        sections.push("### Awaiting Reply");
-        sections.push("");
+        sections.push('### Awaiting Reply');
+        sections.push('');
 
         for (const analysis of content.emails.awaitingReply.slice(0, 3)) {
           const { email } = analysis;
           sections.push(`- **${email.subject}**`);
         }
-        sections.push("");
+        sections.push('');
       }
 
       // FYI (just count)
       if (content.emails.fyi.length > 0) {
         sections.push(`### FYI Emails: ${content.emails.fyi.length} emails`);
-        sections.push("");
+        sections.push('');
       }
     }
 
     // Commitments Section
     if (!content.commitments.isEmpty) {
-      sections.push("## Commitments");
-      sections.push("");
+      sections.push('## Commitments');
+      sections.push('');
 
       // Overdue (urgent)
       if (content.commitments.overdue.length > 0) {
-        sections.push("### Overdue");
-        sections.push("");
+        sections.push('### Overdue');
+        sections.push('');
         for (const commitment of content.commitments.overdue.slice(0, 5)) {
-          const personName = commitment.person?.name || commitment.person?.email || "someone";
+          const personName = commitment.person?.name || commitment.person?.email || 'someone';
           sections.push(`- !!! **${commitment.description}** → ${personName}`);
         }
-        sections.push("");
+        sections.push('');
       }
 
       // Due Today
       if (content.commitments.dueToday.length > 0) {
-        sections.push("### Due Today");
-        sections.push("");
+        sections.push('### Due Today');
+        sections.push('');
         for (const commitment of content.commitments.dueToday.slice(0, 5)) {
-          const personName = commitment.person?.name || commitment.person?.email || "someone";
+          const personName = commitment.person?.name || commitment.person?.email || 'someone';
           sections.push(`- !! **${commitment.description}** → ${personName}`);
         }
-        sections.push("");
+        sections.push('');
       }
 
       // Upcoming this week
       if (content.commitments.upcoming.length > 0) {
-        sections.push("### Upcoming This Week");
-        sections.push("");
+        sections.push('### Upcoming This Week');
+        sections.push('');
         for (const commitment of content.commitments.upcoming.slice(0, 3)) {
-          const personName = commitment.person?.name || commitment.person?.email || "someone";
+          const personName = commitment.person?.name || commitment.person?.email || 'someone';
           const dueDate = commitment.dueDate
-            ? new Date(commitment.dueDate).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })
-            : "";
+            ? new Date(commitment.dueDate).toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+              })
+            : '';
           sections.push(`- **${commitment.description}** → ${personName} (${dueDate})`);
         }
-        sections.push("");
+        sections.push('');
       }
     }
 
     // Follow-up Radar Section
     if (!content.followUpRadar.isEmpty) {
-      sections.push("## Follow-up Radar");
-      sections.push("");
+      sections.push('## Follow-up Radar');
+      sections.push('');
       sections.push("People you haven't contacted in a while:");
-      sections.push("");
+      sections.push('');
       for (const item of content.followUpRadar.items.slice(0, 5)) {
-        const name = item.person.name || item.person.email || "Unknown";
-        const domain = item.person.domain ? ` (${item.person.domain})` : "";
+        const name = item.person.name || item.person.email || 'Unknown';
+        const domain = item.person.domain ? ` (${item.person.domain})` : '';
         sections.push(`- **${name}**${domain} - ${item.daysSinceContact} days since contact`);
       }
-      sections.push("");
+      sections.push('');
     }
 
-    return sections.join("\n");
+    return sections.join('\n');
   }
 
   /**
@@ -898,11 +896,11 @@ export class BriefGeneratorService {
     const hour = new Date().getHours();
 
     if (hour < 12) {
-      return "Good Morning";
+      return 'Good Morning';
     } else if (hour < 17) {
-      return "Good Afternoon";
+      return 'Good Afternoon';
     } else {
-      return "Good Evening";
+      return 'Good Evening';
     }
   }
 
@@ -910,12 +908,12 @@ export class BriefGeneratorService {
    * Formats a date string for display.
    */
   private formatDate(dateString: string): string {
-    const date = new Date(dateString + "T00:00:00");
-    return date.toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
+    const date = new Date(dateString + 'T00:00:00');
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
     });
   }
 
@@ -924,9 +922,9 @@ export class BriefGeneratorService {
    */
   private formatTime(isoString: string): string {
     const date = new Date(isoString);
-    return date.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
       hour12: true,
     });
   }
@@ -992,9 +990,7 @@ export async function generateDailyBriefsForAllUsers(
   options?: BriefGenerationOptions
 ): Promise<{ userId: string; result: BriefGenerationResult }[]> {
   // Import here to avoid circular dependency
-  const { findAllConnectedGoogleIntegrations } = await import(
-    "~/data-access/google-integration"
-  );
+  const { findAllConnectedGoogleIntegrations } = await import('~/data-access/google-integration');
 
   const integrations = await findAllConnectedGoogleIntegrations();
   const results: { userId: string; result: BriefGenerationResult }[] = [];
@@ -1007,17 +1003,14 @@ export async function generateDailyBriefsForAllUsers(
       results.push({ userId: integration.userId, result });
     } catch (error) {
       // Log but don't fail the entire batch
-      console.error(
-        `Failed to generate brief for user ${integration.userId}:`,
-        error
-      );
+      console.error(`Failed to generate brief for user ${integration.userId}:`, error);
       results.push({
         userId: integration.userId,
         result: {
           success: false,
           error: {
-            code: "BATCH_PROCESSING_ERROR",
-            message: error instanceof Error ? error.message : "Unknown error",
+            code: 'BATCH_PROCESSING_ERROR',
+            message: error instanceof Error ? error.message : 'Unknown error',
             retryable: true,
           },
         },
@@ -1055,7 +1048,15 @@ export async function getBriefDataWithoutPersisting(
   };
 
   // Fetch calendar, email, knowledge graph, and user profile data in parallel
-  const [calendarEvents, emails, commitmentsDueToday, overdueCommitments, upcomingCommitments, staleContacts, userProfile] = await Promise.all([
+  const [
+    calendarEvents,
+    emails,
+    commitmentsDueToday,
+    overdueCommitments,
+    upcomingCommitments,
+    staleContacts,
+    userProfile,
+  ] = await Promise.all([
     fetchEventsForDailyBrief(integration!, resolvedOptions.timeZone),
     fetchEmailsForDailyBrief(integration!),
     // Knowledge graph data

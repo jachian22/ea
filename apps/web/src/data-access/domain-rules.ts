@@ -1,5 +1,5 @@
-import { eq, and, desc, asc } from "drizzle-orm";
-import { database } from "~/db";
+import { eq, and, desc, asc } from 'drizzle-orm';
+import { database } from '~/db';
 import {
   domainRule,
   type DomainRule,
@@ -7,7 +7,7 @@ import {
   type UpdateDomainRuleData,
   type DomainRuleType,
   type PersonDomain,
-} from "~/db/schema";
+} from '~/db/schema';
 
 // ============================================================================
 // Domain Rule CRUD
@@ -16,13 +16,8 @@ import {
 /**
  * Create a new domain rule
  */
-export async function createDomainRule(
-  data: CreateDomainRuleData
-): Promise<DomainRule> {
-  const [newRule] = await database
-    .insert(domainRule)
-    .values(data)
-    .returning();
+export async function createDomainRule(data: CreateDomainRuleData): Promise<DomainRule> {
+  const [newRule] = await database.insert(domainRule).values(data).returning();
 
   return newRule;
 }
@@ -30,14 +25,8 @@ export async function createDomainRule(
 /**
  * Find domain rule by ID
  */
-export async function findDomainRuleById(
-  id: string
-): Promise<DomainRule | null> {
-  const [result] = await database
-    .select()
-    .from(domainRule)
-    .where(eq(domainRule.id, id))
-    .limit(1);
+export async function findDomainRuleById(id: string): Promise<DomainRule | null> {
+  const [result] = await database.select().from(domainRule).where(eq(domainRule.id, id)).limit(1);
 
   return result || null;
 }
@@ -45,9 +34,7 @@ export async function findDomainRuleById(
 /**
  * Find all domain rules for a user
  */
-export async function findDomainRulesByUserId(
-  userId: string
-): Promise<DomainRule[]> {
+export async function findDomainRulesByUserId(userId: string): Promise<DomainRule[]> {
   const results = await database
     .select()
     .from(domainRule)
@@ -67,9 +54,7 @@ export async function findDomainRulesByType(
   const results = await database
     .select()
     .from(domainRule)
-    .where(
-      and(eq(domainRule.userId, userId), eq(domainRule.ruleType, ruleType))
-    )
+    .where(and(eq(domainRule.userId, userId), eq(domainRule.ruleType, ruleType)))
     .orderBy(desc(domainRule.priority));
 
   return results;
@@ -101,9 +86,7 @@ export async function findDomainRuleByPattern(
   const rules = await findDomainRulesByUserId(userId);
   const normalizedPattern = pattern.toLowerCase();
 
-  const match = rules.find(
-    (rule) => rule.pattern.toLowerCase() === normalizedPattern
-  );
+  const match = rules.find((rule) => rule.pattern.toLowerCase() === normalizedPattern);
 
   return match || null;
 }
@@ -131,10 +114,7 @@ export async function updateDomainRule(
  * Delete a domain rule
  */
 export async function deleteDomainRule(id: string): Promise<boolean> {
-  const [deleted] = await database
-    .delete(domainRule)
-    .where(eq(domainRule.id, id))
-    .returning();
+  const [deleted] = await database.delete(domainRule).where(eq(domainRule.id, id)).returning();
 
   return deleted !== undefined;
 }
@@ -153,30 +133,28 @@ export async function classifyEmailToDomain(
 ): Promise<PersonDomain | null> {
   const rules = await findDomainRulesByUserId(userId);
   const normalizedEmail = email.toLowerCase();
-  const emailDomain = normalizedEmail.split("@")[1];
+  const emailDomain = normalizedEmail.split('@')[1];
 
   // Sort by priority (already sorted from DB) and find matching rule
   for (const rule of rules) {
     const pattern = rule.pattern.toLowerCase();
 
     switch (rule.ruleType) {
-      case "email_address":
+      case 'email_address':
         if (normalizedEmail === pattern) {
           return rule.domain;
         }
         break;
 
-      case "email_domain":
+      case 'email_domain':
         // Pattern like "@company.com" or "company.com"
-        const domainPattern = pattern.startsWith("@")
-          ? pattern.slice(1)
-          : pattern;
+        const domainPattern = pattern.startsWith('@') ? pattern.slice(1) : pattern;
         if (emailDomain === domainPattern) {
           return rule.domain;
         }
         break;
 
-      case "keyword":
+      case 'keyword':
         // Check if keyword is in the email
         if (normalizedEmail.includes(pattern)) {
           return rule.domain;
@@ -195,7 +173,7 @@ export async function classifyTextToDomain(
   userId: string,
   text: string
 ): Promise<PersonDomain | null> {
-  const keywordRules = await findDomainRulesByType(userId, "keyword");
+  const keywordRules = await findDomainRulesByType(userId, 'keyword');
   const normalizedText = text.toLowerCase();
 
   for (const rule of keywordRules) {
@@ -221,13 +199,11 @@ export async function getEmailDomainsForClassification(
       and(
         eq(domainRule.userId, userId),
         eq(domainRule.domain, domain),
-        eq(domainRule.ruleType, "email_domain")
+        eq(domainRule.ruleType, 'email_domain')
       )
     );
 
-  return rules.map((rule) =>
-    rule.pattern.startsWith("@") ? rule.pattern.slice(1) : rule.pattern
-  );
+  return rules.map((rule) => (rule.pattern.startsWith('@') ? rule.pattern.slice(1) : rule.pattern));
 }
 
 // ============================================================================
@@ -237,15 +213,10 @@ export async function getEmailDomainsForClassification(
 /**
  * Create multiple domain rules at once
  */
-export async function createDomainRules(
-  rules: CreateDomainRuleData[]
-): Promise<DomainRule[]> {
+export async function createDomainRules(rules: CreateDomainRuleData[]): Promise<DomainRule[]> {
   if (rules.length === 0) return [];
 
-  const newRules = await database
-    .insert(domainRule)
-    .values(rules)
-    .returning();
+  const newRules = await database.insert(domainRule).values(rules).returning();
 
   return newRules;
 }
@@ -253,9 +224,7 @@ export async function createDomainRules(
 /**
  * Delete all domain rules for a user
  */
-export async function deleteAllDomainRulesForUser(
-  userId: string
-): Promise<number> {
+export async function deleteAllDomainRulesForUser(userId: string): Promise<number> {
   const deleted = await database
     .delete(domainRule)
     .where(eq(domainRule.userId, userId))

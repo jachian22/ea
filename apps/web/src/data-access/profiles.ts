@@ -1,5 +1,5 @@
-import { eq } from "drizzle-orm";
-import { database } from "~/db";
+import { eq } from 'drizzle-orm';
+import { database } from '~/db';
 import {
   userProfile,
   user,
@@ -7,14 +7,14 @@ import {
   type CreateUserProfileData,
   type UpdateUserProfileData,
   type User,
-} from "~/db/schema";
+} from '~/db/schema';
 
 export type ProfileWithUser = UserProfile & {
-  user: Pick<User, "id" | "name" | "image" | "createdAt">;
+  user: Pick<User, 'id' | 'name' | 'image' | 'createdAt'>;
 };
 
 export type PublicProfile = {
-  user: Pick<User, "id" | "name" | "image" | "createdAt">;
+  user: Pick<User, 'id' | 'name' | 'image' | 'createdAt'>;
   profile: UserProfile | null;
 };
 
@@ -22,9 +22,7 @@ export type PublicProfile = {
  * Get user profile by user ID
  * Creates profile if it doesn't exist (one-to-one mapping)
  */
-export async function getUserProfile(
-  userId: string
-): Promise<UserProfile | null> {
+export async function getUserProfile(userId: string): Promise<UserProfile | null> {
   const [result] = await database
     .select()
     .from(userProfile)
@@ -55,9 +53,7 @@ export async function getUserProfile(
 /**
  * Get or create user profile - ensures profile exists
  */
-export async function getOrCreateUserProfile(
-  userId: string
-): Promise<UserProfile | null> {
+export async function getOrCreateUserProfile(userId: string): Promise<UserProfile | null> {
   // getUserProfile already handles creating the profile if it doesn't exist
   return getUserProfile(userId);
 }
@@ -72,9 +68,7 @@ export async function updateUserProfile(
   // First ensure profile exists
   const profile = await getOrCreateUserProfile(userId);
   if (!profile) {
-    throw new Error(
-      "User profile table does not exist. Please run database migrations."
-    );
+    throw new Error('User profile table does not exist. Please run database migrations.');
   }
 
   // Then update it
@@ -93,19 +87,14 @@ export async function updateUserProfile(
 /**
  * Update user bio
  */
-export async function updateUserBio(
-  userId: string,
-  bio: string | null
-): Promise<UserProfile> {
+export async function updateUserBio(userId: string, bio: string | null): Promise<UserProfile> {
   return updateUserProfile(userId, { bio });
 }
 
 /**
  * Get public profile with user info
  */
-export async function getPublicProfile(
-  userId: string
-): Promise<PublicProfile | null> {
+export async function getPublicProfile(userId: string): Promise<PublicProfile | null> {
   // Get user first
   const [userData] = await database
     .select({

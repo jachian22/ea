@@ -9,8 +9,8 @@ import {
   findDomainRulesByUserId,
   classifyEmailToDomain,
   classifyTextToDomain,
-} from "~/data-access/domain-rules";
-import type { PersonDomain, DomainRule } from "~/db/schema";
+} from '~/data-access/domain-rules';
+import type { PersonDomain, DomainRule } from '~/db/schema';
 
 // ============================================================================
 // Types
@@ -18,7 +18,7 @@ import type { PersonDomain, DomainRule } from "~/db/schema";
 
 export interface ClassificationResult {
   domain: PersonDomain;
-  confidence: "rule" | "heuristic" | "default";
+  confidence: 'rule' | 'heuristic' | 'default';
   matchedRule?: {
     id: string;
     ruleType: string;
@@ -40,80 +40,80 @@ export interface EmailClassificationInput {
 
 // Personal email domains (heuristic: likely personal/family)
 const PERSONAL_EMAIL_DOMAINS = [
-  "gmail.com",
-  "yahoo.com",
-  "hotmail.com",
-  "outlook.com",
-  "icloud.com",
-  "me.com",
-  "aol.com",
-  "protonmail.com",
-  "fastmail.com",
-  "mail.com",
-  "live.com",
-  "msn.com",
+  'gmail.com',
+  'yahoo.com',
+  'hotmail.com',
+  'outlook.com',
+  'icloud.com',
+  'me.com',
+  'aol.com',
+  'protonmail.com',
+  'fastmail.com',
+  'mail.com',
+  'live.com',
+  'msn.com',
 ];
 
 // Business-related keywords
 const BUSINESS_KEYWORDS = [
-  "invoice",
-  "payment",
-  "contract",
-  "proposal",
-  "quote",
-  "estimate",
-  "deal",
-  "client",
-  "customer",
-  "vendor",
-  "supplier",
-  "order",
-  "purchase",
-  "sales",
-  "revenue",
-  "profit",
-  "margin",
-  "budget",
+  'invoice',
+  'payment',
+  'contract',
+  'proposal',
+  'quote',
+  'estimate',
+  'deal',
+  'client',
+  'customer',
+  'vendor',
+  'supplier',
+  'order',
+  'purchase',
+  'sales',
+  'revenue',
+  'profit',
+  'margin',
+  'budget',
 ];
 
 // Job-related keywords
 const JOB_KEYWORDS = [
-  "meeting",
-  "standup",
-  "sprint",
-  "jira",
-  "slack",
-  "roadmap",
-  "deadline",
-  "release",
-  "deploy",
-  "review",
-  "feedback",
-  "performance",
-  "1:1",
-  "one-on-one",
-  "team",
-  "project",
-  "milestone",
-  "quarterly",
+  'meeting',
+  'standup',
+  'sprint',
+  'jira',
+  'slack',
+  'roadmap',
+  'deadline',
+  'release',
+  'deploy',
+  'review',
+  'feedback',
+  'performance',
+  '1:1',
+  'one-on-one',
+  'team',
+  'project',
+  'milestone',
+  'quarterly',
 ];
 
 // Family-related keywords
 const FAMILY_KEYWORDS = [
-  "birthday",
-  "anniversary",
-  "holiday",
-  "vacation",
-  "dinner",
-  "family",
-  "kids",
-  "school",
-  "doctor",
-  "appointment",
-  "home",
-  "weekend",
-  "trip",
-  "gathering",
+  'birthday',
+  'anniversary',
+  'holiday',
+  'vacation',
+  'dinner',
+  'family',
+  'kids',
+  'school',
+  'doctor',
+  'appointment',
+  'home',
+  'weekend',
+  'trip',
+  'gathering',
 ];
 
 // ============================================================================
@@ -143,7 +143,7 @@ export async function classifyEmail(
 
     return {
       domain: ruledDomain,
-      confidence: "rule",
+      confidence: 'rule',
       matchedRule: matchedRule
         ? {
             id: matchedRule.id,
@@ -157,25 +157,25 @@ export async function classifyEmail(
 
   // Step 2: Try keyword rules on subject/body
   if (subject || body) {
-    const text = [subject, body].filter(Boolean).join(" ");
+    const text = [subject, body].filter(Boolean).join(' ');
     const keywordDomain = await classifyTextToDomain(userId, text);
     if (keywordDomain) {
       return {
         domain: keywordDomain,
-        confidence: "rule",
+        confidence: 'rule',
         reason: `Matched keyword rule in email content`,
       };
     }
   }
 
   // Step 3: Use heuristics based on email domain
-  const emailDomain = email.split("@")[1]?.toLowerCase();
+  const emailDomain = email.split('@')[1]?.toLowerCase();
   if (emailDomain) {
     // Personal email domains suggest family/personal
     if (PERSONAL_EMAIL_DOMAINS.includes(emailDomain)) {
       return {
-        domain: "personal",
-        confidence: "heuristic",
+        domain: 'personal',
+        confidence: 'heuristic',
         reason: `Personal email domain: ${emailDomain}`,
       };
     }
@@ -183,22 +183,22 @@ export async function classifyEmail(
     // Corporate email domains suggest job
     // (any non-personal domain is likely work-related)
     return {
-      domain: "job",
-      confidence: "heuristic",
+      domain: 'job',
+      confidence: 'heuristic',
       reason: `Corporate email domain: ${emailDomain}`,
     };
   }
 
   // Step 4: Try content-based heuristics
   if (subject || body) {
-    const text = [subject, body].filter(Boolean).join(" ").toLowerCase();
+    const text = [subject, body].filter(Boolean).join(' ').toLowerCase();
 
     // Check for family keywords
     for (const keyword of FAMILY_KEYWORDS) {
       if (text.includes(keyword)) {
         return {
-          domain: "family",
-          confidence: "heuristic",
+          domain: 'family',
+          confidence: 'heuristic',
           reason: `Contains family keyword: ${keyword}`,
         };
       }
@@ -208,8 +208,8 @@ export async function classifyEmail(
     for (const keyword of BUSINESS_KEYWORDS) {
       if (text.includes(keyword)) {
         return {
-          domain: "business",
-          confidence: "heuristic",
+          domain: 'business',
+          confidence: 'heuristic',
           reason: `Contains business keyword: ${keyword}`,
         };
       }
@@ -219,8 +219,8 @@ export async function classifyEmail(
     for (const keyword of JOB_KEYWORDS) {
       if (text.includes(keyword)) {
         return {
-          domain: "job",
-          confidence: "heuristic",
+          domain: 'job',
+          confidence: 'heuristic',
           reason: `Contains job keyword: ${keyword}`,
         };
       }
@@ -229,9 +229,9 @@ export async function classifyEmail(
 
   // Step 5: Default to "other"
   return {
-    domain: "other",
-    confidence: "default",
-    reason: "No matching rules or heuristics",
+    domain: 'other',
+    confidence: 'default',
+    reason: 'No matching rules or heuristics',
   };
 }
 
@@ -250,11 +250,11 @@ export async function classifyPerson(
   // First try email-based classification
   const emailResult = await classifyEmail(userId, {
     email,
-    subject: context?.recentSubjects?.join(" "),
+    subject: context?.recentSubjects?.join(' '),
   });
 
   // If we got a rule match, use it
-  if (emailResult.confidence === "rule") {
+  if (emailResult.confidence === 'rule') {
     return emailResult;
   }
 
@@ -263,8 +263,8 @@ export async function classifyPerson(
     // Check if company name suggests business vs job
     // This is a simple heuristic - could be improved
     return {
-      domain: "job",
-      confidence: "heuristic",
+      domain: 'job',
+      confidence: 'heuristic',
       reason: `Has company association: ${context.company}`,
     };
   }
@@ -303,17 +303,9 @@ export interface DomainStats {
 /**
  * Calculate domain distribution from classification results
  */
-export function calculateDomainStats(
-  results: ClassificationResult[]
-): DomainStats[] {
+export function calculateDomainStats(results: ClassificationResult[]): DomainStats[] {
   const counts = new Map<PersonDomain, number>();
-  const domains: PersonDomain[] = [
-    "family",
-    "business",
-    "job",
-    "personal",
-    "other",
-  ];
+  const domains: PersonDomain[] = ['family', 'business', 'job', 'personal', 'other'];
 
   // Initialize all domains with 0
   for (const domain of domains) {
@@ -339,7 +331,7 @@ export function calculateDomainStats(
 // ============================================================================
 
 export interface RuleSuggestion {
-  ruleType: "email_domain" | "email_address" | "keyword";
+  ruleType: 'email_domain' | 'email_address' | 'keyword';
   pattern: string;
   suggestedDomain: PersonDomain;
   reason: string;
@@ -357,14 +349,11 @@ export function suggestDomainRules(
   }>
 ): RuleSuggestion[] {
   const suggestions: RuleSuggestion[] = [];
-  const domainCounts = new Map<
-    string,
-    Map<PersonDomain, number>
-  >();
+  const domainCounts = new Map<string, Map<PersonDomain, number>>();
 
   // Count domain occurrences per email domain
   for (const item of classifiedEmails) {
-    const emailDomain = item.email.split("@")[1]?.toLowerCase();
+    const emailDomain = item.email.split('@')[1]?.toLowerCase();
     if (!emailDomain) continue;
 
     // Use user override if available, otherwise use classification
@@ -384,7 +373,7 @@ export function suggestDomainRules(
     if (PERSONAL_EMAIL_DOMAINS.includes(emailDomain)) continue;
 
     // Find the dominant domain for this email domain
-    let maxDomain: PersonDomain = "other";
+    let maxDomain: PersonDomain = 'other';
     let maxCount = 0;
     let totalCount = 0;
 
@@ -400,7 +389,7 @@ export function suggestDomainRules(
     // and we have at least 3 examples, suggest a rule
     if (totalCount >= 3 && maxCount / totalCount >= 0.8) {
       suggestions.push({
-        ruleType: "email_domain",
+        ruleType: 'email_domain',
         pattern: `@${emailDomain}`,
         suggestedDomain: maxDomain,
         reason: `${maxCount}/${totalCount} emails from this domain are ${maxDomain}`,

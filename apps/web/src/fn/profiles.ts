@@ -1,18 +1,18 @@
-import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
-import { authenticatedMiddleware } from "./middleware";
+import { createServerFn } from '@tanstack/react-start';
+import { z } from 'zod';
+import { authenticatedMiddleware } from './middleware';
 import {
   getOrCreateUserProfile,
   updateUserProfile,
   updateUserBio,
   getPublicProfile,
-} from "~/data-access/profiles";
+} from '~/data-access/profiles';
 
 /**
  * Get current user's profile
  */
 export const getMyProfileFn = createServerFn({
-  method: "GET",
+  method: 'GET',
 })
   .middleware([authenticatedMiddleware])
   .handler(async ({ context }) => {
@@ -24,13 +24,13 @@ export const getMyProfileFn = createServerFn({
  * Get a public profile by user ID (no authentication required)
  */
 export const getPublicProfileFn = createServerFn({
-  method: "GET",
+  method: 'GET',
 })
   .inputValidator(z.object({ userId: z.string() }))
   .handler(async ({ data }) => {
     const profile = await getPublicProfile(data.userId);
     if (!profile) {
-      throw new Error("Profile not found or is private");
+      throw new Error('Profile not found or is private');
     }
     return profile;
   });
@@ -39,7 +39,7 @@ export const getPublicProfileFn = createServerFn({
  * Update current user's profile
  */
 export const updateMyProfileFn = createServerFn({
-  method: "POST",
+  method: 'POST',
 })
   .middleware([authenticatedMiddleware])
   .inputValidator(
@@ -58,7 +58,7 @@ export const updateMyProfileFn = createServerFn({
  * Update current user's bio
  */
 export const updateBioFn = createServerFn({
-  method: "POST",
+  method: 'POST',
 })
   .middleware([authenticatedMiddleware])
   .inputValidator(

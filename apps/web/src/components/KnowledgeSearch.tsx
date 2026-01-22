@@ -1,21 +1,17 @@
-import { useState, useCallback } from "react";
-import { Search, User, FileCheck, Loader2 } from "lucide-react";
-import { Input } from "~/components/ui/input";
+import { useState, useCallback } from 'react';
+import { Search, User, FileCheck, Loader2 } from 'lucide-react';
+import { Input } from '~/components/ui/input';
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandItem,
   CommandList,
-} from "~/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/popover";
-import { useSearchKnowledge } from "~/hooks/use-knowledge";
-import { useDebounce } from "~/hooks/use-debounce";
-import type { Person, Commitment } from "~/db/schema";
+} from '~/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
+import { useSearchKnowledge } from '~/hooks/use-knowledge';
+import { useDebounce } from '~/hooks/use-debounce';
+import type { Person, Commitment } from '~/db/schema';
 
 // Type for the search knowledge response
 type SearchKnowledgeResponse = {
@@ -36,10 +32,10 @@ interface KnowledgeSearchProps {
 export function KnowledgeSearch({
   onSelectPerson,
   onSelectCommitment,
-  placeholder = "Search people, commitments...",
+  placeholder = 'Search people, commitments...',
 }: KnowledgeSearchProps) {
   const [open, setOpen] = useState(false);
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState('');
   const debouncedValue = useDebounce(inputValue, 300);
 
   const { data: rawData, isLoading } = useSearchKnowledge(
@@ -53,12 +49,12 @@ export function KnowledgeSearch({
   const commitments = data?.success && data.data ? data.data.commitments : [];
 
   const handleSelect = useCallback(
-    (type: "person" | "commitment", item: Person | Commitment) => {
+    (type: 'person' | 'commitment', item: Person | Commitment) => {
       setOpen(false);
-      setInputValue("");
-      if (type === "person" && onSelectPerson) {
+      setInputValue('');
+      if (type === 'person' && onSelectPerson) {
         onSelectPerson(item as Person);
-      } else if (type === "commitment" && onSelectCommitment) {
+      } else if (type === 'commitment' && onSelectCommitment) {
         onSelectCommitment(item as Commitment);
       }
     },
@@ -95,13 +91,12 @@ export function KnowledgeSearch({
         <Command shouldFilter={false}>
           <CommandList>
             {inputValue.length < 2 && (
-              <CommandEmpty>
-                Type at least 2 characters to search
-              </CommandEmpty>
+              <CommandEmpty>Type at least 2 characters to search</CommandEmpty>
             )}
-            {inputValue.length >= 2 && !isLoading && people.length === 0 && commitments.length === 0 && (
-              <CommandEmpty>No results found.</CommandEmpty>
-            )}
+            {inputValue.length >= 2 &&
+              !isLoading &&
+              people.length === 0 &&
+              commitments.length === 0 && <CommandEmpty>No results found.</CommandEmpty>}
 
             {people.length > 0 && (
               <CommandGroup heading="People">
@@ -109,16 +104,14 @@ export function KnowledgeSearch({
                   <CommandItem
                     key={person.id}
                     value={person.id}
-                    onSelect={() => handleSelect("person", person)}
+                    onSelect={() => handleSelect('person', person)}
                     className="cursor-pointer"
                   >
                     <User className="mr-2 h-4 w-4" />
                     <div className="flex flex-col">
                       <span>{person.name || person.email}</span>
                       {person.name && (
-                        <span className="text-xs text-muted-foreground">
-                          {person.email}
-                        </span>
+                        <span className="text-xs text-muted-foreground">{person.email}</span>
                       )}
                     </div>
                     {person.domain && (
@@ -137,18 +130,14 @@ export function KnowledgeSearch({
                   <CommandItem
                     key={commitment.id}
                     value={commitment.id}
-                    onSelect={() => handleSelect("commitment", commitment)}
+                    onSelect={() => handleSelect('commitment', commitment)}
                     className="cursor-pointer"
                   >
                     <FileCheck className="mr-2 h-4 w-4" />
                     <div className="flex flex-col">
-                      <span className="line-clamp-1">
-                        {commitment.description}
-                      </span>
+                      <span className="line-clamp-1">{commitment.description}</span>
                       <span className="text-xs text-muted-foreground">
-                        {commitment.direction === "user_owes"
-                          ? "You owe"
-                          : "They owe"}
+                        {commitment.direction === 'user_owes' ? 'You owe' : 'They owe'}
                         {commitment.dueDate &&
                           ` • Due ${new Date(commitment.dueDate).toLocaleDateString()}`}
                       </span>

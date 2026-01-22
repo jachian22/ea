@@ -37,7 +37,7 @@ const form = useForm<FormData>({
 const onSubmit = async (data: FormData) => {
   mutation.mutate(data, {
     onSuccess: () => {
-      toast.success("Success message");
+      toast.success('Success message');
       form.reset(); // Reset form after success
     },
     onError: (error) => {
@@ -49,7 +49,7 @@ const onSubmit = async (data: FormData) => {
 
 // Button remains enabled but shows loading state
 <Button type="submit" disabled={mutation.isPending}>
-  {mutation.isPending ? "Saving..." : "Save"}
+  {mutation.isPending ? 'Saving...' : 'Save'}
 </Button>;
 ```
 
@@ -63,11 +63,7 @@ const onSubmit = async (data: FormData) => {
     <FormItem>
       <FormLabel>Field Label *</FormLabel>
       <FormControl>
-        <Input
-          placeholder="Placeholder text"
-          disabled={mutation.isPending}
-          {...field}
-        />
+        <Input placeholder="Placeholder text" disabled={mutation.isPending} {...field} />
       </FormControl>
       <FormMessage /> {/* Shows validation errors */}
     </FormItem>
@@ -117,16 +113,16 @@ const mutation = useMutation({
 ### Toast Notification Patterns:
 
 ```tsx
-import { toast } from "sonner";
+import { toast } from 'sonner';
 
 // Success notifications
-toast.success("Song uploaded successfully");
+toast.success('Song uploaded successfully');
 
 // Error notifications
-toast.error("Failed to upload file");
+toast.error('Failed to upload file');
 
 // Info notifications
-toast.info("This playlist is empty");
+toast.info('This playlist is empty');
 ```
 
 ### Examples:
@@ -171,9 +167,8 @@ const handleDelete = () => {
     <DialogHeader>
       <DialogTitle>Delete {itemType}</DialogTitle>
       <DialogDescription>
-        Are you sure you want to delete "{selectedItem?.name}"? This action
-        cannot be undone and will permanently remove the {itemType} and all its
-        data.
+        Are you sure you want to delete "{selectedItem?.name}"? This action cannot be undone and
+        will permanently remove the {itemType} and all its data.
       </DialogDescription>
     </DialogHeader>
     <DialogFooter>
@@ -184,12 +179,8 @@ const handleDelete = () => {
       >
         Cancel
       </Button>
-      <Button
-        variant="destructive"
-        onClick={handleDelete}
-        disabled={deleteMutation.isPending}
-      >
-        {deleteMutation.isPending ? "Deleting..." : "Delete"}
+      <Button variant="destructive" onClick={handleDelete} disabled={deleteMutation.isPending}>
+        {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
       </Button>
     </DialogFooter>
   </DialogContent>
@@ -325,14 +316,14 @@ import { Tooltip } from "~/components/ui/tooltip";
 ### Breadcrumb Implementation:
 
 ```tsx
-import { AppBreadcrumb } from "~/components/AppBreadcrumb";
-import { Home, Music } from "lucide-react";
+import { AppBreadcrumb } from '~/components/AppBreadcrumb';
+import { Home, Music } from 'lucide-react';
 
 <AppBreadcrumb
   items={[
-    { label: "Home", href: "/", icon: Home },
-    { label: "Browse", href: "/browse", icon: Music },
-    { label: "Current Page" }, // No href = current page
+    { label: 'Home', href: '/', icon: Home },
+    { label: 'Browse', href: '/browse', icon: Music },
+    { label: 'Current Page' }, // No href = current page
   ]}
 />;
 ```
@@ -342,7 +333,7 @@ import { Home, Music } from "lucide-react";
 Use `useSongBreadcrumbs` hook for dynamic navigation:
 
 ```tsx
-const breadcrumbItems = useSongBreadcrumbs(songTitle, "edit");
+const breadcrumbItems = useSongBreadcrumbs(songTitle, 'edit');
 
 <AppBreadcrumb items={breadcrumbItems} />;
 ```

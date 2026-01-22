@@ -4,8 +4,8 @@
  * Tools for creating, updating, and managing commitments.
  */
 
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { z } from "zod";
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { z } from 'zod';
 import {
   createCommitment,
   findCommitmentById,
@@ -17,9 +17,9 @@ import {
   findCommitmentsWithPerson,
   getCommitmentCountsByStatus,
   type CommitmentWithPerson,
-} from "~/data-access/commitments";
-import { findPersonById, findPersonByUserIdAndEmail } from "~/data-access/persons";
-import type { Commitment, CommitmentStatus } from "~/db/schema";
+} from '~/data-access/commitments';
+import { findPersonById, findPersonByUserIdAndEmail } from '~/data-access/persons';
+import type { Commitment, CommitmentStatus } from '~/db/schema';
 
 /**
  * Register commitment tools with the MCP server
@@ -27,19 +27,38 @@ import type { Commitment, CommitmentStatus } from "~/db/schema";
 export function registerCommitmentTools(server: McpServer, userId: string) {
   // ea_create_commitment - Create a new commitment
   server.tool(
-    "ea_create_commitment",
-    "Create a new commitment - something you owe to someone or they owe to you.",
+    'ea_create_commitment',
+    'Create a new commitment - something you owe to someone or they owe to you.',
     {
-      description: z.string().describe("What was committed/promised"),
-      direction: z.enum(["user_owes", "they_owe"]).describe("Who owes whom"),
-      personId: z.string().optional().describe("Person ID this commitment is with (optional)"),
-      personEmail: z.string().optional().describe("Person email if no ID (will find or create person)"),
-      dueDate: z.string().optional().describe("Due date (ISO format)"),
-      priority: z.enum(["high", "medium", "low"]).optional().default("medium").describe("Priority level"),
-      sourceType: z.enum(["email", "calendar", "manual"]).optional().describe("Where this commitment came from"),
-      sourceId: z.string().optional().describe("Reference ID from source"),
+      description: z.string().describe('What was committed/promised'),
+      direction: z.enum(['user_owes', 'they_owe']).describe('Who owes whom'),
+      personId: z.string().optional().describe('Person ID this commitment is with (optional)'),
+      personEmail: z
+        .string()
+        .optional()
+        .describe('Person email if no ID (will find or create person)'),
+      dueDate: z.string().optional().describe('Due date (ISO format)'),
+      priority: z
+        .enum(['high', 'medium', 'low'])
+        .optional()
+        .default('medium')
+        .describe('Priority level'),
+      sourceType: z
+        .enum(['email', 'calendar', 'manual'])
+        .optional()
+        .describe('Where this commitment came from'),
+      sourceId: z.string().optional().describe('Reference ID from source'),
     },
-    async ({ description, direction, personId, personEmail, dueDate, priority, sourceType, sourceId }) => {
+    async ({
+      description,
+      direction,
+      personId,
+      personEmail,
+      dueDate,
+      priority,
+      sourceType,
+      sourceId,
+    }) => {
       try {
         // Resolve person if email provided but no ID
         let resolvedPersonId = personId;
@@ -56,7 +75,7 @@ export function registerCommitmentTools(server: McpServer, userId: string) {
           personId: resolvedPersonId || null,
           description,
           direction,
-          status: "pending",
+          status: 'pending',
           priority,
           dueDate: dueDate ? new Date(dueDate) : null,
           promisedAt: new Date(),
@@ -78,31 +97,39 @@ export function registerCommitmentTools(server: McpServer, userId: string) {
         }
 
         return {
-          content: [{
-            type: "text" as const,
-            text: JSON.stringify({
-              success: true,
-              commitment: {
-                id: commitment.id,
-                description: commitment.description,
-                direction: commitment.direction,
-                status: commitment.status,
-                priority: commitment.priority,
-                dueDate: commitment.dueDate?.toISOString(),
-                person: personInfo,
-              },
-            }, null, 2),
-          }],
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify(
+                {
+                  success: true,
+                  commitment: {
+                    id: commitment.id,
+                    description: commitment.description,
+                    direction: commitment.direction,
+                    status: commitment.status,
+                    priority: commitment.priority,
+                    dueDate: commitment.dueDate?.toISOString(),
+                    person: personInfo,
+                  },
+                },
+                null,
+                2
+              ),
+            },
+          ],
         };
       } catch (error) {
         return {
-          content: [{
-            type: "text" as const,
-            text: JSON.stringify({
-              success: false,
-              error: error instanceof Error ? error.message : "Unknown error",
-            }),
-          }],
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify({
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error',
+              }),
+            },
+          ],
           isError: true,
         };
       }
@@ -111,14 +138,17 @@ export function registerCommitmentTools(server: McpServer, userId: string) {
 
   // ea_update_commitment - Update a commitment
   server.tool(
-    "ea_update_commitment",
-    "Update an existing commitment - change description, due date, priority, or status.",
+    'ea_update_commitment',
+    'Update an existing commitment - change description, due date, priority, or status.',
     {
-      id: z.string().describe("Commitment ID to update"),
-      description: z.string().optional().describe("New description"),
-      dueDate: z.string().optional().describe("New due date (ISO format)"),
-      priority: z.enum(["high", "medium", "low"]).optional().describe("New priority"),
-      status: z.enum(["pending", "in_progress", "completed", "cancelled"]).optional().describe("New status"),
+      id: z.string().describe('Commitment ID to update'),
+      description: z.string().optional().describe('New description'),
+      dueDate: z.string().optional().describe('New due date (ISO format)'),
+      priority: z.enum(['high', 'medium', 'low']).optional().describe('New priority'),
+      status: z
+        .enum(['pending', 'in_progress', 'completed', 'cancelled'])
+        .optional()
+        .describe('New status'),
     },
     async ({ id, description, dueDate, priority, status }) => {
       try {
@@ -126,26 +156,30 @@ export function registerCommitmentTools(server: McpServer, userId: string) {
         const existing = await findCommitmentById(id);
         if (!existing) {
           return {
-            content: [{
-              type: "text" as const,
-              text: JSON.stringify({
-                success: false,
-                error: "Commitment not found",
-              }),
-            }],
+            content: [
+              {
+                type: 'text' as const,
+                text: JSON.stringify({
+                  success: false,
+                  error: 'Commitment not found',
+                }),
+              },
+            ],
             isError: true,
           };
         }
 
         if (existing.userId !== userId) {
           return {
-            content: [{
-              type: "text" as const,
-              text: JSON.stringify({
-                success: false,
-                error: "Access denied",
-              }),
-            }],
+            content: [
+              {
+                type: 'text' as const,
+                text: JSON.stringify({
+                  success: false,
+                  error: 'Access denied',
+                }),
+              },
+            ],
             isError: true,
           };
         }
@@ -155,27 +189,35 @@ export function registerCommitmentTools(server: McpServer, userId: string) {
           ...(dueDate && { dueDate: new Date(dueDate) }),
           ...(priority && { priority }),
           ...(status && { status }),
-          ...(status === "completed" && { completedAt: new Date() }),
+          ...(status === 'completed' && { completedAt: new Date() }),
         });
 
         return {
-          content: [{
-            type: "text" as const,
-            text: JSON.stringify({
-              success: true,
-              commitment: formatCommitment(updated!),
-            }, null, 2),
-          }],
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify(
+                {
+                  success: true,
+                  commitment: formatCommitment(updated!),
+                },
+                null,
+                2
+              ),
+            },
+          ],
         };
       } catch (error) {
         return {
-          content: [{
-            type: "text" as const,
-            text: JSON.stringify({
-              success: false,
-              error: error instanceof Error ? error.message : "Unknown error",
-            }),
-          }],
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify({
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error',
+              }),
+            },
+          ],
           isError: true,
         };
       }
@@ -184,11 +226,11 @@ export function registerCommitmentTools(server: McpServer, userId: string) {
 
   // ea_complete_commitment - Mark a commitment as completed
   server.tool(
-    "ea_complete_commitment",
-    "Mark a commitment as completed with optional completion note.",
+    'ea_complete_commitment',
+    'Mark a commitment as completed with optional completion note.',
     {
-      id: z.string().describe("Commitment ID to complete"),
-      note: z.string().optional().describe("Completion note or evidence"),
+      id: z.string().describe('Commitment ID to complete'),
+      note: z.string().optional().describe('Completion note or evidence'),
     },
     async ({ id, note }) => {
       try {
@@ -196,51 +238,63 @@ export function registerCommitmentTools(server: McpServer, userId: string) {
         const existing = await findCommitmentById(id);
         if (!existing) {
           return {
-            content: [{
-              type: "text" as const,
-              text: JSON.stringify({
-                success: false,
-                error: "Commitment not found",
-              }),
-            }],
+            content: [
+              {
+                type: 'text' as const,
+                text: JSON.stringify({
+                  success: false,
+                  error: 'Commitment not found',
+                }),
+              },
+            ],
             isError: true,
           };
         }
 
         if (existing.userId !== userId) {
           return {
-            content: [{
-              type: "text" as const,
-              text: JSON.stringify({
-                success: false,
-                error: "Access denied",
-              }),
-            }],
+            content: [
+              {
+                type: 'text' as const,
+                text: JSON.stringify({
+                  success: false,
+                  error: 'Access denied',
+                }),
+              },
+            ],
             isError: true,
           };
         }
 
-        const updated = await updateCommitmentStatus(id, "completed", note);
+        const updated = await updateCommitmentStatus(id, 'completed', note);
 
         return {
-          content: [{
-            type: "text" as const,
-            text: JSON.stringify({
-              success: true,
-              message: "Commitment marked as completed",
-              commitment: formatCommitment(updated!),
-            }, null, 2),
-          }],
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify(
+                {
+                  success: true,
+                  message: 'Commitment marked as completed',
+                  commitment: formatCommitment(updated!),
+                },
+                null,
+                2
+              ),
+            },
+          ],
         };
       } catch (error) {
         return {
-          content: [{
-            type: "text" as const,
-            text: JSON.stringify({
-              success: false,
-              error: error instanceof Error ? error.message : "Unknown error",
-            }),
-          }],
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify({
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error',
+              }),
+            },
+          ],
           isError: true,
         };
       }
@@ -249,8 +303,8 @@ export function registerCommitmentTools(server: McpServer, userId: string) {
 
   // ea_get_overdue_commitments - Get all overdue commitments
   server.tool(
-    "ea_get_overdue_commitments",
-    "Get all overdue commitments that need attention.",
+    'ea_get_overdue_commitments',
+    'Get all overdue commitments that need attention.',
     {},
     async () => {
       try {
@@ -272,39 +326,47 @@ export function registerCommitmentTools(server: McpServer, userId: string) {
 
         // Calculate stats
         const byDirection = {
-          user_owes: withPerson.filter(c => c.direction === "user_owes").length,
-          they_owe: withPerson.filter(c => c.direction === "they_owe").length,
+          user_owes: withPerson.filter((c) => c.direction === 'user_owes').length,
+          they_owe: withPerson.filter((c) => c.direction === 'they_owe').length,
         };
 
         return {
-          content: [{
-            type: "text" as const,
-            text: JSON.stringify({
-              success: true,
-              count: commitments.length,
-              summary: {
-                youOwe: byDirection.user_owes,
-                theyOwe: byDirection.they_owe,
-              },
-              commitments: withPerson.map(c => ({
-                ...formatCommitment(c),
-                person: c.person,
-                daysOverdue: c.dueDate
-                  ? Math.floor((Date.now() - c.dueDate.getTime()) / (1000 * 60 * 60 * 24))
-                  : null,
-              })),
-            }, null, 2),
-          }],
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify(
+                {
+                  success: true,
+                  count: commitments.length,
+                  summary: {
+                    youOwe: byDirection.user_owes,
+                    theyOwe: byDirection.they_owe,
+                  },
+                  commitments: withPerson.map((c) => ({
+                    ...formatCommitment(c),
+                    person: c.person,
+                    daysOverdue: c.dueDate
+                      ? Math.floor((Date.now() - c.dueDate.getTime()) / (1000 * 60 * 60 * 24))
+                      : null,
+                  })),
+                },
+                null,
+                2
+              ),
+            },
+          ],
         };
       } catch (error) {
         return {
-          content: [{
-            type: "text" as const,
-            text: JSON.stringify({
-              success: false,
-              error: error instanceof Error ? error.message : "Unknown error",
-            }),
-          }],
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify({
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error',
+              }),
+            },
+          ],
           isError: true,
         };
       }
@@ -313,8 +375,8 @@ export function registerCommitmentTools(server: McpServer, userId: string) {
 
   // ea_get_commitments_due_today - Get commitments due today
   server.tool(
-    "ea_get_commitments_due_today",
-    "Get all commitments that are due today.",
+    'ea_get_commitments_due_today',
+    'Get all commitments that are due today.',
     {},
     async () => {
       try {
@@ -335,28 +397,36 @@ export function registerCommitmentTools(server: McpServer, userId: string) {
         );
 
         return {
-          content: [{
-            type: "text" as const,
-            text: JSON.stringify({
-              success: true,
-              date: new Date().toISOString().split('T')[0],
-              count: commitments.length,
-              commitments: withPerson.map(c => ({
-                ...formatCommitment(c),
-                person: c.person,
-              })),
-            }, null, 2),
-          }],
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify(
+                {
+                  success: true,
+                  date: new Date().toISOString().split('T')[0],
+                  count: commitments.length,
+                  commitments: withPerson.map((c) => ({
+                    ...formatCommitment(c),
+                    person: c.person,
+                  })),
+                },
+                null,
+                2
+              ),
+            },
+          ],
         };
       } catch (error) {
         return {
-          content: [{
-            type: "text" as const,
-            text: JSON.stringify({
-              success: false,
-              error: error instanceof Error ? error.message : "Unknown error",
-            }),
-          }],
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify({
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error',
+              }),
+            },
+          ],
           isError: true,
         };
       }
@@ -365,8 +435,8 @@ export function registerCommitmentTools(server: McpServer, userId: string) {
 
   // ea_get_commitment_stats - Get commitment statistics
   server.tool(
-    "ea_get_commitment_stats",
-    "Get a summary of commitment statistics by status.",
+    'ea_get_commitment_stats',
+    'Get a summary of commitment statistics by status.',
     {},
     async () => {
       try {
@@ -376,29 +446,37 @@ export function registerCommitmentTools(server: McpServer, userId: string) {
         const upcoming = await findUpcomingCommitments(userId, 7);
 
         return {
-          content: [{
-            type: "text" as const,
-            text: JSON.stringify({
-              success: true,
-              stats: {
-                byStatus: counts,
-                overdue: overdue.length,
-                dueToday: dueToday.length,
-                upcomingWeek: upcoming.length,
-                totalOpen: counts.pending + counts.in_progress,
-              },
-            }, null, 2),
-          }],
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify(
+                {
+                  success: true,
+                  stats: {
+                    byStatus: counts,
+                    overdue: overdue.length,
+                    dueToday: dueToday.length,
+                    upcomingWeek: upcoming.length,
+                    totalOpen: counts.pending + counts.in_progress,
+                  },
+                },
+                null,
+                2
+              ),
+            },
+          ],
         };
       } catch (error) {
         return {
-          content: [{
-            type: "text" as const,
-            text: JSON.stringify({
-              success: false,
-              error: error instanceof Error ? error.message : "Unknown error",
-            }),
-          }],
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify({
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error',
+              }),
+            },
+          ],
           isError: true,
         };
       }
@@ -410,8 +488,10 @@ export function registerCommitmentTools(server: McpServer, userId: string) {
 
 function formatCommitment(commitment: Commitment) {
   const now = new Date();
-  const isOverdue = commitment.dueDate && commitment.dueDate < now &&
-    (commitment.status === "pending" || commitment.status === "in_progress");
+  const isOverdue =
+    commitment.dueDate &&
+    commitment.dueDate < now &&
+    (commitment.status === 'pending' || commitment.status === 'in_progress');
 
   return {
     id: commitment.id,

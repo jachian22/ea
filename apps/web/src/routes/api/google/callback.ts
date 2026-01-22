@@ -1,31 +1,27 @@
-import { createFileRoute } from "@tanstack/react-router";
-import {
-  exchangeCodeForTokens,
-  getGoogleUserInfo,
-  GOOGLE_SCOPES,
-} from "~/lib/google-client";
-import { upsertGoogleIntegration } from "~/data-access/google-integration";
-import { findOrCreateUserByEmail } from "~/data-access/users";
-import { createSession, createSessionCookie } from "~/lib/session";
-import { nanoid } from "nanoid";
-import crypto from "crypto";
+import { createFileRoute } from '@tanstack/react-router';
+import { exchangeCodeForTokens, getGoogleUserInfo, GOOGLE_SCOPES } from '~/lib/google-client';
+import { upsertGoogleIntegration } from '~/data-access/google-integration';
+import { findOrCreateUserByEmail } from '~/data-access/users';
+import { createSession, createSessionCookie } from '~/lib/session';
+import { nanoid } from 'nanoid';
+import crypto from 'crypto';
 
-const OAUTH_STATE_COOKIE = "oauth_state";
-const STATE_TYPE_SIGNIN = "signin";
+const OAUTH_STATE_COOKIE = 'oauth_state';
+const STATE_TYPE_SIGNIN = 'signin';
 
 /**
  * Creates an HMAC signature for the OAuth state (must match google.ts).
  */
 function signState(data: string): string {
-  const secret = process.env.SESSION_SECRET || "development-secret-change-in-production";
-  return crypto.createHmac("sha256", secret).update(data).digest("hex");
+  const secret = process.env.SESSION_SECRET || 'development-secret-change-in-production';
+  return crypto.createHmac('sha256', secret).update(data).digest('hex');
 }
 
 /**
  * Validates that a redirect URL is safe (relative path only).
  */
 function isValidRedirect(url: string): boolean {
-  return url.startsWith("/") && !url.startsWith("//") && !url.includes(":");
+  return url.startsWith('/') && !url.startsWith('//') && !url.includes(':');
 }
 
 /**
@@ -33,7 +29,7 @@ function isValidRedirect(url: string): boolean {
  */
 function getNonceFromCookie(cookieHeader: string | null): string | null {
   if (!cookieHeader) return null;
-  const cookies = cookieHeader.split(";").map((c) => c.trim());
+  const cookies = cookieHeader.split(';').map((c) => c.trim());
   const stateCookie = cookies.find((c) => c.startsWith(`${OAUTH_STATE_COOKIE}=`));
   if (!stateCookie) return null;
   return stateCookie.slice(OAUTH_STATE_COOKIE.length + 1) || null;
@@ -43,8 +39,8 @@ function getNonceFromCookie(cookieHeader: string | null): string | null {
  * Creates a cookie header to clear the oauth_state cookie.
  */
 function createClearOAuthStateCookie(): string {
-  const isProduction = process.env.NODE_ENV === "production";
-  const securePart = isProduction ? "; Secure" : "";
+  const isProduction = process.env.NODE_ENV === 'production';
+  const securePart = isProduction ? '; Secure' : '';
   return `${OAUTH_STATE_COOKIE}=; Path=/; HttpOnly; SameSite=Lax${securePart}; Max-Age=0`;
 }
 
@@ -60,14 +56,14 @@ function parseAndValidateOAuthState(
   state: string,
   expectedNonce: string | null
 ): {
-  type: "signin" | "integration";
+  type: 'signin' | 'integration';
   userId?: string;
   nonce: string;
   redirectUrl?: string;
 } | null {
   try {
-    const decoded = Buffer.from(state, "base64url").toString("utf-8");
-    const parts = decoded.split("|");
+    const decoded = Buffer.from(state, 'base64url').toString('utf-8');
+    const parts = decoded.split('|');
 
     if (parts[0] === STATE_TYPE_SIGNIN) {
       // Sign-in flow: signin|nonce|redirectUrl|signature
@@ -75,23 +71,23 @@ function parseAndValidateOAuthState(
       if (!nonce || !signature) return null;
 
       // Verify HMAC signature
-      const stateData = `${type}|${nonce}|${redirectUrl || ""}`;
+      const stateData = `${type}|${nonce}|${redirectUrl || ''}`;
       const expectedSignature = signState(stateData);
       if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
-        console.error("OAuth state signature verification failed");
+        console.error('OAuth state signature verification failed');
         return null;
       }
 
       // Verify nonce matches cookie (CSRF protection)
       if (expectedNonce && nonce !== expectedNonce) {
-        console.error("OAuth state nonce mismatch");
+        console.error('OAuth state nonce mismatch');
         return null;
       }
 
       // Validate redirect URL
-      const safeRedirect = redirectUrl && isValidRedirect(redirectUrl) ? redirectUrl : "/dashboard";
+      const safeRedirect = redirectUrl && isValidRedirect(redirectUrl) ? redirectUrl : '/dashboard';
 
-      return { type: "signin", nonce, redirectUrl: safeRedirect };
+      return { type: 'signin', nonce, redirectUrl: safeRedirect };
     } else {
       // Integration connection flow: userId|nonce|signature
       const [userId, nonce, signature] = parts;
@@ -101,17 +97,17 @@ function parseAndValidateOAuthState(
       const stateData = `${userId}|${nonce}`;
       const expectedSignature = signState(stateData);
       if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
-        console.error("OAuth state signature verification failed");
+        console.error('OAuth state signature verification failed');
         return null;
       }
 
       // Verify nonce matches cookie (CSRF protection)
       if (expectedNonce && nonce !== expectedNonce) {
-        console.error("OAuth state nonce mismatch");
+        console.error('OAuth state nonce mismatch');
         return null;
       }
 
-      return { type: "integration", userId, nonce };
+      return { type: 'integration', userId, nonce };
     }
   } catch {
     return null;
@@ -127,43 +123,42 @@ function parseAndValidateOAuthState(
  *
  * The flow is determined by the state parameter format.
  */
-export const Route = createFileRoute("/api/google/callback")({
+export const Route = createFileRoute('/api/google/callback')({
   server: {
     handlers: {
       GET: async ({ request }) => {
         const url = new URL(request.url);
-        const code = url.searchParams.get("code");
-        const state = url.searchParams.get("state");
-        const error = url.searchParams.get("error");
+        const code = url.searchParams.get('code');
+        const state = url.searchParams.get('state');
+        const error = url.searchParams.get('error');
 
         // Handle error from Google (user denied access, etc.)
         if (error) {
-          console.error("Google OAuth error:", error);
-          const errorDescription =
-            url.searchParams.get("error_description") || "Access denied";
-          return redirectWithError("/sign-in", errorDescription, true);
+          console.error('Google OAuth error:', error);
+          const errorDescription = url.searchParams.get('error_description') || 'Access denied';
+          return redirectWithError('/sign-in', errorDescription, true);
         }
 
         // Validate required parameters
         if (!code) {
-          console.error("Google OAuth callback missing code parameter");
-          return redirectWithError("/sign-in", "Missing authorization code", true);
+          console.error('Google OAuth callback missing code parameter');
+          return redirectWithError('/sign-in', 'Missing authorization code', true);
         }
 
         if (!state) {
-          console.error("Google OAuth callback missing state parameter");
-          return redirectWithError("/sign-in", "Invalid state parameter", true);
+          console.error('Google OAuth callback missing state parameter');
+          return redirectWithError('/sign-in', 'Invalid state parameter', true);
         }
 
         // Extract nonce from cookie for CSRF verification
-        const cookieHeader = request.headers.get("cookie");
+        const cookieHeader = request.headers.get('cookie');
         const cookieNonce = getNonceFromCookie(cookieHeader);
 
         // Parse and validate the state parameter (verifies signature and nonce)
         const parsedState = parseAndValidateOAuthState(state, cookieNonce);
         if (!parsedState) {
-          console.error("Google OAuth callback: state validation failed");
-          return redirectWithError("/sign-in", "Invalid or expired state parameter", true);
+          console.error('Google OAuth callback: state validation failed');
+          return redirectWithError('/sign-in', 'Invalid or expired state parameter', true);
         }
 
         try {
@@ -173,7 +168,7 @@ export const Route = createFileRoute("/api/google/callback")({
           // Validate access token before proceeding
           const accessToken = tokens.access_token;
           if (!accessToken) {
-            throw new Error("No access token received from Google");
+            throw new Error('No access token received from Google');
           }
 
           // Get the user's Google profile info
@@ -191,19 +186,19 @@ export const Route = createFileRoute("/api/google/callback")({
             refreshToken: tokens.refresh_token,
           };
 
-          if (parsedState.type === "signin") {
+          if (parsedState.type === 'signin') {
             // Sign-in flow: Create/find user and create session
             return handleSignIn(
               request,
               googleUserInfo,
               validatedTokens,
               expiresAt,
-              parsedState.redirectUrl || "/dashboard"
+              parsedState.redirectUrl || '/dashboard'
             );
           } else {
             // Integration connection flow: Store tokens for existing user
             if (!parsedState.userId) {
-              throw new Error("Missing user ID for integration flow");
+              throw new Error('Missing user ID for integration flow');
             }
             return handleIntegrationConnection(
               request,
@@ -214,14 +209,11 @@ export const Route = createFileRoute("/api/google/callback")({
             );
           }
         } catch (err) {
-          console.error("Failed to complete Google OAuth flow:", err);
+          console.error('Failed to complete Google OAuth flow:', err);
           const errorMessage =
-            err instanceof Error
-              ? err.message
-              : "Failed to authenticate with Google";
+            err instanceof Error ? err.message : 'Failed to authenticate with Google';
 
-          const redirectPath =
-            parsedState.type === "signin" ? "/sign-in" : "/dashboard/settings";
+          const redirectPath = parsedState.type === 'signin' ? '/sign-in' : '/dashboard/settings';
           return redirectWithError(redirectPath, errorMessage, true);
         }
       },
@@ -242,7 +234,7 @@ async function handleSignIn(
   // Find or create user
   const user = await findOrCreateUserByEmail({
     email: googleUserInfo.email,
-    name: googleUserInfo.name || googleUserInfo.email.split("@")[0],
+    name: googleUserInfo.name || googleUserInfo.email.split('@')[0],
     image: googleUserInfo.picture,
   });
 
@@ -253,9 +245,9 @@ async function handleSignIn(
   await upsertGoogleIntegration(user.id, {
     id: nanoid(),
     accessToken: tokens.accessToken,
-    refreshToken: tokens.refreshToken || "",
+    refreshToken: tokens.refreshToken || '',
     accessTokenExpiresAt: expiresAt,
-    scope: GOOGLE_SCOPES.join(" "),
+    scope: GOOGLE_SCOPES.join(' '),
     googleEmail: googleUserInfo.email,
     googleAccountId: googleUserInfo.id,
     isConnected: true,
@@ -266,9 +258,9 @@ async function handleSignIn(
 
   // Redirect to dashboard with session cookie and clear OAuth state cookie
   const headers = new Headers();
-  headers.set("Location", new URL(redirectUrl, request.url).toString());
-  headers.append("Set-Cookie", createSessionCookie(sessionToken));
-  headers.append("Set-Cookie", createClearOAuthStateCookie());
+  headers.set('Location', new URL(redirectUrl, request.url).toString());
+  headers.append('Set-Cookie', createSessionCookie(sessionToken));
+  headers.append('Set-Cookie', createClearOAuthStateCookie());
 
   return new Response(null, { status: 302, headers });
 }
@@ -284,18 +276,16 @@ async function handleIntegrationConnection(
   expiresAt: Date
 ): Promise<Response> {
   if (!tokens.refreshToken) {
-    console.warn(
-      "No refresh token received - user may have previously authorized this app"
-    );
+    console.warn('No refresh token received - user may have previously authorized this app');
   }
 
   // Store or update the integration in the database
   await upsertGoogleIntegration(userId, {
     id: nanoid(),
     accessToken: tokens.accessToken,
-    refreshToken: tokens.refreshToken || "",
+    refreshToken: tokens.refreshToken || '',
     accessTokenExpiresAt: expiresAt,
-    scope: GOOGLE_SCOPES.join(" "),
+    scope: GOOGLE_SCOPES.join(' '),
     googleEmail: googleUserInfo.email,
     googleAccountId: googleUserInfo.id,
     isConnected: true,
@@ -306,8 +296,11 @@ async function handleIntegrationConnection(
 
   // Redirect to dashboard settings with success message and clear OAuth state cookie
   const headers = new Headers();
-  headers.set("Location", new URL("/dashboard/settings?google_connected=true", request.url).toString());
-  headers.append("Set-Cookie", createClearOAuthStateCookie());
+  headers.set(
+    'Location',
+    new URL('/dashboard/settings?google_connected=true', request.url).toString()
+  );
+  headers.append('Set-Cookie', createClearOAuthStateCookie());
 
   return new Response(null, { status: 302, headers });
 }
@@ -319,10 +312,10 @@ async function handleIntegrationConnection(
 function redirectWithError(basePath: string, error: string, clearOAuthCookie = false): Response {
   const errorUrl = `${basePath}?error=${encodeURIComponent(error)}`;
   const headers = new Headers();
-  headers.set("Location", errorUrl);
+  headers.set('Location', errorUrl);
 
   if (clearOAuthCookie) {
-    headers.append("Set-Cookie", createClearOAuthStateCookie());
+    headers.append('Set-Cookie', createClearOAuthStateCookie());
   }
 
   return new Response(null, { status: 302, headers });

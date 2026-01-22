@@ -5,18 +5,11 @@ interface PageTitleProps {
   center?: boolean;
 }
 
-export function PageTitle({
-  title,
-  description,
-  className = "",
-  center = false,
-}: PageTitleProps) {
+export function PageTitle({ title, description, className = '', center = false }: PageTitleProps) {
   return (
-    <header className={`${center ? "text-center" : "text-left"} ${className}`}>
+    <header className={`${center ? 'text-center' : 'text-left'} ${className}`}>
       <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{title}</h1>
-      {description && (
-        <p className="mt-2 text-muted-foreground">{description}</p>
-      )}
+      {description && <p className="mt-2 text-muted-foreground">{description}</p>}
     </header>
   );
 }

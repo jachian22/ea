@@ -1,5 +1,5 @@
-import { eq, and, desc, sql } from "drizzle-orm";
-import { database } from "~/db";
+import { eq, and, desc, sql } from 'drizzle-orm';
+import { database } from '~/db';
 import {
   bankAccount,
   bankStatement,
@@ -14,7 +14,7 @@ import {
   type UpdateStatementRunData,
   type StatementRunStatus,
   type BanksProcessedData,
-} from "~/db/schema";
+} from '~/db/schema';
 
 // ============================================================================
 // Bank Account Operations
@@ -23,13 +23,8 @@ import {
 /**
  * Create a new bank account
  */
-export async function createBankAccount(
-  data: CreateBankAccountData
-): Promise<BankAccount> {
-  const [newAccount] = await database
-    .insert(bankAccount)
-    .values(data)
-    .returning();
+export async function createBankAccount(data: CreateBankAccountData): Promise<BankAccount> {
+  const [newAccount] = await database.insert(bankAccount).values(data).returning();
 
   return newAccount;
 }
@@ -37,14 +32,8 @@ export async function createBankAccount(
 /**
  * Find a bank account by ID
  */
-export async function findBankAccountById(
-  id: string
-): Promise<BankAccount | null> {
-  const [result] = await database
-    .select()
-    .from(bankAccount)
-    .where(eq(bankAccount.id, id))
-    .limit(1);
+export async function findBankAccountById(id: string): Promise<BankAccount | null> {
+  const [result] = await database.select().from(bankAccount).where(eq(bankAccount.id, id)).limit(1);
 
   return result || null;
 }
@@ -52,9 +41,7 @@ export async function findBankAccountById(
 /**
  * Find bank accounts by user ID
  */
-export async function findBankAccountsByUserId(
-  userId: string
-): Promise<BankAccount[]> {
+export async function findBankAccountsByUserId(userId: string): Promise<BankAccount[]> {
   const results = await database
     .select()
     .from(bankAccount)
@@ -115,12 +102,7 @@ export async function upsertBankAccount(
   last4: string,
   nickname?: string
 ): Promise<BankAccount> {
-  const existing = await findBankAccountByDetails(
-    userId,
-    bank,
-    accountType,
-    last4
-  );
+  const existing = await findBankAccountByDetails(userId, bank, accountType, last4);
 
   if (existing) {
     if (nickname && nickname !== existing.nickname) {
@@ -143,10 +125,7 @@ export async function upsertBankAccount(
  * Delete a bank account
  */
 export async function deleteBankAccount(id: string): Promise<boolean> {
-  const [deleted] = await database
-    .delete(bankAccount)
-    .where(eq(bankAccount.id, id))
-    .returning();
+  const [deleted] = await database.delete(bankAccount).where(eq(bankAccount.id, id)).returning();
 
   return deleted !== undefined;
 }
@@ -158,13 +137,8 @@ export async function deleteBankAccount(id: string): Promise<boolean> {
 /**
  * Create a new bank statement record
  */
-export async function createBankStatement(
-  data: CreateBankStatementData
-): Promise<BankStatement> {
-  const [newStatement] = await database
-    .insert(bankStatement)
-    .values(data)
-    .returning();
+export async function createBankStatement(data: CreateBankStatementData): Promise<BankStatement> {
+  const [newStatement] = await database.insert(bankStatement).values(data).returning();
 
   return newStatement;
 }
@@ -172,9 +146,7 @@ export async function createBankStatement(
 /**
  * Find a bank statement by ID
  */
-export async function findBankStatementById(
-  id: string
-): Promise<BankStatement | null> {
+export async function findBankStatementById(id: string): Promise<BankStatement | null> {
   const [result] = await database
     .select()
     .from(bankStatement)
@@ -255,10 +227,7 @@ export async function upsertBankStatement(
   filePath: string,
   fileSize?: number
 ): Promise<BankStatement> {
-  const existing = await findStatementByAccountAndDate(
-    bankAccountId,
-    statementDate
-  );
+  const existing = await findStatementByAccountAndDate(bankAccountId, statementDate);
 
   if (existing) {
     const [updated] = await database
@@ -307,13 +276,8 @@ export async function getStatementCountsByBank(
 /**
  * Create a new statement run
  */
-export async function createStatementRun(
-  data: CreateStatementRunData
-): Promise<StatementRun> {
-  const [newRun] = await database
-    .insert(statementRun)
-    .values(data)
-    .returning();
+export async function createStatementRun(data: CreateStatementRunData): Promise<StatementRun> {
+  const [newRun] = await database.insert(statementRun).values(data).returning();
 
   return newRun;
 }
@@ -321,9 +285,7 @@ export async function createStatementRun(
 /**
  * Find a statement run by ID
  */
-export async function findStatementRunById(
-  id: string
-): Promise<StatementRun | null> {
+export async function findStatementRunById(id: string): Promise<StatementRun | null> {
   const [result] = await database
     .select()
     .from(statementRun)
@@ -353,9 +315,7 @@ export async function findStatementRunsByUserId(
 /**
  * Find the latest statement run for a user
  */
-export async function findLatestStatementRun(
-  userId: string
-): Promise<StatementRun | null> {
+export async function findLatestStatementRun(userId: string): Promise<StatementRun | null> {
   const [result] = await database
     .select()
     .from(statementRun)
@@ -392,9 +352,8 @@ export async function updateStatementRunStatus(
 ): Promise<StatementRun | null> {
   const updateData: UpdateStatementRunData = {
     status,
-    errorMessage: status === "failed" ? errorMessage : null,
-    completedAt:
-      status === "completed" || status === "failed" ? new Date() : undefined,
+    errorMessage: status === 'failed' ? errorMessage : null,
+    completedAt: status === 'completed' || status === 'failed' ? new Date() : undefined,
   };
 
   return updateStatementRun(id, updateData);
@@ -424,18 +383,11 @@ export async function completeStatementRun(
 /**
  * Find running statement runs for a user (shouldn't normally happen)
  */
-export async function findRunningStatementRuns(
-  userId: string
-): Promise<StatementRun[]> {
+export async function findRunningStatementRuns(userId: string): Promise<StatementRun[]> {
   const results = await database
     .select()
     .from(statementRun)
-    .where(
-      and(
-        eq(statementRun.userId, userId),
-        eq(statementRun.status, "running")
-      )
-    );
+    .where(and(eq(statementRun.userId, userId), eq(statementRun.status, 'running')));
 
   return results;
 }
@@ -467,9 +419,9 @@ export async function getStatementRunStats(userId: string): Promise<{
   for (const row of results) {
     totalRuns += row.count;
     totalStatementsDownloaded += row.totalStatements;
-    if (row.status === "completed") {
+    if (row.status === 'completed') {
       successfulRuns = row.count;
-    } else if (row.status === "failed") {
+    } else if (row.status === 'failed') {
       failedRuns = row.count;
     }
   }

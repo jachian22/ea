@@ -20,270 +20,297 @@ This document is the source of truth for Step 1 (Spec & Research).
 ## A. Scope & Intent
 
 ### A1. Data Scope
-- ☐ Transactions only  
+
+- ☐ Transactions only
 - ☐ Transactions + statements (PDF/CSV)
 
 **Decision:**  
-**Notes:**  
+**Notes:**
 
 ---
 
 ### A2. Transaction Types
-- ☐ Posted only  
-- ☐ Pending + posted  
+
+- ☐ Posted only
+- ☐ Pending + posted
 
 **Decision:**  
-**Notes:**  
+**Notes:**
 
 ---
 
 ### A3. Accounts in Scope
-- ☐ All accounts at source  
-- ☐ Specific accounts only  
+
+- ☐ All accounts at source
+- ☐ Specific accounts only
 
 **Decision:**  
 **Accounts:**  
-**Notes:**  
+**Notes:**
 
 ---
 
 ## B. Cadence & Windowing
 
 ### B1. Execution Cadence
-- ☐ Hourly  
-- ☐ Daily  
-- ☐ Weekly  
-- ☐ Custom cron  
+
+- ☐ Hourly
+- ☐ Daily
+- ☐ Weekly
+- ☐ Custom cron
 
 **Decision:**  
 **Cron expression:**  
-**Timezone:**  
+**Timezone:**
 
 ---
 
 ### B2. Initial Lookback Window
-- ☐ 30 days  
-- ☐ 90 days  
-- ☐ 180 days  
-- ☐ 365 days  
-- ☐ Custom  
+
+- ☐ 30 days
+- ☐ 90 days
+- ☐ 180 days
+- ☐ 365 days
+- ☐ Custom
 
 **Decision:**  
-**Notes:**  
+**Notes:**
 
 ---
 
 ### B3. Incremental Strategy
-- ☐ Since last successful run  
-- ☐ Sliding window  
-- ☐ Source-provided cursor  
+
+- ☐ Since last successful run
+- ☐ Sliding window
+- ☐ Source-provided cursor
 
 **Decision:**  
-**Notes:**  
+**Notes:**
 
 ---
 
 ### B4. Rebuild / Backfill Policy
-- ☐ Never rebuild automatically  
-- ☐ Manual backfill only  
-- ☐ Periodic rebuild  
+
+- ☐ Never rebuild automatically
+- ☐ Manual backfill only
+- ☐ Periodic rebuild
 
 **Decision:**  
-**Notes:**  
+**Notes:**
 
 ---
 
 ## C. Output & Storage
 
 ### C1. Canonical Schema Version
-- ☐ tx_v1  
+
+- ☐ tx_v1
 - ☐ Other (must specify)
 
-**Decision:**  
+**Decision:**
 
 ---
 
 ### C2. Output Formats
-- ☐ JSONL  
-- ☐ Parquet  
-- ☐ DuckDB  
-- ☐ Multiple  
 
-**Decision:**  
+- ☐ JSONL
+- ☐ Parquet
+- ☐ DuckDB
+- ☐ Multiple
+
+**Decision:**
 
 ---
 
 ### C3. Destination
-- ☐ Finance agent volume  
-- ☐ Export to assistant ingestion path  
+
+- ☐ Finance agent volume
+- ☐ Export to assistant ingestion path
 - ☐ Local filesystem (dev only)
 
 **Decision:**  
-**Paths:**  
+**Paths:**
 
 ---
 
 ### C4. Deduplication Strategy
-- ☐ Source transaction ID  
-- ☐ Deterministic hash  
-- ☐ Hybrid  
+
+- ☐ Source transaction ID
+- ☐ Deterministic hash
+- ☐ Hybrid
 
 **Decision:**  
-**Notes:**  
+**Notes:**
 
 ---
 
 ## D. Access & Authentication (Per Source)
 
 ### D1. Tier Classification
-- ☐ Tier 0 — API / OAuth  
-- ☐ Tier 1 — Stable portal session  
-- ☐ Tier 2 — Step-up auth required  
-- ☐ Tier 3 — Hostile automation  
+
+- ☐ Tier 0 — API / OAuth
+- ☐ Tier 1 — Stable portal session
+- ☐ Tier 2 — Step-up auth required
+- ☐ Tier 3 — Hostile automation
 
 **Decision:**  
-**Rationale:**  
+**Rationale:**
 
 ---
 
 ### D2. Preferred Access Methods (Ordered)
-- ☐ Official API  
-- ☐ OAuth refresh token  
-- ☐ CSV export  
+
+- ☐ Official API
+- ☐ OAuth refresh token
+- ☐ CSV export
 - ☐ Portal scraping (Playwright)
 
-**Order:**  
+**Order:**
 
 ---
 
 ### D3. Browser Automation Allowed?
-- ☐ Yes (dev only)  
-- ☐ Yes (prod allowed)  
-- ☐ No  
 
-**Decision:**  
+- ☐ Yes (dev only)
+- ☐ Yes (prod allowed)
+- ☐ No
+
+**Decision:**
 
 ---
 
 ### D4. Step-Up Authentication Handling
-- ☐ Not expected  
-- ☐ Local-only re-auth workflow  
-- ☐ Pause + notify on failure  
 
-**Decision:**  
+- ☐ Not expected
+- ☐ Local-only re-auth workflow
+- ☐ Pause + notify on failure
+
+**Decision:**
 
 ---
 
 ### D5. Session Artifacts
-- ☐ Cookies  
-- ☐ Local storage  
-- ☐ None  
+
+- ☐ Cookies
+- ☐ Local storage
+- ☐ None
 
 **Decision:**  
-**TTL / rotation plan:**  
+**TTL / rotation plan:**
 
 ---
 
 ## E. Safety & Compliance
 
 ### E1. Secret Scope
-- ☐ API keys only  
-- ☐ OAuth tokens  
-- ☐ Session artifacts  
 
-**Decision:**  
+- ☐ API keys only
+- ☐ OAuth tokens
+- ☐ Session artifacts
+
+**Decision:**
 
 ---
 
 ### E2. Network Egress
-- ☐ Allowlist in prod  
-- ☐ Broad egress in dev only  
+
+- ☐ Allowlist in prod
+- ☐ Broad egress in dev only
 
 **Decision:**  
-**Allowlist (if applicable):**  
+**Allowlist (if applicable):**
 
 ---
 
 ### E3. Tool Permissions
-- ☐ Default dev permissions  
-- ☐ Restricted prod permissions  
 
-**Decision:**  
+- ☐ Default dev permissions
+- ☐ Restricted prod permissions
+
+**Decision:**
 
 ---
 
 ### E4. Data Retention
-- ☐ Raw downloads retained  
-- ☐ Raw downloads ephemeral  
-- ☐ Normalized outputs retained long-term  
+
+- ☐ Raw downloads retained
+- ☐ Raw downloads ephemeral
+- ☐ Normalized outputs retained long-term
 
 **Decision:**  
-**Retention period:**  
+**Retention period:**
 
 ---
 
 ## F. Failure Handling & Observability
 
 ### F1. Failure Policy
-- ☐ Pause + notify  
-- ☐ Retry (bounded)  
-- ☐ Manual intervention required  
 
-**Decision:**  
+- ☐ Pause + notify
+- ☐ Retry (bounded)
+- ☐ Manual intervention required
+
+**Decision:**
 
 ---
 
 ### F2. Alert Destinations
-- ☐ Assistant notification  
-- ☐ Email  
-- ☐ Log only  
 
-**Decision:**  
+- ☐ Assistant notification
+- ☐ Email
+- ☐ Log only
+
+**Decision:**
 
 ---
 
 ### F3. Validation Requirements
-- ☐ Schema validation  
-- ☐ Invariant checks  
-- ☐ Minimum transaction count  
 
-**Decision:**  
+- ☐ Schema validation
+- ☐ Invariant checks
+- ☐ Minimum transaction count
+
+**Decision:**
 
 ---
 
 ## G. Review & Promotion
 
 ### G1. Promotion Required?
-- ☐ Yes (mandatory)  
+
+- ☐ Yes (mandatory)
 - ☐ No (not permitted for this system)
 
-**Decision:**  
+**Decision:**
 
 ---
 
 ### G2. Review Artifacts Required
-- ☐ RUNBOOK.md  
-- ☐ RISKS.md  
-- ☐ TEST_REPORT.md  
-- ☐ sample_output.jsonl  
 
-**Decision:**  
+- ☐ RUNBOOK.md
+- ☐ RISKS.md
+- ☐ TEST_REPORT.md
+- ☐ sample_output.jsonl
+
+**Decision:**
 
 ---
 
 ## H. Final Approval
 
 ### H1. Outstanding Questions
+
 List any unresolved items:
 
 ---
 
 ### H2. Approval
-- ☐ JobSpec approved as written  
-- ☐ Revisions required  
+
+- ☐ JobSpec approved as written
+- ☐ Revisions required
 
 **Approved by:**  
-**Date:**  
+**Date:**
 
 ---
 

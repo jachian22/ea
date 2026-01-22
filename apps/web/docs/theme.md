@@ -3,6 +3,7 @@
 This document provides comprehensive guidance on theming, styling, and light/dark mode implementation in the SoundStation application.
 
 ## Table of Contents
+
 - [Architecture Overview](#architecture-overview)
 - [Color System & CSS Variables](#color-system--css-variables)
 - [Light/Dark Mode Implementation](#lightdark-mode-implementation)
@@ -13,6 +14,7 @@ This document provides comprehensive guidance on theming, styling, and light/dar
 ## Architecture Overview
 
 The application uses a modern theming system built on:
+
 - **Tailwind CSS v4** with CSS variables for dynamic theming
 - **Custom CSS properties** defined in `src/styles/app.css`
 - **React Context** for theme state management (`ThemeProvider`)
@@ -20,6 +22,7 @@ The application uses a modern theming system built on:
 - **System preference detection** with automatic fallback
 
 ### Tech Stack
+
 - **Tailwind CSS v4**: Utility-first CSS framework with CSS variable integration
 - **PostCSS**: CSS processing with `@tailwindcss/postcss` plugin
 - **OKLCH Color Space**: Modern color space for better color manipulation
@@ -45,25 +48,27 @@ The theme system uses CSS custom properties that map to Tailwind's color tokens.
 ### Color Definitions
 
 #### Light Theme (`:root`)
+
 ```css
 :root {
-  --background: oklch(1 0 0);                    /* Pure white */
-  --foreground: oklch(0.141 0.005 285.823);      /* Dark slate */
-  --primary: oklch(0.637 0.237 25.331);          /* Orange primary */
-  --card: oklch(1 0 0);                          /* White cards */
-  --border: oklch(0.92 0.004 286.32);           /* Light gray borders */
+  --background: oklch(1 0 0); /* Pure white */
+  --foreground: oklch(0.141 0.005 285.823); /* Dark slate */
+  --primary: oklch(0.637 0.237 25.331); /* Orange primary */
+  --card: oklch(1 0 0); /* White cards */
+  --border: oklch(0.92 0.004 286.32); /* Light gray borders */
   /* ... more colors */
 }
 ```
 
 #### Dark Theme (`.dark`)
+
 ```css
 .dark {
-  --background: oklch(0.141 0.005 285.823);      /* Dark slate */
-  --foreground: oklch(0.985 0 0);                /* Near white */
-  --primary: oklch(0.637 0.237 25.331);          /* Same orange (consistent) */
-  --card: oklch(0.21 0.006 285.885);            /* Dark cards */
-  --border: oklch(1 0 0 / 10%);                 /* Subtle borders */
+  --background: oklch(0.141 0.005 285.823); /* Dark slate */
+  --foreground: oklch(0.985 0 0); /* Near white */
+  --primary: oklch(0.637 0.237 25.331); /* Same orange (consistent) */
+  --card: oklch(0.21 0.006 285.885); /* Dark cards */
+  --border: oklch(1 0 0 / 10%); /* Subtle borders */
   /* ... more colors */
 }
 ```
@@ -84,16 +89,17 @@ The theme system uses CSS custom properties that map to Tailwind's color tokens.
 The theme system consists of three main parts:
 
 #### 1. Server Functions (`src/components/theme-provider.tsx`)
+
 ```typescript
 // Server function to get theme from cookie
 export const getThemeFn = createServerFn().handler(async () => {
   const theme = getCookie(THEME_COOKIE_NAME);
-  return theme ?? "system";
+  return theme ?? 'system';
 });
 
 // Server function to set theme cookie
-export const setThemeFn = createServerFn({ method: "POST" })
-  .validator(z.object({ theme: z.enum(["dark", "light", "system"]) }))
+export const setThemeFn = createServerFn({ method: 'POST' })
+  .validator(z.object({ theme: z.enum(['dark', 'light', 'system']) }))
   .handler(async ({ data }) => {
     setCookie(THEME_COOKIE_NAME, data.theme);
     return data.theme;
@@ -101,33 +107,35 @@ export const setThemeFn = createServerFn({ method: "POST" })
 ```
 
 #### 2. Theme Provider Component
+
 - Manages theme state with React Context
 - Listens to system preference changes
 - Applies theme classes to `document.documentElement`
 - Syncs with server-side cookies
 
 #### 3. SSR Theme Script
+
 Located in `src/routes/__root.tsx`, prevents flash of unstyled content:
 
 ```javascript
 // Inline script that runs before React hydration
-(function() {
+(function () {
   const THEME_COOKIE_NAME = 'ui-theme';
   let theme = document.cookie.match(new RegExp('(^| )' + THEME_COOKIE_NAME + '=([^;]+)'))?.[2];
-  
+
   let resolvedTheme;
   let root = document.documentElement;
-  
+
   // Clear existing theme classes
   root.classList.remove('light', 'dark');
-  
+
   if (!theme || theme === 'system') {
     // Use system preference
     resolvedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   } else {
     resolvedTheme = theme;
   }
-  
+
   root.classList.add(resolvedTheme);
 })();
 ```
@@ -150,9 +158,9 @@ export function ModeToggle() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>System</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme('system')}>System</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -179,15 +187,16 @@ Components like Button use Class Variance Authority for type-safe variants:
 ```tsx
 const buttonVariants = cva(
   // Base styles with theme-aware properties
-  "inline-flex items-center justify-center rounded-md transition-all disabled:opacity-50 focus-visible:ring-ring/50",
+  'inline-flex items-center justify-center rounded-md transition-all disabled:opacity-50 focus-visible:ring-ring/50',
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        outline: "border bg-background hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input",
-        ghost: "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
-      }
-    }
+        default: 'bg-primary text-primary-foreground hover:bg-primary/90',
+        outline:
+          'border bg-background hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input',
+        ghost: 'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
+      },
+    },
   }
 );
 ```
@@ -225,53 +234,58 @@ Consistent focus indicators using the `ring` color variable:
 ## Best Practices
 
 ### 1. Always Use CSS Variables
+
  **Good**: `bg-background text-foreground`
 L **Bad**: `bg-white text-black`
 
 ### 2. Provide Dark Mode Variants When Needed
+
 ```tsx
 // When CSS variables don't cover your use case
 <div className="bg-gray-100 dark:bg-gray-800" />
 ```
 
 ### 3. Use Semantic Color Names
+
 ```tsx
 // Use semantic names that work across themes
 <div className="bg-card border-border text-card-foreground" />
 ```
 
 ### 4. Include Proper Transitions
+
 ```tsx
 // Smooth theme transitions
 <div className="bg-card transition-colors duration-200" />
 ```
 
 ### 5. Test Both Themes
+
 Always test components in both light and dark modes, including:
+
 - Color contrast ratios
 - Hover/focus states
 - Loading states
 - Interactive elements
 
 ### 6. Handle System Preference Changes
+
 Components should work with all three theme modes:
+
 - `light`: Force light theme
-- `dark`: Force dark theme  
+- `dark`: Force dark theme
 - `system`: Follow OS preference (can change dynamically)
 
 ### 7. Use the cn() Utility
+
 For conditional classes and proper class merging:
 
 ```tsx
-import { cn } from "~/lib/utils";
+import { cn } from '~/lib/utils';
 
 function MyComponent({ className, variant }: Props) {
   return (
-    <div className={cn(
-      "base-classes",
-      variant === "primary" && "primary-classes",
-      className
-    )} />
+    <div className={cn('base-classes', variant === 'primary' && 'primary-classes', className)} />
   );
 }
 ```
@@ -279,6 +293,7 @@ function MyComponent({ className, variant }: Props) {
 ## Quick Reference
 
 ### Essential Theme Colors
+
 ```css
 /* Backgrounds */
 bg-background        /* Main app background */
@@ -306,6 +321,7 @@ ring-ring          /* Focus ring color */
 ### Common Component Patterns
 
 #### Card Component
+
 ```tsx
 <div className="bg-card text-card-foreground rounded-lg border border-border shadow-sm">
   <div className="p-6">
@@ -316,35 +332,39 @@ ring-ring          /* Focus ring color */
 ```
 
 #### Button Component
+
 ```tsx
 // Primary button
 <button className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md">
   Primary Action
 </button>
 
-// Outline button  
+// Outline button
 <button className="border border-border bg-background hover:bg-accent hover:text-accent-foreground px-4 py-2 rounded-md">
   Secondary Action
 </button>
 ```
 
 #### Input Component
+
 ```tsx
 <input className="bg-background border border-input text-foreground px-3 py-2 rounded-md focus:ring-2 focus:ring-ring focus:ring-offset-2" />
 ```
 
 #### Theme Toggle Integration
+
 ```tsx
 // In your header or settings
-import { ModeToggle } from "~/components/mode-toggle";
+import { ModeToggle } from '~/components/mode-toggle';
 
 <nav className="flex items-center gap-4">
   {/* Other nav items */}
   <ModeToggle />
-</nav>
+</nav>;
 ```
 
 ### Custom Animations
+
 The theme includes custom animations for enhanced UX:
 
 ```css
@@ -356,12 +376,13 @@ The theme includes custom animations for enhanced UX:
 ```
 
 ### File Structure Summary
+
 ```
 src/
    styles/
       app.css                 # Main CSS with theme variables
    components/
-      theme-provider.tsx      # Theme context and management  
+      theme-provider.tsx      # Theme context and management
       mode-toggle.tsx         # Theme switching component
       ui/                     # Base UI components with theming
    lib/

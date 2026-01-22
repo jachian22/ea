@@ -1,5 +1,5 @@
-import * as cron from "node-cron";
-import { generateDailyBriefsForAllUsers } from "~/services/brief-generator";
+import * as cron from 'node-cron';
+import { generateDailyBriefsForAllUsers } from '~/services/brief-generator';
 
 /**
  * Configuration options for the daily brief scheduler
@@ -93,16 +93,13 @@ export interface DailyBriefSchedulerRunResult {
 export class DailyBriefScheduler {
   private task: cron.ScheduledTask | null = null;
   private isRunning = false;
-  private options: Required<
-    Omit<DailyBriefSchedulerOptions, "onComplete" | "onError">
-  > &
-    Pick<DailyBriefSchedulerOptions, "onComplete" | "onError">;
+  private options: Required<Omit<DailyBriefSchedulerOptions, 'onComplete' | 'onError'>> &
+    Pick<DailyBriefSchedulerOptions, 'onComplete' | 'onError'>;
 
   constructor(options: DailyBriefSchedulerOptions = {}) {
     this.options = {
-      cronExpression: options.cronExpression ?? "0 7 * * *",
-      timezone:
-        options.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
+      cronExpression: options.cronExpression ?? '0 7 * * *',
+      timezone: options.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
       runOnStartup: options.runOnStartup ?? false,
       onComplete: options.onComplete,
       onError: options.onError,
@@ -117,7 +114,7 @@ export class DailyBriefScheduler {
    */
   start(): void {
     if (this.task) {
-      console.warn("[DailyBriefScheduler] Scheduler is already running");
+      console.warn('[DailyBriefScheduler] Scheduler is already running');
       return;
     }
 
@@ -127,10 +124,8 @@ export class DailyBriefScheduler {
 
     // Validate cron expression
     if (!cron.validate(this.options.cronExpression)) {
-      const error = new Error(
-        `Invalid cron expression: ${this.options.cronExpression}`
-      );
-      console.error("[DailyBriefScheduler]", error.message);
+      const error = new Error(`Invalid cron expression: ${this.options.cronExpression}`);
+      console.error('[DailyBriefScheduler]', error.message);
       this.options.onError?.(error);
       throw error;
     }
@@ -140,10 +135,8 @@ export class DailyBriefScheduler {
       this.options.cronExpression,
       () => {
         this.runBriefGeneration().catch((error) => {
-          console.error("[DailyBriefScheduler] Unhandled error:", error);
-          this.options.onError?.(
-            error instanceof Error ? error : new Error(String(error))
-          );
+          console.error('[DailyBriefScheduler] Unhandled error:', error);
+          this.options.onError?.(error instanceof Error ? error : new Error(String(error)));
         });
       },
       {
@@ -152,19 +145,14 @@ export class DailyBriefScheduler {
       }
     );
 
-    console.log("[DailyBriefScheduler] Scheduler started successfully");
+    console.log('[DailyBriefScheduler] Scheduler started successfully');
 
     // Run immediately if configured
     if (this.options.runOnStartup) {
-      console.log("[DailyBriefScheduler] Running initial brief generation...");
+      console.log('[DailyBriefScheduler] Running initial brief generation...');
       this.runBriefGeneration().catch((error) => {
-        console.error(
-          "[DailyBriefScheduler] Error during startup run:",
-          error
-        );
-        this.options.onError?.(
-          error instanceof Error ? error : new Error(String(error))
-        );
+        console.error('[DailyBriefScheduler] Error during startup run:', error);
+        this.options.onError?.(error instanceof Error ? error : new Error(String(error)));
       });
     }
   }
@@ -176,13 +164,13 @@ export class DailyBriefScheduler {
    */
   stop(): void {
     if (!this.task) {
-      console.warn("[DailyBriefScheduler] Scheduler is not running");
+      console.warn('[DailyBriefScheduler] Scheduler is not running');
       return;
     }
 
     this.task.stop();
     this.task = null;
-    console.log("[DailyBriefScheduler] Scheduler stopped");
+    console.log('[DailyBriefScheduler] Scheduler stopped');
   }
 
   /**
@@ -207,7 +195,7 @@ export class DailyBriefScheduler {
    * @returns The run result
    */
   async triggerManualRun(): Promise<DailyBriefSchedulerRunResult> {
-    console.log("[DailyBriefScheduler] Manual run triggered");
+    console.log('[DailyBriefScheduler] Manual run triggered');
     return this.runBriefGeneration();
   }
 
@@ -223,10 +211,7 @@ export class DailyBriefScheduler {
       return null;
     }
 
-    return calculateNextCronRun(
-      this.options.cronExpression,
-      this.options.timezone
-    );
+    return calculateNextCronRun(this.options.cronExpression, this.options.timezone);
   }
 
   /**
@@ -236,7 +221,7 @@ export class DailyBriefScheduler {
     // Prevent concurrent runs
     if (this.isRunning) {
       console.warn(
-        "[DailyBriefScheduler] Brief generation is already in progress, skipping this run"
+        '[DailyBriefScheduler] Brief generation is already in progress, skipping this run'
       );
       return {
         startedAt: new Date(),
@@ -290,9 +275,7 @@ export class DailyBriefScheduler {
       // Log individual failures for debugging
       for (const result of runResult.results) {
         if (!result.success) {
-          console.error(
-            `[DailyBriefScheduler] Failed for user ${result.userId}: ${result.error}`
-          );
+          console.error(`[DailyBriefScheduler] Failed for user ${result.userId}: ${result.error}`);
         }
       }
 
@@ -302,10 +285,7 @@ export class DailyBriefScheduler {
       return runResult;
     } catch (error) {
       const completedAt = new Date();
-      console.error(
-        "[DailyBriefScheduler] Fatal error during brief generation:",
-        error
-      );
+      console.error('[DailyBriefScheduler] Fatal error during brief generation:', error);
 
       const runResult: DailyBriefSchedulerRunResult = {
         startedAt,
@@ -317,9 +297,7 @@ export class DailyBriefScheduler {
       };
 
       // Call error callback
-      this.options.onError?.(
-        error instanceof Error ? error : new Error(String(error))
-      );
+      this.options.onError?.(error instanceof Error ? error : new Error(String(error)));
 
       return runResult;
     } finally {
@@ -338,12 +316,9 @@ export class DailyBriefScheduler {
  * @param timezone The timezone (not fully supported in calculation)
  * @returns The approximate next run time
  */
-function calculateNextCronRun(
-  cronExpression: string,
-  timezone: string
-): Date | null {
+function calculateNextCronRun(cronExpression: string, timezone: string): Date | null {
   try {
-    const parts = cronExpression.split(" ");
+    const parts = cronExpression.split(' ');
     if (parts.length !== 5) {
       return null;
     }
@@ -354,10 +329,10 @@ function calculateNextCronRun(
     const next = new Date(now);
 
     // Set to the scheduled time
-    if (minute !== "*") {
+    if (minute !== '*') {
       next.setMinutes(parseInt(minute, 10));
     }
-    if (hour !== "*") {
+    if (hour !== '*') {
       next.setHours(parseInt(hour, 10));
     }
     next.setSeconds(0);
@@ -369,7 +344,7 @@ function calculateNextCronRun(
     }
 
     // Handle day-of-week constraints
-    if (dayOfWeek !== "*") {
+    if (dayOfWeek !== '*') {
       const targetDays = parseCronField(dayOfWeek, 0, 7);
       let currentDay = next.getDay();
 
@@ -395,19 +370,19 @@ function calculateNextCronRun(
  * Parses a cron field that may contain ranges, lists, or wildcards.
  */
 function parseCronField(field: string, min: number, max: number): number[] {
-  if (field === "*") {
+  if (field === '*') {
     return Array.from({ length: max - min + 1 }, (_, i) => min + i);
   }
 
   const values: number[] = [];
 
   // Handle comma-separated values
-  const parts = field.split(",");
+  const parts = field.split(',');
 
   for (const part of parts) {
-    if (part.includes("-")) {
+    if (part.includes('-')) {
       // Handle ranges (e.g., "1-5")
-      const [start, end] = part.split("-").map((n) => parseInt(n, 10));
+      const [start, end] = part.split('-').map((n) => parseInt(n, 10));
       for (let i = start; i <= end; i++) {
         values.push(i);
       }
@@ -437,9 +412,7 @@ let schedulerInstance: DailyBriefScheduler | null = null;
  * @param options Options for the scheduler (only used on first call)
  * @returns The scheduler instance
  */
-export function getDailyBriefScheduler(
-  options?: DailyBriefSchedulerOptions
-): DailyBriefScheduler {
+export function getDailyBriefScheduler(options?: DailyBriefSchedulerOptions): DailyBriefScheduler {
   if (!schedulerInstance) {
     schedulerInstance = new DailyBriefScheduler(options);
   }
@@ -466,9 +439,7 @@ export function getDailyBriefScheduler(
  * });
  * ```
  */
-export function initDailyBriefScheduler(
-  options?: DailyBriefSchedulerOptions
-): DailyBriefScheduler {
+export function initDailyBriefScheduler(options?: DailyBriefSchedulerOptions): DailyBriefScheduler {
   const scheduler = getDailyBriefScheduler(options);
 
   if (!scheduler.isActive()) {
@@ -514,9 +485,7 @@ export function getNextDailyBriefRunTime(): Date | null {
  */
 export async function triggerDailyBriefGeneration(): Promise<DailyBriefSchedulerRunResult | null> {
   if (!schedulerInstance) {
-    console.warn(
-      "[DailyBriefScheduler] Cannot trigger run: scheduler not initialized"
-    );
+    console.warn('[DailyBriefScheduler] Cannot trigger run: scheduler not initialized');
     return null;
   }
 

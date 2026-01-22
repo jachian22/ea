@@ -3,10 +3,10 @@
  */
 export function getVideoDuration(file: File): Promise<number> {
   return new Promise((resolve, reject) => {
-    const video = document.createElement("video");
+    const video = document.createElement('video');
     const url = URL.createObjectURL(file);
 
-    video.preload = "metadata";
+    video.preload = 'metadata';
     video.src = url;
 
     video.onloadedmetadata = () => {
@@ -16,7 +16,7 @@ export function getVideoDuration(file: File): Promise<number> {
 
     video.onerror = () => {
       URL.revokeObjectURL(url);
-      reject(new Error("Failed to load video metadata"));
+      reject(new Error('Failed to load video metadata'));
     };
   });
 }
@@ -30,8 +30,8 @@ export function formatDuration(seconds: number): string {
   const remainingSeconds = Math.floor(seconds % 60);
 
   if (hours > 0) {
-    return `${hours}:${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
+    return `${hours}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   } else {
-    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   }
 }

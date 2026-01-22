@@ -5,13 +5,13 @@
  * Session tokens are hashed before storage for security.
  */
 
-import { database } from "~/db";
-import { session, user } from "~/db/schema";
-import { eq, and, gt, lt } from "drizzle-orm";
-import { nanoid } from "nanoid";
-import crypto from "crypto";
+import { database } from '~/db';
+import { session, user } from '~/db/schema';
+import { eq, and, gt, lt } from 'drizzle-orm';
+import { nanoid } from 'nanoid';
+import crypto from 'crypto';
 
-const SESSION_COOKIE_NAME = "ea_session";
+const SESSION_COOKIE_NAME = 'ea_session';
 const SESSION_DURATION_DAYS = 30;
 
 /**
@@ -19,7 +19,7 @@ const SESSION_DURATION_DAYS = 30;
  * The hashed token is stored in the database, not the raw token.
  */
 function hashToken(token: string): string {
-  return crypto.createHash("sha256").update(token).digest("hex");
+  return crypto.createHash('sha256').update(token).digest('hex');
 }
 
 /**
@@ -58,12 +58,7 @@ export async function validateSession(token: string): Promise<string | null> {
   const result = await database
     .select({ userId: session.userId })
     .from(session)
-    .where(
-      and(
-        eq(session.token, tokenHash),
-        gt(session.expiresAt, new Date())
-      )
-    )
+    .where(and(eq(session.token, tokenHash), gt(session.expiresAt, new Date())))
     .limit(1);
 
   return result[0]?.userId ?? null;
@@ -87,12 +82,7 @@ export async function getUserFromSession(token: string) {
     })
     .from(session)
     .innerJoin(user, eq(session.userId, user.id))
-    .where(
-      and(
-        eq(session.token, tokenHash),
-        gt(session.expiresAt, new Date())
-      )
-    )
+    .where(and(eq(session.token, tokenHash), gt(session.expiresAt, new Date())))
     .limit(1);
 
   return result[0] ?? null;
@@ -134,8 +124,8 @@ export async function extendSession(token: string): Promise<void> {
  */
 export function createSessionCookie(token: string): string {
   const maxAge = SESSION_DURATION_DAYS * 24 * 60 * 60;
-  const isProduction = process.env.NODE_ENV === "production";
-  const securePart = isProduction ? "; Secure" : "";
+  const isProduction = process.env.NODE_ENV === 'production';
+  const securePart = isProduction ? '; Secure' : '';
   return `${SESSION_COOKIE_NAME}=${token}; Path=/; HttpOnly; SameSite=Lax${securePart}; Max-Age=${maxAge}`;
 }
 
@@ -144,8 +134,8 @@ export function createSessionCookie(token: string): string {
  * Includes Secure flag in production.
  */
 export function createClearSessionCookie(): string {
-  const isProduction = process.env.NODE_ENV === "production";
-  const securePart = isProduction ? "; Secure" : "";
+  const isProduction = process.env.NODE_ENV === 'production';
+  const securePart = isProduction ? '; Secure' : '';
   return `${SESSION_COOKIE_NAME}=; Path=/; HttpOnly; SameSite=Lax${securePart}; Max-Age=0`;
 }
 
@@ -155,8 +145,8 @@ export function createClearSessionCookie(): string {
 export function getSessionTokenFromCookie(cookieHeader: string | null): string | null {
   if (!cookieHeader) return null;
 
-  const cookies = cookieHeader.split(";").map(c => c.trim());
-  const sessionCookie = cookies.find(c => c.startsWith(`${SESSION_COOKIE_NAME}=`));
+  const cookies = cookieHeader.split(';').map((c) => c.trim());
+  const sessionCookie = cookies.find((c) => c.startsWith(`${SESSION_COOKIE_NAME}=`));
 
   if (!sessionCookie) return null;
 
@@ -169,9 +159,7 @@ export function getSessionTokenFromCookie(cookieHeader: string | null): string |
  * @returns The number of sessions deleted
  */
 export async function cleanupExpiredSessions(): Promise<number> {
-  const result = await database
-    .delete(session)
-    .where(lt(session.expiresAt, new Date()));
+  const result = await database.delete(session).where(lt(session.expiresAt, new Date()));
 
   // Drizzle returns the deleted rows count in different ways depending on driver
   // This is a safe way to report cleanup

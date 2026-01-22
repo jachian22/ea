@@ -1,20 +1,20 @@
-import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
-import { authenticatedMiddleware } from "./middleware";
-import { findGoogleIntegrationByUserId } from "~/data-access/google-integration";
-import { isIntegrationValid } from "~/lib/google-client";
+import { createServerFn } from '@tanstack/react-start';
+import { z } from 'zod';
+import { authenticatedMiddleware } from './middleware';
+import { findGoogleIntegrationByUserId } from '~/data-access/google-integration';
+import { isIntegrationValid } from '~/lib/google-client';
 import {
   setupGmailWatch,
   stopGmailWatch,
   setupCalendarWatch,
   stopCalendarWatch,
-} from "~/services/webhook-ingestion-service";
+} from '~/services/webhook-ingestion-service';
 import {
   getIngestionStatistics,
   findIngestionEventsByUserId,
   cleanupOldIngestionEvents,
-} from "~/data-access/ingestion-events";
-import type { IngestionEvent } from "~/db/schema";
+} from '~/data-access/ingestion-events';
+import type { IngestionEvent } from '~/db/schema';
 
 // Type for ingestion events response
 type GetIngestionEventsResponse =
@@ -25,7 +25,7 @@ type GetIngestionEventsResponse =
 // Setup Gmail Watch
 // ============================================================================
 
-export const setupGmailWatchFn = createServerFn({ method: "POST" })
+export const setupGmailWatchFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       topicName: z.string(), // Google Cloud Pub/Sub topic name
@@ -42,7 +42,7 @@ export const setupGmailWatchFn = createServerFn({ method: "POST" })
         return {
           success: false,
           data: null,
-          error: "Google account is not connected.",
+          error: 'Google account is not connected.',
         };
       }
 
@@ -52,7 +52,7 @@ export const setupGmailWatchFn = createServerFn({ method: "POST" })
         return {
           success: false,
           data: null,
-          error: "Failed to setup Gmail watch.",
+          error: 'Failed to setup Gmail watch.',
         };
       }
 
@@ -65,11 +65,11 @@ export const setupGmailWatchFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to setup Gmail watch:", error);
+      console.error('Failed to setup Gmail watch:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to setup Gmail watch",
+        error: error instanceof Error ? error.message : 'Failed to setup Gmail watch',
       };
     }
   });
@@ -78,7 +78,7 @@ export const setupGmailWatchFn = createServerFn({ method: "POST" })
 // Stop Gmail Watch
 // ============================================================================
 
-export const stopGmailWatchFn = createServerFn({ method: "POST" })
+export const stopGmailWatchFn = createServerFn({ method: 'POST' })
   .middleware([authenticatedMiddleware])
   .handler(async ({ context }) => {
     const { userId } = context;
@@ -89,7 +89,7 @@ export const stopGmailWatchFn = createServerFn({ method: "POST" })
       if (!isIntegrationValid(integration)) {
         return {
           success: false,
-          error: "Google account is not connected.",
+          error: 'Google account is not connected.',
         };
       }
 
@@ -98,7 +98,7 @@ export const stopGmailWatchFn = createServerFn({ method: "POST" })
       if (!stopped) {
         return {
           success: false,
-          error: "Failed to stop Gmail watch.",
+          error: 'Failed to stop Gmail watch.',
         };
       }
 
@@ -107,10 +107,10 @@ export const stopGmailWatchFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to stop Gmail watch:", error);
+      console.error('Failed to stop Gmail watch:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Failed to stop Gmail watch",
+        error: error instanceof Error ? error.message : 'Failed to stop Gmail watch',
       };
     }
   });
@@ -119,7 +119,7 @@ export const stopGmailWatchFn = createServerFn({ method: "POST" })
 // Setup Calendar Watch
 // ============================================================================
 
-export const setupCalendarWatchFn = createServerFn({ method: "POST" })
+export const setupCalendarWatchFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       webhookUrl: z.string().url(), // URL to receive calendar notifications
@@ -136,7 +136,7 @@ export const setupCalendarWatchFn = createServerFn({ method: "POST" })
         return {
           success: false,
           data: null,
-          error: "Google account is not connected.",
+          error: 'Google account is not connected.',
         };
       }
 
@@ -146,7 +146,7 @@ export const setupCalendarWatchFn = createServerFn({ method: "POST" })
         return {
           success: false,
           data: null,
-          error: "Failed to setup Calendar watch.",
+          error: 'Failed to setup Calendar watch.',
         };
       }
 
@@ -160,11 +160,11 @@ export const setupCalendarWatchFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to setup Calendar watch:", error);
+      console.error('Failed to setup Calendar watch:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to setup Calendar watch",
+        error: error instanceof Error ? error.message : 'Failed to setup Calendar watch',
       };
     }
   });
@@ -173,7 +173,7 @@ export const setupCalendarWatchFn = createServerFn({ method: "POST" })
 // Stop Calendar Watch
 // ============================================================================
 
-export const stopCalendarWatchFn = createServerFn({ method: "POST" })
+export const stopCalendarWatchFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       channelId: z.string(),
@@ -190,20 +190,16 @@ export const stopCalendarWatchFn = createServerFn({ method: "POST" })
       if (!isIntegrationValid(integration)) {
         return {
           success: false,
-          error: "Google account is not connected.",
+          error: 'Google account is not connected.',
         };
       }
 
-      const stopped = await stopCalendarWatch(
-        integration!,
-        data.channelId,
-        data.resourceId
-      );
+      const stopped = await stopCalendarWatch(integration!, data.channelId, data.resourceId);
 
       if (!stopped) {
         return {
           success: false,
-          error: "Failed to stop Calendar watch.",
+          error: 'Failed to stop Calendar watch.',
         };
       }
 
@@ -212,10 +208,10 @@ export const stopCalendarWatchFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to stop Calendar watch:", error);
+      console.error('Failed to stop Calendar watch:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Failed to stop Calendar watch",
+        error: error instanceof Error ? error.message : 'Failed to stop Calendar watch',
       };
     }
   });
@@ -224,7 +220,7 @@ export const stopCalendarWatchFn = createServerFn({ method: "POST" })
 // Get Ingestion Statistics
 // ============================================================================
 
-export const getIngestionStatsFn = createServerFn({ method: "GET" })
+export const getIngestionStatsFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z
       .object({
@@ -246,11 +242,11 @@ export const getIngestionStatsFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get ingestion statistics:", error);
+      console.error('Failed to get ingestion statistics:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to get ingestion statistics",
+        error: error instanceof Error ? error.message : 'Failed to get ingestion statistics',
       };
     }
   });
@@ -259,7 +255,7 @@ export const getIngestionStatsFn = createServerFn({ method: "GET" })
 // Get Ingestion Events
 // ============================================================================
 
-export const getIngestionEventsFn = createServerFn({ method: "GET" })
+export const getIngestionEventsFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z
       .object({
@@ -281,11 +277,11 @@ export const getIngestionEventsFn = createServerFn({ method: "GET" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to get ingestion events:", error);
+      console.error('Failed to get ingestion events:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to get ingestion events",
+        error: error instanceof Error ? error.message : 'Failed to get ingestion events',
       };
     }
   });
@@ -294,7 +290,7 @@ export const getIngestionEventsFn = createServerFn({ method: "GET" })
 // Cleanup Old Ingestion Events
 // ============================================================================
 
-export const cleanupIngestionEventsFn = createServerFn({ method: "POST" })
+export const cleanupIngestionEventsFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z
       .object({
@@ -318,11 +314,11 @@ export const cleanupIngestionEventsFn = createServerFn({ method: "POST" })
         error: null,
       };
     } catch (error) {
-      console.error("Failed to cleanup ingestion events:", error);
+      console.error('Failed to cleanup ingestion events:', error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to cleanup ingestion events",
+        error: error instanceof Error ? error.message : 'Failed to cleanup ingestion events',
       };
     }
   });

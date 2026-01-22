@@ -5,7 +5,9 @@ import { dailyBrief, user, type DailyBrief, type EnrichedBriefData } from './sch
 /**
  * Get the latest brief for the first user (single-user mode)
  */
-export async function getLatestBrief(): Promise<(DailyBrief & { user: { name: string; email: string } }) | null> {
+export async function getLatestBrief(): Promise<
+  (DailyBrief & { user: { name: string; email: string } }) | null
+> {
   const result = await database
     .select({
       brief: dailyBrief,
@@ -30,7 +32,9 @@ export async function getLatestBrief(): Promise<(DailyBrief & { user: { name: st
 /**
  * Get today's brief for the first user
  */
-export async function getTodaysBrief(): Promise<(DailyBrief & { user: { name: string; email: string } }) | null> {
+export async function getTodaysBrief(): Promise<
+  (DailyBrief & { user: { name: string; email: string } }) | null
+> {
   const today = new Date().toISOString().split('T')[0];
 
   const result = await database
@@ -58,11 +62,7 @@ export async function getTodaysBrief(): Promise<(DailyBrief & { user: { name: st
  * Get a brief by ID
  */
 export async function getBriefById(id: string): Promise<DailyBrief | null> {
-  const result = await database
-    .select()
-    .from(dailyBrief)
-    .where(eq(dailyBrief.id, id))
-    .limit(1);
+  const result = await database.select().from(dailyBrief).where(eq(dailyBrief.id, id)).limit(1);
 
   return result[0] || null;
 }
@@ -94,12 +94,7 @@ export async function getBriefsNeedingEnrichment(limit: number = 5): Promise<Dai
   return database
     .select()
     .from(dailyBrief)
-    .where(
-      and(
-        eq(dailyBrief.status, 'completed'),
-        isNull(dailyBrief.enrichedAt)
-      )
-    )
+    .where(and(eq(dailyBrief.status, 'completed'), isNull(dailyBrief.enrichedAt)))
     .orderBy(desc(dailyBrief.briefDate))
     .limit(limit);
 }

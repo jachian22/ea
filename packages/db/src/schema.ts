@@ -13,7 +13,9 @@ export const user = pgTable('user', {
 
 export const googleIntegration = pgTable('google_integration', {
   id: text('id').primaryKey(),
-  userId: text('user_id').notNull().references(() => user.id),
+  userId: text('user_id')
+    .notNull()
+    .references(() => user.id),
   accessToken: text('access_token').notNull(),
   refreshToken: text('refresh_token'),
   expiresAt: timestamp('expires_at'),
@@ -25,7 +27,9 @@ export const googleIntegration = pgTable('google_integration', {
 
 export const dailyBrief = pgTable('daily_brief', {
   id: text('id').primaryKey(),
-  userId: text('user_id').notNull().references(() => user.id),
+  userId: text('user_id')
+    .notNull()
+    .references(() => user.id),
   date: timestamp('date').notNull(),
   status: text('status').notNull().default('pending'),
   calendarEvents: jsonb('calendar_events'),

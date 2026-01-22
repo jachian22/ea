@@ -10,25 +10,27 @@
  * - Scopes configuration
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Mock modules before importing the tested modules
-vi.mock("googleapis", () => {
+vi.mock('googleapis', () => {
   // Create a mock class for OAuth2
   class MockOAuth2 {
-    generateAuthUrl = vi.fn().mockReturnValue("https://accounts.google.com/o/oauth2/auth?mock=true");
+    generateAuthUrl = vi
+      .fn()
+      .mockReturnValue('https://accounts.google.com/o/oauth2/auth?mock=true');
     getToken = vi.fn().mockResolvedValue({
       tokens: {
-        access_token: "mock_access_token",
-        refresh_token: "mock_refresh_token",
+        access_token: 'mock_access_token',
+        refresh_token: 'mock_refresh_token',
         expiry_date: Date.now() + 3600 * 1000,
       },
     });
     setCredentials = vi.fn();
     refreshAccessToken = vi.fn().mockResolvedValue({
       credentials: {
-        access_token: "new_mock_access_token",
-        refresh_token: "mock_refresh_token",
+        access_token: 'new_mock_access_token',
+        refresh_token: 'mock_refresh_token',
         expiry_date: Date.now() + 3600 * 1000,
       },
     });
@@ -45,10 +47,10 @@ vi.mock("googleapis", () => {
         userinfo: {
           get: vi.fn().mockResolvedValue({
             data: {
-              id: "google_user_123",
-              email: "test@gmail.com",
-              name: "Test User",
-              picture: "https://example.com/photo.jpg",
+              id: 'google_user_123',
+              email: 'test@gmail.com',
+              name: 'Test User',
+              picture: 'https://example.com/photo.jpg',
             },
           }),
         },
@@ -57,15 +59,15 @@ vi.mock("googleapis", () => {
   };
 });
 
-vi.mock("~/config/privateEnv", () => ({
+vi.mock('~/config/privateEnv', () => ({
   privateEnv: {
-    GOOGLE_CLIENT_ID: "mock_client_id",
-    GOOGLE_CLIENT_SECRET: "mock_client_secret",
-    GOOGLE_OAUTH_REDIRECT_URI: "http://localhost:3000/api/google/callback",
+    GOOGLE_CLIENT_ID: 'mock_client_id',
+    GOOGLE_CLIENT_SECRET: 'mock_client_secret',
+    GOOGLE_OAUTH_REDIRECT_URI: 'http://localhost:3000/api/google/callback',
   },
 }));
 
-vi.mock("~/db", () => ({
+vi.mock('~/db', () => ({
   database: {
     select: vi.fn().mockReturnValue({
       from: vi.fn().mockReturnValue({
@@ -78,14 +80,14 @@ vi.mock("~/db", () => ({
       values: vi.fn().mockReturnValue({
         returning: vi.fn().mockResolvedValue([
           {
-            id: "integration_123",
-            userId: "user_123",
-            accessToken: "mock_access_token",
-            refreshToken: "mock_refresh_token",
+            id: 'integration_123',
+            userId: 'user_123',
+            accessToken: 'mock_access_token',
+            refreshToken: 'mock_refresh_token',
             accessTokenExpiresAt: new Date(Date.now() + 3600 * 1000),
-            scope: "gmail.readonly calendar.readonly",
-            googleEmail: "test@gmail.com",
-            googleAccountId: "google_user_123",
+            scope: 'gmail.readonly calendar.readonly',
+            googleEmail: 'test@gmail.com',
+            googleAccountId: 'google_user_123',
             isConnected: true,
             lastSyncedAt: null,
             createdAt: new Date(),
@@ -103,14 +105,14 @@ vi.mock("~/db", () => ({
     }),
     delete: vi.fn().mockReturnValue({
       where: vi.fn().mockReturnValue({
-        returning: vi.fn().mockResolvedValue([{ id: "deleted" }]),
+        returning: vi.fn().mockResolvedValue([{ id: 'deleted' }]),
       }),
     }),
   },
 }));
 
 // Import after mocks are set up
-import { parseOAuthState } from "~/fn/google-auth";
+import { parseOAuthState } from '~/fn/google-auth';
 import {
   createOAuth2Client,
   getGoogleAuthUrl,
@@ -120,9 +122,9 @@ import {
   GoogleAuthError,
   GoogleAuthErrorCodes,
   GOOGLE_SCOPES,
-} from "~/lib/google-client";
+} from '~/lib/google-client';
 
-describe("Google OAuth Integration Tests", () => {
+describe('Google OAuth Integration Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -131,13 +133,13 @@ describe("Google OAuth Integration Tests", () => {
     vi.restoreAllMocks();
   });
 
-  describe("OAuth State Management", () => {
-    describe("parseOAuthState", () => {
-      it("should parse a valid base64url-encoded state parameter", () => {
-        const userId = "user_123";
-        const nonce = "abc123def456";
+  describe('OAuth State Management', () => {
+    describe('parseOAuthState', () => {
+      it('should parse a valid base64url-encoded state parameter', () => {
+        const userId = 'user_123';
+        const nonce = 'abc123def456';
         const stateString = `${userId}|${nonce}`;
-        const encodedState = Buffer.from(stateString).toString("base64url");
+        const encodedState = Buffer.from(stateString).toString('base64url');
 
         const result = parseOAuthState(encodedState);
 
@@ -146,46 +148,46 @@ describe("Google OAuth Integration Tests", () => {
         expect(result?.nonce).toBe(nonce);
       });
 
-      it("should return null for invalid base64 encoding", () => {
-        const result = parseOAuthState("not-valid-base64!!!");
+      it('should return null for invalid base64 encoding', () => {
+        const result = parseOAuthState('not-valid-base64!!!');
 
         expect(result).toBeNull();
       });
 
-      it("should return null for state without pipe separator", () => {
-        const encodedState = Buffer.from("invalid_state_no_pipe").toString("base64url");
+      it('should return null for state without pipe separator', () => {
+        const encodedState = Buffer.from('invalid_state_no_pipe').toString('base64url');
 
         const result = parseOAuthState(encodedState);
 
         expect(result).toBeNull();
       });
 
-      it("should return null for state with empty userId", () => {
-        const encodedState = Buffer.from("|nonce123").toString("base64url");
+      it('should return null for state with empty userId', () => {
+        const encodedState = Buffer.from('|nonce123').toString('base64url');
 
         const result = parseOAuthState(encodedState);
 
         expect(result).toBeNull();
       });
 
-      it("should return null for state with empty nonce", () => {
-        const encodedState = Buffer.from("user123|").toString("base64url");
+      it('should return null for state with empty nonce', () => {
+        const encodedState = Buffer.from('user123|').toString('base64url');
 
         const result = parseOAuthState(encodedState);
 
         expect(result).toBeNull();
       });
 
-      it("should return null for empty string", () => {
-        const result = parseOAuthState("");
+      it('should return null for empty string', () => {
+        const result = parseOAuthState('');
 
         expect(result).toBeNull();
       });
 
-      it("should handle special characters in userId", () => {
-        const userId = "user_with-special.chars@123";
-        const nonce = "nonce456";
-        const encodedState = Buffer.from(`${userId}|${nonce}`).toString("base64url");
+      it('should handle special characters in userId', () => {
+        const userId = 'user_with-special.chars@123';
+        const nonce = 'nonce456';
+        const encodedState = Buffer.from(`${userId}|${nonce}`).toString('base64url');
 
         const result = parseOAuthState(encodedState);
 
@@ -194,22 +196,22 @@ describe("Google OAuth Integration Tests", () => {
         expect(result?.nonce).toBe(nonce);
       });
 
-      it("should handle multiple pipe characters correctly", () => {
+      it('should handle multiple pipe characters correctly', () => {
         // Only first two parts should be used
-        const encodedState = Buffer.from("user123|nonce|extra|data").toString("base64url");
+        const encodedState = Buffer.from('user123|nonce|extra|data').toString('base64url');
 
         const result = parseOAuthState(encodedState);
 
         expect(result).not.toBeNull();
-        expect(result?.userId).toBe("user123");
-        expect(result?.nonce).toBe("nonce");
+        expect(result?.userId).toBe('user123');
+        expect(result?.nonce).toBe('nonce');
       });
     });
   });
 
-  describe("OAuth Client Creation", () => {
-    describe("createOAuth2Client", () => {
-      it("should create an OAuth2 client instance", () => {
+  describe('OAuth Client Creation', () => {
+    describe('createOAuth2Client', () => {
+      it('should create an OAuth2 client instance', () => {
         const client = createOAuth2Client();
 
         expect(client).toBeDefined();
@@ -217,7 +219,7 @@ describe("Google OAuth Integration Tests", () => {
         expect(client.getToken).toBeDefined();
       });
 
-      it("should use credentials from privateEnv", () => {
+      it('should use credentials from privateEnv', () => {
         // Test that the client is created with correct configuration
         // The privateEnv mock provides the expected credentials
         const client = createOAuth2Client();
@@ -230,17 +232,17 @@ describe("Google OAuth Integration Tests", () => {
       });
     });
 
-    describe("getGoogleAuthUrl", () => {
-      it("should generate an authorization URL", () => {
+    describe('getGoogleAuthUrl', () => {
+      it('should generate an authorization URL', () => {
         const url = getGoogleAuthUrl();
 
         expect(url).toBeDefined();
-        expect(typeof url).toBe("string");
-        expect(url).toContain("https://accounts.google.com");
+        expect(typeof url).toBe('string');
+        expect(url).toContain('https://accounts.google.com');
       });
 
-      it("should include state parameter when provided", () => {
-        const state = "test_state_123";
+      it('should include state parameter when provided', () => {
+        const state = 'test_state_123';
         const url = getGoogleAuthUrl(state);
 
         expect(url).toBeDefined();
@@ -248,49 +250,49 @@ describe("Google OAuth Integration Tests", () => {
     });
   });
 
-  describe("Token Exchange", () => {
-    describe("exchangeCodeForTokens", () => {
-      it("should exchange authorization code for tokens", async () => {
-        const tokens = await exchangeCodeForTokens("mock_auth_code");
+  describe('Token Exchange', () => {
+    describe('exchangeCodeForTokens', () => {
+      it('should exchange authorization code for tokens', async () => {
+        const tokens = await exchangeCodeForTokens('mock_auth_code');
 
         expect(tokens).toBeDefined();
-        expect(tokens.access_token).toBe("mock_access_token");
-        expect(tokens.refresh_token).toBe("mock_refresh_token");
+        expect(tokens.access_token).toBe('mock_access_token');
+        expect(tokens.refresh_token).toBe('mock_refresh_token');
         expect(tokens.expiry_date).toBeDefined();
       });
     });
   });
 
-  describe("Google User Info", () => {
-    describe("getGoogleUserInfo", () => {
-      it("should fetch user info with valid access token", async () => {
-        const userInfo = await getGoogleUserInfo("valid_access_token");
+  describe('Google User Info', () => {
+    describe('getGoogleUserInfo', () => {
+      it('should fetch user info with valid access token', async () => {
+        const userInfo = await getGoogleUserInfo('valid_access_token');
 
         expect(userInfo).toBeDefined();
-        expect(userInfo.id).toBe("google_user_123");
-        expect(userInfo.email).toBe("test@gmail.com");
-        expect(userInfo.name).toBe("Test User");
-        expect(userInfo.picture).toBe("https://example.com/photo.jpg");
+        expect(userInfo.id).toBe('google_user_123');
+        expect(userInfo.email).toBe('test@gmail.com');
+        expect(userInfo.name).toBe('Test User');
+        expect(userInfo.picture).toBe('https://example.com/photo.jpg');
       });
     });
   });
 
-  describe("Integration Validation", () => {
-    describe("isIntegrationValid", () => {
-      it("should return false for null integration", () => {
+  describe('Integration Validation', () => {
+    describe('isIntegrationValid', () => {
+      it('should return false for null integration', () => {
         expect(isIntegrationValid(null)).toBe(false);
       });
 
-      it("should return false for disconnected integration", () => {
+      it('should return false for disconnected integration', () => {
         const integration = {
-          id: "int_123",
-          userId: "user_123",
-          accessToken: "token",
-          refreshToken: "refresh",
+          id: 'int_123',
+          userId: 'user_123',
+          accessToken: 'token',
+          refreshToken: 'refresh',
           accessTokenExpiresAt: new Date(Date.now() + 3600 * 1000),
-          scope: "gmail.readonly",
-          googleEmail: "test@gmail.com",
-          googleAccountId: "google_123",
+          scope: 'gmail.readonly',
+          googleEmail: 'test@gmail.com',
+          googleAccountId: 'google_123',
           isConnected: false, // Disconnected
           lastSyncedAt: null,
           createdAt: new Date(),
@@ -300,16 +302,16 @@ describe("Google OAuth Integration Tests", () => {
         expect(isIntegrationValid(integration)).toBe(false);
       });
 
-      it("should return false for integration without access token", () => {
+      it('should return false for integration without access token', () => {
         const integration = {
-          id: "int_123",
-          userId: "user_123",
-          accessToken: "", // Empty
-          refreshToken: "refresh",
+          id: 'int_123',
+          userId: 'user_123',
+          accessToken: '', // Empty
+          refreshToken: 'refresh',
           accessTokenExpiresAt: new Date(Date.now() + 3600 * 1000),
-          scope: "gmail.readonly",
-          googleEmail: "test@gmail.com",
-          googleAccountId: "google_123",
+          scope: 'gmail.readonly',
+          googleEmail: 'test@gmail.com',
+          googleAccountId: 'google_123',
           isConnected: true,
           lastSyncedAt: null,
           createdAt: new Date(),
@@ -319,16 +321,16 @@ describe("Google OAuth Integration Tests", () => {
         expect(isIntegrationValid(integration)).toBe(false);
       });
 
-      it("should return false for integration without refresh token", () => {
+      it('should return false for integration without refresh token', () => {
         const integration = {
-          id: "int_123",
-          userId: "user_123",
-          accessToken: "token",
-          refreshToken: "", // Empty
+          id: 'int_123',
+          userId: 'user_123',
+          accessToken: 'token',
+          refreshToken: '', // Empty
           accessTokenExpiresAt: new Date(Date.now() + 3600 * 1000),
-          scope: "gmail.readonly",
-          googleEmail: "test@gmail.com",
-          googleAccountId: "google_123",
+          scope: 'gmail.readonly',
+          googleEmail: 'test@gmail.com',
+          googleAccountId: 'google_123',
           isConnected: true,
           lastSyncedAt: null,
           createdAt: new Date(),
@@ -338,16 +340,16 @@ describe("Google OAuth Integration Tests", () => {
         expect(isIntegrationValid(integration)).toBe(false);
       });
 
-      it("should return true for valid connected integration", () => {
+      it('should return true for valid connected integration', () => {
         const integration = {
-          id: "int_123",
-          userId: "user_123",
-          accessToken: "valid_token",
-          refreshToken: "valid_refresh",
+          id: 'int_123',
+          userId: 'user_123',
+          accessToken: 'valid_token',
+          refreshToken: 'valid_refresh',
           accessTokenExpiresAt: new Date(Date.now() + 3600 * 1000),
-          scope: "gmail.readonly calendar.readonly",
-          googleEmail: "test@gmail.com",
-          googleAccountId: "google_123",
+          scope: 'gmail.readonly calendar.readonly',
+          googleEmail: 'test@gmail.com',
+          googleAccountId: 'google_123',
           isConnected: true,
           lastSyncedAt: new Date(),
           createdAt: new Date(),
@@ -359,46 +361,46 @@ describe("Google OAuth Integration Tests", () => {
     });
   });
 
-  describe("Google OAuth Scopes", () => {
-    it("should include gmail.readonly scope", () => {
-      expect(GOOGLE_SCOPES).toContain("https://www.googleapis.com/auth/gmail.readonly");
+  describe('Google OAuth Scopes', () => {
+    it('should include gmail.readonly scope', () => {
+      expect(GOOGLE_SCOPES).toContain('https://www.googleapis.com/auth/gmail.readonly');
     });
 
-    it("should include calendar.readonly scope", () => {
-      expect(GOOGLE_SCOPES).toContain("https://www.googleapis.com/auth/calendar.readonly");
+    it('should include calendar.readonly scope', () => {
+      expect(GOOGLE_SCOPES).toContain('https://www.googleapis.com/auth/calendar.readonly');
     });
 
-    it("should include userinfo.email scope", () => {
-      expect(GOOGLE_SCOPES).toContain("https://www.googleapis.com/auth/userinfo.email");
+    it('should include userinfo.email scope', () => {
+      expect(GOOGLE_SCOPES).toContain('https://www.googleapis.com/auth/userinfo.email');
     });
 
-    it("should include userinfo.profile scope", () => {
-      expect(GOOGLE_SCOPES).toContain("https://www.googleapis.com/auth/userinfo.profile");
+    it('should include userinfo.profile scope', () => {
+      expect(GOOGLE_SCOPES).toContain('https://www.googleapis.com/auth/userinfo.profile');
     });
 
-    it("should have exactly 4 required scopes", () => {
+    it('should have exactly 4 required scopes', () => {
       expect(GOOGLE_SCOPES).toHaveLength(4);
     });
   });
 
-  describe("Error Handling", () => {
-    describe("GoogleAuthError", () => {
-      it("should create error with message and code", () => {
+  describe('Error Handling', () => {
+    describe('GoogleAuthError', () => {
+      it('should create error with message and code', () => {
         const error = new GoogleAuthError(
-          "Token refresh failed",
+          'Token refresh failed',
           GoogleAuthErrorCodes.TOKEN_REFRESH_FAILED
         );
 
         expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe("Token refresh failed");
-        expect(error.code).toBe("TOKEN_REFRESH_FAILED");
-        expect(error.name).toBe("GoogleAuthError");
+        expect(error.message).toBe('Token refresh failed');
+        expect(error.code).toBe('TOKEN_REFRESH_FAILED');
+        expect(error.name).toBe('GoogleAuthError');
       });
 
-      it("should include cause when provided", () => {
-        const cause = new Error("Original error");
+      it('should include cause when provided', () => {
+        const cause = new Error('Original error');
         const error = new GoogleAuthError(
-          "Token refresh failed",
+          'Token refresh failed',
           GoogleAuthErrorCodes.TOKEN_REFRESH_FAILED,
           cause
         );
@@ -407,75 +409,75 @@ describe("Google OAuth Integration Tests", () => {
       });
     });
 
-    describe("Error Codes", () => {
-      it("should have TOKEN_REFRESH_FAILED code", () => {
-        expect(GoogleAuthErrorCodes.TOKEN_REFRESH_FAILED).toBe("TOKEN_REFRESH_FAILED");
+    describe('Error Codes', () => {
+      it('should have TOKEN_REFRESH_FAILED code', () => {
+        expect(GoogleAuthErrorCodes.TOKEN_REFRESH_FAILED).toBe('TOKEN_REFRESH_FAILED');
       });
 
-      it("should have INVALID_CREDENTIALS code", () => {
-        expect(GoogleAuthErrorCodes.INVALID_CREDENTIALS).toBe("INVALID_CREDENTIALS");
+      it('should have INVALID_CREDENTIALS code', () => {
+        expect(GoogleAuthErrorCodes.INVALID_CREDENTIALS).toBe('INVALID_CREDENTIALS');
       });
 
-      it("should have INTEGRATION_NOT_FOUND code", () => {
-        expect(GoogleAuthErrorCodes.INTEGRATION_NOT_FOUND).toBe("INTEGRATION_NOT_FOUND");
+      it('should have INTEGRATION_NOT_FOUND code', () => {
+        expect(GoogleAuthErrorCodes.INTEGRATION_NOT_FOUND).toBe('INTEGRATION_NOT_FOUND');
       });
 
-      it("should have INTEGRATION_DISCONNECTED code", () => {
-        expect(GoogleAuthErrorCodes.INTEGRATION_DISCONNECTED).toBe("INTEGRATION_DISCONNECTED");
+      it('should have INTEGRATION_DISCONNECTED code', () => {
+        expect(GoogleAuthErrorCodes.INTEGRATION_DISCONNECTED).toBe('INTEGRATION_DISCONNECTED');
       });
 
-      it("should have API_ERROR code", () => {
-        expect(GoogleAuthErrorCodes.API_ERROR).toBe("API_ERROR");
+      it('should have API_ERROR code', () => {
+        expect(GoogleAuthErrorCodes.API_ERROR).toBe('API_ERROR');
       });
     });
   });
 
-  describe("OAuth Callback Route Behavior", () => {
-    describe("State Parameter Validation", () => {
-      it("should reject requests without state parameter", () => {
+  describe('OAuth Callback Route Behavior', () => {
+    describe('State Parameter Validation', () => {
+      it('should reject requests without state parameter', () => {
         const state = null;
         expect(state).toBeNull();
       });
 
-      it("should reject requests with invalid state format", () => {
-        const result = parseOAuthState("invalid_state");
+      it('should reject requests with invalid state format', () => {
+        const result = parseOAuthState('invalid_state');
         expect(result).toBeNull();
       });
 
-      it("should accept valid state parameter", () => {
-        const validState = Buffer.from("user123|nonce456").toString("base64url");
+      it('should accept valid state parameter', () => {
+        const validState = Buffer.from('user123|nonce456').toString('base64url');
         const result = parseOAuthState(validState);
         expect(result).not.toBeNull();
-        expect(result?.userId).toBe("user123");
+        expect(result?.userId).toBe('user123');
       });
     });
 
-    describe("Authorization Code Handling", () => {
-      it("should require authorization code parameter", () => {
+    describe('Authorization Code Handling', () => {
+      it('should require authorization code parameter', () => {
         const code = null;
         expect(code).toBeNull();
       });
     });
 
-    describe("Error Handling from Google", () => {
-      it("should handle access_denied error", () => {
-        const error = "access_denied";
-        expect(error).toBe("access_denied");
+    describe('Error Handling from Google', () => {
+      it('should handle access_denied error', () => {
+        const error = 'access_denied';
+        expect(error).toBe('access_denied');
       });
     });
   });
 
-  describe("Token Expiration Handling", () => {
-    it("should detect expired token", () => {
+  describe('Token Expiration Handling', () => {
+    it('should detect expired token', () => {
       const integration = {
-        id: "int_123",
-        userId: "user_123",
-        accessToken: "token",
-        refreshToken: "refresh",
+        id: 'int_123',
+        userId: 'user_123',
+        accessToken: 'token',
+        refreshToken: 'refresh',
         accessTokenExpiresAt: new Date(Date.now() - 3600 * 1000), // Expired 1 hour ago
-        scope: "gmail.readonly",
-        googleEmail: "test@gmail.com",
-        googleAccountId: "google_123",
+        scope: 'gmail.readonly',
+        googleEmail: 'test@gmail.com',
+        googleAccountId: 'google_123',
         isConnected: true,
         lastSyncedAt: null,
         createdAt: new Date(),
@@ -489,16 +491,16 @@ describe("Google OAuth Integration Tests", () => {
       expect(isExpired).toBe(true);
     });
 
-    it("should detect token about to expire within buffer", () => {
+    it('should detect token about to expire within buffer', () => {
       const integration = {
-        id: "int_123",
-        userId: "user_123",
-        accessToken: "token",
-        refreshToken: "refresh",
+        id: 'int_123',
+        userId: 'user_123',
+        accessToken: 'token',
+        refreshToken: 'refresh',
         accessTokenExpiresAt: new Date(Date.now() + 2 * 60 * 1000), // Expires in 2 minutes
-        scope: "gmail.readonly",
-        googleEmail: "test@gmail.com",
-        googleAccountId: "google_123",
+        scope: 'gmail.readonly',
+        googleEmail: 'test@gmail.com',
+        googleAccountId: 'google_123',
         isConnected: true,
         lastSyncedAt: null,
         createdAt: new Date(),
@@ -512,16 +514,16 @@ describe("Google OAuth Integration Tests", () => {
       expect(isExpiring).toBe(true);
     });
 
-    it("should detect valid non-expired token", () => {
+    it('should detect valid non-expired token', () => {
       const integration = {
-        id: "int_123",
-        userId: "user_123",
-        accessToken: "token",
-        refreshToken: "refresh",
+        id: 'int_123',
+        userId: 'user_123',
+        accessToken: 'token',
+        refreshToken: 'refresh',
         accessTokenExpiresAt: new Date(Date.now() + 30 * 60 * 1000), // Expires in 30 minutes
-        scope: "gmail.readonly",
-        googleEmail: "test@gmail.com",
-        googleAccountId: "google_123",
+        scope: 'gmail.readonly',
+        googleEmail: 'test@gmail.com',
+        googleAccountId: 'google_123',
         isConnected: true,
         lastSyncedAt: null,
         createdAt: new Date(),
@@ -536,80 +538,80 @@ describe("Google OAuth Integration Tests", () => {
     });
   });
 
-  describe("CSRF Protection", () => {
-    it("should generate unique state for each OAuth request", () => {
-      const userId = "user_123";
-      const nonce1 = "random_nonce_1";
-      const nonce2 = "random_nonce_2";
+  describe('CSRF Protection', () => {
+    it('should generate unique state for each OAuth request', () => {
+      const userId = 'user_123';
+      const nonce1 = 'random_nonce_1';
+      const nonce2 = 'random_nonce_2';
 
-      const state1 = Buffer.from(`${userId}|${nonce1}`).toString("base64url");
-      const state2 = Buffer.from(`${userId}|${nonce2}`).toString("base64url");
+      const state1 = Buffer.from(`${userId}|${nonce1}`).toString('base64url');
+      const state2 = Buffer.from(`${userId}|${nonce2}`).toString('base64url');
 
       expect(state1).not.toBe(state2);
     });
 
-    it("should encode state as base64url", () => {
-      const userId = "user_123";
-      const nonce = "test_nonce";
-      const state = Buffer.from(`${userId}|${nonce}`).toString("base64url");
+    it('should encode state as base64url', () => {
+      const userId = 'user_123';
+      const nonce = 'test_nonce';
+      const state = Buffer.from(`${userId}|${nonce}`).toString('base64url');
 
       // base64url should not contain +, /, or =
       expect(state).not.toMatch(/[+/=]/);
     });
 
-    it("should decode state correctly", () => {
-      const userId = "user_123";
-      const nonce = "test_nonce";
-      const state = Buffer.from(`${userId}|${nonce}`).toString("base64url");
+    it('should decode state correctly', () => {
+      const userId = 'user_123';
+      const nonce = 'test_nonce';
+      const state = Buffer.from(`${userId}|${nonce}`).toString('base64url');
 
-      const decoded = Buffer.from(state, "base64url").toString("utf-8");
+      const decoded = Buffer.from(state, 'base64url').toString('utf-8');
       expect(decoded).toBe(`${userId}|${nonce}`);
     });
   });
 });
 
-describe("Data Access Layer Tests", () => {
-  describe("upsertGoogleIntegration", () => {
-    it("should create new integration when none exists", async () => {
+describe('Data Access Layer Tests', () => {
+  describe('upsertGoogleIntegration', () => {
+    it('should create new integration when none exists', async () => {
       // Verify upsert behavior - creates new record
       expect(true).toBe(true);
     });
 
-    it("should update existing integration when one exists", async () => {
+    it('should update existing integration when one exists', async () => {
       // Verify upsert behavior - updates existing record
       expect(true).toBe(true);
     });
   });
 
-  describe("findGoogleIntegrationByUserId", () => {
-    it("should return integration for valid user", async () => {
+  describe('findGoogleIntegrationByUserId', () => {
+    it('should return integration for valid user', async () => {
       expect(true).toBe(true);
     });
 
-    it("should return null for user without integration", async () => {
+    it('should return null for user without integration', async () => {
       expect(true).toBe(true);
     });
   });
 
-  describe("deleteGoogleIntegrationByUserId", () => {
-    it("should delete integration and return true", async () => {
+  describe('deleteGoogleIntegrationByUserId', () => {
+    it('should delete integration and return true', async () => {
       expect(true).toBe(true);
     });
 
-    it("should return false when no integration to delete", async () => {
+    it('should return false when no integration to delete', async () => {
       expect(true).toBe(true);
     });
   });
 });
 
-describe("Integration Status Response Types", () => {
-  it("should have all required fields for GoogleIntegrationStatus", () => {
+describe('Integration Status Response Types', () => {
+  it('should have all required fields for GoogleIntegrationStatus', () => {
     // Type test - this verifies the expected shape of the status response
     const status = {
       hasIntegration: true,
       isConnected: true,
-      googleEmail: "test@gmail.com",
-      scope: "gmail.readonly calendar.readonly",
+      googleEmail: 'test@gmail.com',
+      scope: 'gmail.readonly calendar.readonly',
       lastSyncedAt: new Date(),
       connectedAt: new Date(),
       needsReauthorization: false,
@@ -624,7 +626,7 @@ describe("Integration Status Response Types", () => {
     expect(status.needsReauthorization).toBeDefined();
   });
 
-  it("should handle disconnected status", () => {
+  it('should handle disconnected status', () => {
     const status = {
       hasIntegration: false,
       isConnected: false,
@@ -640,12 +642,12 @@ describe("Integration Status Response Types", () => {
     expect(status.googleEmail).toBeNull();
   });
 
-  it("should detect when reauthorization is needed", () => {
+  it('should detect when reauthorization is needed', () => {
     const status = {
       hasIntegration: true,
       isConnected: false, // Disconnected means needs reauth
-      googleEmail: "test@gmail.com",
-      scope: "gmail.readonly",
+      googleEmail: 'test@gmail.com',
+      scope: 'gmail.readonly',
       lastSyncedAt: null,
       connectedAt: new Date(),
       needsReauthorization: true,
@@ -655,9 +657,9 @@ describe("Integration Status Response Types", () => {
   });
 });
 
-describe("OAuth Flow End-to-End Scenarios", () => {
-  describe("Happy Path - New User Connection", () => {
-    it("should handle new user connecting Google account", () => {
+describe('OAuth Flow End-to-End Scenarios', () => {
+  describe('Happy Path - New User Connection', () => {
+    it('should handle new user connecting Google account', () => {
       // 1. User initiates OAuth flow
       // 2. User consents on Google
       // 3. Callback receives code and state
@@ -667,106 +669,106 @@ describe("OAuth Flow End-to-End Scenarios", () => {
       // 7. User is redirected to dashboard with success
 
       const steps = [
-        "initiate_oauth",
-        "user_consent",
-        "callback_received",
-        "token_exchange",
-        "fetch_user_info",
-        "create_integration",
-        "redirect_success",
+        'initiate_oauth',
+        'user_consent',
+        'callback_received',
+        'token_exchange',
+        'fetch_user_info',
+        'create_integration',
+        'redirect_success',
       ];
 
       expect(steps).toHaveLength(7);
     });
   });
 
-  describe("Happy Path - Existing User Reconnection", () => {
-    it("should handle existing user reconnecting", () => {
+  describe('Happy Path - Existing User Reconnection', () => {
+    it('should handle existing user reconnecting', () => {
       // Similar flow but upserts instead of creates
       const isReconnection = true;
       expect(isReconnection).toBe(true);
     });
   });
 
-  describe("Error Scenarios", () => {
-    it("should handle user denying access", () => {
+  describe('Error Scenarios', () => {
+    it('should handle user denying access', () => {
       const errorResponse = {
-        error: "access_denied",
-        error_description: "The user denied access",
+        error: 'access_denied',
+        error_description: 'The user denied access',
       };
 
-      expect(errorResponse.error).toBe("access_denied");
+      expect(errorResponse.error).toBe('access_denied');
     });
 
-    it("should handle invalid state parameter", () => {
-      const invalidState = parseOAuthState("completely_invalid");
+    it('should handle invalid state parameter', () => {
+      const invalidState = parseOAuthState('completely_invalid');
       expect(invalidState).toBeNull();
     });
 
-    it("should handle missing authorization code", () => {
+    it('should handle missing authorization code', () => {
       const code = null;
       expect(code).toBeNull();
     });
 
-    it("should handle expired authorization code", () => {
+    it('should handle expired authorization code', () => {
       // Google codes expire after about 10 minutes
-      const errorMessage = "Code expired or already used";
-      expect(errorMessage).toContain("expired");
+      const errorMessage = 'Code expired or already used';
+      expect(errorMessage).toContain('expired');
     });
 
-    it("should handle token refresh failure", () => {
+    it('should handle token refresh failure', () => {
       const error = new GoogleAuthError(
-        "Token refresh failed - user needs to re-authenticate",
+        'Token refresh failed - user needs to re-authenticate',
         GoogleAuthErrorCodes.TOKEN_REFRESH_FAILED
       );
 
-      expect(error.code).toBe("TOKEN_REFRESH_FAILED");
+      expect(error.code).toBe('TOKEN_REFRESH_FAILED');
     });
   });
 });
 
-describe("Security Considerations", () => {
-  describe("State Parameter Security", () => {
-    it("should use cryptographically secure state", () => {
+describe('Security Considerations', () => {
+  describe('State Parameter Security', () => {
+    it('should use cryptographically secure state', () => {
       // State should contain userId and random nonce
-      const userId = "user_123";
+      const userId = 'user_123';
       // In production, nonce would be crypto.randomBytes(16).toString("hex")
-      const nonce = "a".repeat(32); // 32 hex chars = 16 bytes
+      const nonce = 'a'.repeat(32); // 32 hex chars = 16 bytes
 
-      const state = Buffer.from(`${userId}|${nonce}`).toString("base64url");
+      const state = Buffer.from(`${userId}|${nonce}`).toString('base64url');
 
       expect(state.length).toBeGreaterThan(20);
     });
 
-    it("should validate state on callback", () => {
+    it('should validate state on callback', () => {
       // Invalid states should be rejected
-      expect(parseOAuthState("")).toBeNull();
-      expect(parseOAuthState("invalid")).toBeNull();
-      expect(parseOAuthState(Buffer.from("|").toString("base64url"))).toBeNull();
+      expect(parseOAuthState('')).toBeNull();
+      expect(parseOAuthState('invalid')).toBeNull();
+      expect(parseOAuthState(Buffer.from('|').toString('base64url'))).toBeNull();
     });
   });
 
-  describe("Token Storage Security", () => {
-    it("should store tokens securely", () => {
+  describe('Token Storage Security', () => {
+    it('should store tokens securely', () => {
       // Tokens should be stored in database, not exposed to client
       const integration = {
-        accessToken: "sensitive_token",
-        refreshToken: "sensitive_refresh",
+        accessToken: 'sensitive_token',
+        refreshToken: 'sensitive_refresh',
       };
 
       // These should never be sent to the client
-      expect(integration.accessToken).not.toContain("exposed");
-      expect(integration.refreshToken).not.toContain("exposed");
+      expect(integration.accessToken).not.toContain('exposed');
+      expect(integration.refreshToken).not.toContain('exposed');
     });
   });
 
-  describe("Scope Validation", () => {
-    it("should only request necessary scopes", () => {
+  describe('Scope Validation', () => {
+    it('should only request necessary scopes', () => {
       // Verify we're following principle of least privilege
       const sensitiveScopes = [
-        "https://mail.google.com/", // Full Gmail access - we DON'T use this
-        "https://www.googleapis.com/auth/gmail.compose", // Send emails - we DON'T use this
-        "https://www.googleapis.com/auth/calendar", // Full calendar access - we DON'T use this
+        'https://mail.google.com/', // Full Gmail access - we DON'T use this
+        'https://www.googleapis.com/auth/gmail.compose', // Send emails - we DON'T use this
+        'https://www.googleapis.com/auth/calendar', // Full calendar access - we DON'T use this
       ];
 
       sensitiveScopes.forEach((scope) => {
@@ -774,8 +776,8 @@ describe("Security Considerations", () => {
       });
 
       // We only use readonly scopes
-      expect(GOOGLE_SCOPES).toContain("https://www.googleapis.com/auth/gmail.readonly");
-      expect(GOOGLE_SCOPES).toContain("https://www.googleapis.com/auth/calendar.readonly");
+      expect(GOOGLE_SCOPES).toContain('https://www.googleapis.com/auth/gmail.readonly');
+      expect(GOOGLE_SCOPES).toContain('https://www.googleapis.com/auth/calendar.readonly');
     });
   });
 });

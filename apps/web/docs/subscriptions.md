@@ -13,15 +13,15 @@ The application uses Stripe for subscription management with three tiers: Free, 
 User subscription data is stored in the `user` table in `src/db/schema.ts`:
 
 ```typescript
-export const user = pgTable("user", {
+export const user = pgTable('user', {
   // ... other fields
-  stripeCustomerId: text("stripe_customer_id"),
-  subscriptionId: text("subscription_id"),
-  plan: text("plan")
-    .$default(() => "free")
+  stripeCustomerId: text('stripe_customer_id'),
+  subscriptionId: text('subscription_id'),
+  plan: text('plan')
+    .$default(() => 'free')
     .notNull(),
-  subscriptionStatus: text("subscription_status"),
-  subscriptionExpiresAt: timestamp("subscription_expires_at"),
+  subscriptionStatus: text('subscription_status'),
+  subscriptionExpiresAt: timestamp('subscription_expires_at'),
 });
 ```
 
@@ -75,7 +75,7 @@ export const SUBSCRIPTION_PLANS = {
 The checkout process starts in `src/fn/subscriptions.ts` with `createCheckoutSessionFn`:
 
 ```typescript
-export const createCheckoutSessionFn = createServerFn({ method: "POST" })
+export const createCheckoutSessionFn = createServerFn({ method: 'POST' })
   .middleware([authenticatedMiddleware])
   .inputValidator(createCheckoutSessionSchema)
   .handler(async ({ data, context }) => {
@@ -308,7 +308,7 @@ const playlistCount = await getUserPlaylistCount(userId);
 const planLimit = getPlanPlaylistLimit(user.plan);
 
 if (playlistCount >= planLimit) {
-  throw new Error("Playlist limit reached");
+  throw new Error('Playlist limit reached');
 }
 ```
 

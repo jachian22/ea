@@ -48,7 +48,10 @@ function generateId(): string {
 /**
  * Refreshes the daily brief for a single user
  */
-async function refreshBriefForUser(userId: string, integration: typeof googleIntegration.$inferSelect): Promise<void> {
+async function refreshBriefForUser(
+  userId: string,
+  integration: typeof googleIntegration.$inferSelect
+): Promise<void> {
   const briefDate = getTodayDate();
   console.log(`[RefreshBrief] Processing user ${userId} for date ${briefDate}`);
 

@@ -35,6 +35,7 @@ cp apps/web/.env.example apps/web/.env
 ```
 
 Edit with your credentials:
+
 ```
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/ea
 BETTER_AUTH_SECRET=your-secret
