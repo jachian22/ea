@@ -43,7 +43,7 @@ export function Hero() {
           <FadeIn delay={300}>
             <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
               <Button size="lg" className="w-full sm:w-auto h-14 px-8 rounded-full bg-gradient-to-r from-primary to-purple-600 text-white font-bold hover:shadow-[0_0_40px_-10px_rgba(var(--primary),0.5)] transition-all transform hover:-translate-y-1 text-base" asChild>
-                <Link to="/sign-up" search={{ redirect: undefined }}>
+                <Link to="/sign-in" search={{}}>
                   <Rocket className="mr-2 h-4 w-4" />
                   Start for Free
                 </Link>

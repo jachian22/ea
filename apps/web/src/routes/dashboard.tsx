@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-router";
 import { cn } from "~/lib/utils";
 import { LayoutDashboard, ChevronLeft, ChevronRight, Sun, FileText } from "lucide-react";
-import { authClient } from "~/lib/auth-client";
+import { getSession } from "~/lib/auth-client";
 import { redirect } from "@tanstack/react-router";
 import { DashboardBackground } from "~/components/DashboardBackground";
 import { useState } from "react";
@@ -14,8 +14,8 @@ import { Button } from "~/components/ui/button";
 
 export const Route = createFileRoute("/dashboard")({
   beforeLoad: async () => {
-    const session = await authClient.getSession();
-    if (!session) {
+    const session = await getSession();
+    if (!session?.user) {
       throw redirect({
         to: "/sign-in",
         search: { redirect: "/dashboard" },

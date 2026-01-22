@@ -1,5 +1,5 @@
 import { SUBSCRIPTION_PLANS } from "~/lib/plans";
-import { authClient } from "~/lib/auth-client";
+import { useSession, signInWithGoogle } from "~/lib/auth-client";
 import {
   useUserPlan,
   useCreateCheckoutSession,
@@ -16,7 +16,8 @@ interface PricingSectionProps {
 }
 
 export function PricingSection({ showTitle = true }: PricingSectionProps) {
-  const { data: session, isPending: sessionLoading } = authClient.useSession();
+  const { data: session, isPending: sessionLoading } = useSession();
+  const user = session?.user;
   const router = useRouter();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
 
@@ -29,9 +30,9 @@ export function PricingSection({ showTitle = true }: PricingSectionProps) {
   const handlePlanSelect = (priceId: string) => {
     if (sessionLoading) return;
 
-    // If not logged in, redirect to sign up with pricing anchor
-    if (!session) {
-      router.navigate({ to: "/sign-up", search: { redirect: "/#pricing" } });
+    // If not logged in, redirect to sign in with pricing anchor
+    if (!user) {
+      router.navigate({ to: "/sign-in", search: { redirect: "/#pricing", error: undefined } });
       return;
     }
 
@@ -79,10 +80,8 @@ export function PricingSection({ showTitle = true }: PricingSectionProps) {
               currentPlan={currentPlan}
               isLoading={isLoadingState}
               onUpgrade={() => {
-                if (!session) {
-                  authClient.signIn.social({
-                    provider: "google",
-                  });
+                if (!user) {
+                  signInWithGoogle();
                 }
               }}
               onManagePlans={handleManagePlans}

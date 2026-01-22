@@ -1,6 +1,6 @@
-import { auth } from "~/utils/auth";
 import { createMiddleware } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
+import { validateSession, getSessionTokenFromCookie } from "~/lib/session";
 import { isUserAdmin } from "~/data-access/users";
 
 async function getAuthenticatedUserId(): Promise<string> {
@@ -9,13 +9,21 @@ async function getAuthenticatedUserId(): Promise<string> {
   if (!request?.headers) {
     throw new Error("No headers");
   }
-  const session = await auth.api.getSession({ headers: request.headers });
 
-  if (!session) {
+  const cookieHeader = request.headers.get("cookie");
+  const token = getSessionTokenFromCookie(cookieHeader);
+
+  if (!token) {
     throw new Error("No session");
   }
 
-  return session.user.id;
+  const userId = await validateSession(token);
+
+  if (!userId) {
+    throw new Error("Invalid or expired session");
+  }
+
+  return userId;
 }
 
 export const authenticatedMiddleware = createMiddleware({

@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UnauthenticatedRouteImport } from './routes/unauthenticated'
-import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
@@ -26,16 +25,13 @@ import { Route as ApiWebhooksCalendarRouteImport } from './routes/api/webhooks/c
 import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe/webhook'
 import { Route as ApiStatementsReportRouteImport } from './routes/api/statements/report'
 import { Route as ApiGoogleCallbackRouteImport } from './routes/api/google/callback'
-import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiAuthSignOutRouteImport } from './routes/api/auth/sign-out'
+import { Route as ApiAuthSessionRouteImport } from './routes/api/auth/session'
+import { Route as ApiAuthGoogleRouteImport } from './routes/api/auth/google'
 
 const UnauthenticatedRoute = UnauthenticatedRouteImport.update({
   id: '/unauthenticated',
   path: '/unauthenticated',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SignUpRoute = SignUpRouteImport.update({
-  id: '/sign-up',
-  path: '/sign-up',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignInRoute = SignInRouteImport.update({
@@ -113,9 +109,19 @@ const ApiGoogleCallbackRoute = ApiGoogleCallbackRouteImport.update({
   path: '/api/google/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
+const ApiAuthSignOutRoute = ApiAuthSignOutRouteImport.update({
+  id: '/api/auth/sign-out',
+  path: '/api/auth/sign-out',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSessionRoute = ApiAuthSessionRouteImport.update({
+  id: '/api/auth/session',
+  path: '/api/auth/session',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthGoogleRoute = ApiAuthGoogleRouteImport.update({
+  id: '/api/auth/google',
+  path: '/api/auth/google',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -123,7 +129,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/sign-in': typeof SignInRoute
-  '/sign-up': typeof SignUpRoute
   '/unauthenticated': typeof UnauthenticatedRoute
   '/dashboard/brief': typeof DashboardBriefRoute
   '/dashboard/commitments': typeof DashboardCommitmentsRoute
@@ -131,7 +136,9 @@ export interface FileRoutesByFullPath {
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/statements': typeof DashboardStatementsRoute
   '/dashboard/': typeof DashboardIndexRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/auth/google': typeof ApiAuthGoogleRoute
+  '/api/auth/session': typeof ApiAuthSessionRoute
+  '/api/auth/sign-out': typeof ApiAuthSignOutRoute
   '/api/google/callback': typeof ApiGoogleCallbackRoute
   '/api/statements/report': typeof ApiStatementsReportRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
@@ -142,7 +149,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/sign-in': typeof SignInRoute
-  '/sign-up': typeof SignUpRoute
   '/unauthenticated': typeof UnauthenticatedRoute
   '/dashboard/brief': typeof DashboardBriefRoute
   '/dashboard/commitments': typeof DashboardCommitmentsRoute
@@ -150,7 +156,9 @@ export interface FileRoutesByTo {
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/statements': typeof DashboardStatementsRoute
   '/dashboard': typeof DashboardIndexRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/auth/google': typeof ApiAuthGoogleRoute
+  '/api/auth/session': typeof ApiAuthSessionRoute
+  '/api/auth/sign-out': typeof ApiAuthSignOutRoute
   '/api/google/callback': typeof ApiGoogleCallbackRoute
   '/api/statements/report': typeof ApiStatementsReportRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
@@ -163,7 +171,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/sign-in': typeof SignInRoute
-  '/sign-up': typeof SignUpRoute
   '/unauthenticated': typeof UnauthenticatedRoute
   '/dashboard/brief': typeof DashboardBriefRoute
   '/dashboard/commitments': typeof DashboardCommitmentsRoute
@@ -171,7 +178,9 @@ export interface FileRoutesById {
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/statements': typeof DashboardStatementsRoute
   '/dashboard/': typeof DashboardIndexRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/auth/google': typeof ApiAuthGoogleRoute
+  '/api/auth/session': typeof ApiAuthSessionRoute
+  '/api/auth/sign-out': typeof ApiAuthSignOutRoute
   '/api/google/callback': typeof ApiGoogleCallbackRoute
   '/api/statements/report': typeof ApiStatementsReportRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
@@ -185,7 +194,6 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/sign-in'
-    | '/sign-up'
     | '/unauthenticated'
     | '/dashboard/brief'
     | '/dashboard/commitments'
@@ -193,7 +201,9 @@ export interface FileRouteTypes {
     | '/dashboard/settings'
     | '/dashboard/statements'
     | '/dashboard/'
-    | '/api/auth/$'
+    | '/api/auth/google'
+    | '/api/auth/session'
+    | '/api/auth/sign-out'
     | '/api/google/callback'
     | '/api/statements/report'
     | '/api/stripe/webhook'
@@ -204,7 +214,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/sign-in'
-    | '/sign-up'
     | '/unauthenticated'
     | '/dashboard/brief'
     | '/dashboard/commitments'
@@ -212,7 +221,9 @@ export interface FileRouteTypes {
     | '/dashboard/settings'
     | '/dashboard/statements'
     | '/dashboard'
-    | '/api/auth/$'
+    | '/api/auth/google'
+    | '/api/auth/session'
+    | '/api/auth/sign-out'
     | '/api/google/callback'
     | '/api/statements/report'
     | '/api/stripe/webhook'
@@ -224,7 +235,6 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/sign-in'
-    | '/sign-up'
     | '/unauthenticated'
     | '/dashboard/brief'
     | '/dashboard/commitments'
@@ -232,7 +242,9 @@ export interface FileRouteTypes {
     | '/dashboard/settings'
     | '/dashboard/statements'
     | '/dashboard/'
-    | '/api/auth/$'
+    | '/api/auth/google'
+    | '/api/auth/session'
+    | '/api/auth/sign-out'
     | '/api/google/callback'
     | '/api/statements/report'
     | '/api/stripe/webhook'
@@ -245,9 +257,10 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   SignInRoute: typeof SignInRoute
-  SignUpRoute: typeof SignUpRoute
   UnauthenticatedRoute: typeof UnauthenticatedRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiAuthGoogleRoute: typeof ApiAuthGoogleRoute
+  ApiAuthSessionRoute: typeof ApiAuthSessionRoute
+  ApiAuthSignOutRoute: typeof ApiAuthSignOutRoute
   ApiGoogleCallbackRoute: typeof ApiGoogleCallbackRoute
   ApiStatementsReportRoute: typeof ApiStatementsReportRoute
   ApiStripeWebhookRoute: typeof ApiStripeWebhookRoute
@@ -263,13 +276,6 @@ declare module '@tanstack/react-router' {
       path: '/unauthenticated'
       fullPath: '/unauthenticated'
       preLoaderRoute: typeof UnauthenticatedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sign-up': {
-      id: '/sign-up'
-      path: '/sign-up'
-      fullPath: '/sign-up'
-      preLoaderRoute: typeof SignUpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sign-in': {
@@ -377,11 +383,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiGoogleCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
+    '/api/auth/sign-out': {
+      id: '/api/auth/sign-out'
+      path: '/api/auth/sign-out'
+      fullPath: '/api/auth/sign-out'
+      preLoaderRoute: typeof ApiAuthSignOutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/session': {
+      id: '/api/auth/session'
+      path: '/api/auth/session'
+      fullPath: '/api/auth/session'
+      preLoaderRoute: typeof ApiAuthSessionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/google': {
+      id: '/api/auth/google'
+      path: '/api/auth/google'
+      fullPath: '/api/auth/google'
+      preLoaderRoute: typeof ApiAuthGoogleRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -413,9 +433,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRouteWithChildren,
   SignInRoute: SignInRoute,
-  SignUpRoute: SignUpRoute,
   UnauthenticatedRoute: UnauthenticatedRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiAuthGoogleRoute: ApiAuthGoogleRoute,
+  ApiAuthSessionRoute: ApiAuthSessionRoute,
+  ApiAuthSignOutRoute: ApiAuthSignOutRoute,
   ApiGoogleCallbackRoute: ApiGoogleCallbackRoute,
   ApiStatementsReportRoute: ApiStatementsReportRoute,
   ApiStripeWebhookRoute: ApiStripeWebhookRoute,

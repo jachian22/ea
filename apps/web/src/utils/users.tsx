@@ -8,7 +8,7 @@ export type User = {
 };
 
 export const DEPLOY_URL =
-  import.meta.env.VITE_BETTER_AUTH_URL || "http://localhost:3000";
+  import.meta.env.VITE_APP_URL || "http://localhost:3000";
 
 export const usersQueryOptions = () =>
   queryOptions({

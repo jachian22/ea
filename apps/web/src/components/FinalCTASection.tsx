@@ -34,7 +34,7 @@ export function FinalCTASection() {
 
              <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
                <Button size="lg" className="text-lg h-16 px-10 rounded-full bg-white text-primary font-bold hover:bg-slate-100 hover:scale-105 transition-all duration-300 shadow-2xl" asChild>
-                 <Link to="/sign-up" search={{ redirect: undefined }}>
+                 <Link to="/sign-in" search={{}}>
                    Get Started Now
                  </Link>
                </Button>

@@ -2,9 +2,6 @@ export const privateEnv = {
   // Database
   DATABASE_URL: process.env.DATABASE_URL!,
 
-  // Better Auth
-  BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET!,
-
   // Stripe (optional for personal use)
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || "",
   STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET || "",

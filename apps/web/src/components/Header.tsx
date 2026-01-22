@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { authClient } from "~/lib/auth-client";
+import { useSession, signOut } from "~/lib/auth-client";
 import { ModeToggle } from "./mode-toggle";
 import { Button, buttonVariants } from "./ui/button";
 import {
@@ -44,7 +44,8 @@ const navItems = [
 ];
 
 export function Header() {
-  const { data: session, isPending } = authClient.useSession();
+  const { data: session, isPending } = useSession();
+  const user = session?.user;
   const routerState = useRouterState();
   const currentPath = routerState.location.pathname;
   const navigate = useNavigate();
@@ -52,7 +53,7 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
-    await authClient.signOut();
+    await signOut();
     navigate({ to: "/" });
   };
 
@@ -90,7 +91,7 @@ export function Header() {
             </span>
           </Link>
 
-          {session ? (
+          {user ? (
             <nav className="hidden md:flex items-center gap-2 text-sm">
               <Link
                 to={dashboardLink.href}
@@ -140,7 +141,7 @@ export function Header() {
         </div>
 
         {/* Mobile menu */}
-        {session && (
+        {user && (
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
               <Button
@@ -208,7 +209,7 @@ export function Header() {
               <div className="flex h-9 w-9 items-center justify-center">
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
               </div>
-            ) : session ? (
+            ) : user ? (
               <>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -217,9 +218,9 @@ export function Header() {
                       className="relative h-8 w-8 rounded-full"
                     >
                       <UserAvatar
-                        imageKey={session?.user?.image || null}
-                        name={session?.user?.name || null}
-                        email={session?.user?.email || null}
+                        imageKey={user?.image || null}
+                        name={user?.name || null}
+                        email={user?.email || null}
                         size="sm"
                       />
                     </Button>
@@ -231,7 +232,7 @@ export function Header() {
                           Account
                         </p>
                         <p className="text-xs leading-none text-muted-foreground">
-                          {session.user.email}
+                          {user?.email}
                         </p>
                       </div>
                     </DropdownMenuLabel>
@@ -239,7 +240,7 @@ export function Header() {
                     <DropdownMenuItem asChild>
                       <Link
                         to="/profile/$userId"
-                        params={{ userId: session.user.id }}
+                        params={{ userId: user?.id || "" }}
                       >
                         <User className="mr-2 h-4 w-4" />
                         <span>Profile</span>
@@ -260,22 +261,13 @@ export function Header() {
                 </DropdownMenu>
               </>
             ) : (
-              <>
-                <Link
-                  className={buttonVariants({ variant: "outline" })}
+              <Link
+                  className={buttonVariants({ variant: "default" })}
                   to="/sign-in"
-                  search={{ redirect: undefined }}
+                  search={{}}
                 >
                   Sign In
                 </Link>
-                <Link
-                  className={buttonVariants({ variant: "default" })}
-                  to="/sign-up"
-                  search={{ redirect: undefined }}
-                >
-                  Sign Up
-                </Link>
-              </>
             )}
             <ModeToggle />
           </nav>
